@@ -171,6 +171,9 @@ namespace LilyPath
             Vector2 edgeABt = new Vector2(-edgeAB.Y, edgeAB.X);
 
             switch (StartCap) {
+                case LineCap.Flat:
+                    break;
+
                 case LineCap.Square:
                     a = new Vector2(a.X - w2 * edgeAB.X, a.Y - w2 * edgeAB.Y);
                     break;
@@ -206,6 +209,9 @@ namespace LilyPath
             Vector2 edgeABt = new Vector2(-edgeAB.Y, edgeAB.X);
 
             switch (StartCap) {
+                case LineCap.Flat:
+                    break;
+
                 case LineCap.Square:
                     b = new Vector2(b.X + w2 * edgeAB.X, b.Y + w2 * edgeAB.Y);
                     break;

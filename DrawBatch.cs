@@ -124,6 +124,32 @@ namespace LilyPath
             AddSegment(baseVertexIndex + 6, baseVertexIndex + 0);
         }
 
+        public void DrawPrimitiveRectangle (Rectangle rect, Pen pen)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            RequestBufferSpace(4, 8);
+
+            AddInfo(PrimitiveType.LineList, 4, 8, pen.Brush);
+
+            int baseVertexIndex = _vertexBufferIndex;
+
+            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(rect.X, rect.Y, 0), pen.Color, new Vector2(rect.X, rect.Y));
+            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(rect.Right, rect.Y, 0), pen.Color, new Vector2(rect.Right, rect.Y));
+            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(rect.Right, rect.Bottom, 0), pen.Color, new Vector2(rect.Right, rect.Bottom));
+            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(rect.X, rect.Bottom, 0), pen.Color, new Vector2(rect.X, rect.Bottom));
+
+            _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex);
+            _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 1);
+            _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 1);
+            _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 2);
+            _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 2);
+            _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 3);
+            _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 3);
+            _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex);
+        }
+
         public void DrawPoint (Point point, Pen pen)
         {
             if (!_inDraw)
@@ -172,15 +198,11 @@ namespace LilyPath
 
             int baseVertexIndex = _vertexBufferIndex;
 
-            //AddVertex(new Vector2(p0.X, p0.Y), pen);
-            //AddVertex(new Vector2(p1.X, p1.Y), pen);
-
             _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(p0.X, p0.Y, 0), pen.Color, new Vector2(p0.X, p0.Y));
             _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(p1.X, p1.Y, 0), pen.Color, new Vector2(p1.X, p1.Y));
 
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex);
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 1);
-            //AddPrimitiveLineSegment(baseVertexIndex + 0, baseVertexIndex + 1);
         }
 
         public void DrawPrimitivePath (IList<Vector2> points, Pen pen)

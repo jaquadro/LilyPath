@@ -300,6 +300,34 @@ namespace LilyPath
                 _geometryBuffer[subdivisions] = new Vector2(center.X + radius * unitCircle[0].X, center.Y + radius * unitCircle[0].Y);
         }
 
+        public void FillCircle (Point center, float radius, Brush brush)
+        {
+            FillCircle(center, radius, (int)Math.Ceiling(radius / 1.5), brush);
+        }
+
+        public void FillCircle (Point center, float radius, int subdivisions, Brush brush)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            RequestBufferSpace(subdivisions + 1, subdivisions * 3);
+            AddInfo(PrimitiveType.TriangleList, subdivisions + 1, subdivisions * 3, brush);
+
+            BuildCircleGeometryBuffer(center, radius, subdivisions, true);
+
+            int baseVertexIndex = _vertexBufferIndex;
+
+            for (int i = 0; i < subdivisions; i++)
+                AddVertex(_geometryBuffer[i], brush);
+
+            AddVertex(new Vector2(center.X, center.Y), brush);
+
+            for (int i = 0; i < subdivisions - 1; i++)
+                AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex + i, baseVertexIndex + i + 1);
+
+            AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex + subdivisions - 1, baseVertexIndex);
+        }
+
         public void FillRectangle (Rectangle rect, Brush brush)
         {
             if (!_inDraw)

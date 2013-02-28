@@ -241,11 +241,21 @@ namespace LilyPath
 
             AddInfo(PrimitiveType.TriangleList, path.VertexCount, path.IndexCount, path.Pen.Brush);
 
-            for (int i = 0; i < path.VertexCount; i++) {
-                _vertexBuffer[_vertexBufferIndex + i] = new VertexPositionColorTexture(
-                    new Vector3(path.VertexPositionData[i], 0),
-                    path.VertexColorData[i],
-                    path.VertexTextureData[i]);
+            if (path.VertexTextureData != null) {
+                for (int i = 0; i < path.VertexCount; i++) {
+                    _vertexBuffer[_vertexBufferIndex + i] = new VertexPositionColorTexture(
+                        new Vector3(path.VertexPositionData[i], 0),
+                        path.VertexColorData[i],
+                        path.VertexTextureData[i]);
+                }
+            }
+            else {
+                for (int i = 0; i < path.VertexCount; i++) {
+                    _vertexBuffer[_vertexBufferIndex + i] = new VertexPositionColorTexture(
+                        new Vector3(path.VertexPositionData[i], 0),
+                        path.VertexColorData[i],
+                        Vector2.Zero);
+                }
             }
 
             for (int i = 0; i < path.IndexCount; i++) {

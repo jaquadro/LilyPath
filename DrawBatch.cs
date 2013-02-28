@@ -207,28 +207,41 @@ namespace LilyPath
 
         public void DrawPrimitivePath (IList<Vector2> points, Pen pen)
         {
-            DrawPrimitivePath(points, points.Count, pen);
+            DrawPrimitivePath(points, pen, 0, points.Count, PathType.Open);
         }
 
-        public void DrawPrimitivePath (IList<Vector2> points, int count, Pen pen)
+        public void DrawPrimitivePath (IList<Vector2> points, Pen pen, PathType pathType)
+        {
+            DrawPrimitivePath(points, pen, 0, points.Count, pathType);
+        }
+
+        public void DrawPrimitivePath (IList<Vector2> points, Pen pen, int offset, int count, PathType pathType)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
 
-            RequestBufferSpace(count, count * 2 - 2);
+            if (offset + count > points.Count)
+                throw new ArgumentOutOfRangeException("points", "The offset and count exceed the bounds of the list");
 
-            AddInfo(PrimitiveType.LineList, count, count * 2 - 2, pen.Brush);
+            RequestBufferSpace(count, (pathType == PathType.Open) ? count * 2 - 2 : count * 2);
+
+            AddInfo(PrimitiveType.LineList, count, (pathType == PathType.Open) ? count * 2 - 2 : count * 2, pen.Brush);
 
             int baseVertexIndex = _vertexBufferIndex;
 
             for (int i = 0; i < count; i++) {
-                Vector2 pos = new Vector2(points[i].X, points[i].Y);
+                Vector2 pos = new Vector2(points[offset + i].X, points[offset + i].Y);
                 _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(pos, 0), pen.Color, Vector2.Zero);
             }
 
             for (int i = 1; i < count; i++) {
                 _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + i - 1);
                 _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + i);
+            }
+
+            if (pathType == PathType.Closed) {
+                _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + count - 1);
+                _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex);
             }
         }
 
@@ -290,8 +303,8 @@ namespace LilyPath
             if (!_inDraw)
                 throw new InvalidOperationException();
 
-            BuildCircleGeometryBuffer(center, radius, subdivisions, true);
-            DrawPrimitivePath(_geometryBuffer, subdivisions + 1, pen);
+            BuildCircleGeometryBuffer(center, radius, subdivisions, false);
+            DrawPrimitivePath(_geometryBuffer, pen, 0, subdivisions, PathType.Closed);
         }
 
         private void BuildCircleGeometryBuffer (Point center, float radius, int subdivisions, bool connect)

@@ -14,7 +14,7 @@ namespace LilyPathDemo
 
         public Color ClearColor { get; set; }
 
-        public Action DrawAction { get; set; }
+        public Action<DrawBatch> DrawAction { get; set; }
 
         protected override void Initialize ()
         {
@@ -33,10 +33,11 @@ namespace LilyPathDemo
             GraphicsDevice.Clear(ClearColor);
 
             if (DrawAction != null)
-                DrawAction();
+                DrawAction(_drawBatch);
         }
 
-        public void DrawPrimitiveShapes ()
+        [TestSheet("Primitive Shapes")]
+        public static void DrawPrimitiveShapes (DrawBatch drawBatch)
         {
             List<Vector2> wavy = new List<Vector2>();
             for (int i = 0; i < 20; i++) {
@@ -46,18 +47,19 @@ namespace LilyPathDemo
                     wavy.Add(new Vector2(50 + i * 10, 110));
             }
 
-            _drawBatch.Begin();
+            drawBatch.Begin();
 
-            _drawBatch.DrawPrimitiveLine(new Point(50, 50), new Point(250, 50), Pens.Blue);
-            _drawBatch.DrawPrimitivePath(wavy, Pens.Red);
-            _drawBatch.DrawPrimitiveRectangle(new Rectangle(50, 160, 200, 100), Pens.Magenta);
-            _drawBatch.DrawPrimitiveCircle(new Point(350, 100), 50, Pens.Black);
-            _drawBatch.DrawPrimitiveCircle(new Point(350, 225), 50, 16, Pens.DarkGray);
+            drawBatch.DrawPrimitiveLine(new Point(50, 50), new Point(250, 50), Pens.Blue);
+            drawBatch.DrawPrimitivePath(wavy, Pens.Red);
+            drawBatch.DrawPrimitiveRectangle(new Rectangle(50, 160, 200, 100), Pens.Magenta);
+            drawBatch.DrawPrimitiveCircle(new Point(350, 100), 50, Pens.Black);
+            drawBatch.DrawPrimitiveCircle(new Point(350, 225), 50, 16, Pens.DarkGray);
 
-            _drawBatch.End();
+            drawBatch.End();
         }
 
-        public void DrawOutlineShapes ()
+        [TestSheet("Outline Shapes")]
+        public static void DrawOutlineShapes (DrawBatch drawBatch)
         {
             List<Vector2> wavy = new List<Vector2>();
             for (int i = 0; i < 20; i++) {
@@ -78,18 +80,19 @@ namespace LilyPathDemo
 
             GraphicsPath wavyPath = new GraphicsPath(thickRed, wavy);
 
-            _drawBatch.Begin();
+            drawBatch.Begin();
 
-            _drawBatch.DrawLine(new Point(50, 50), new Point(250, 50), thickBlue);
-            _drawBatch.DrawPath(wavyPath);
-            _drawBatch.DrawRectangle(new Rectangle(50, 160, 200, 100), thickMagenta);
-            _drawBatch.DrawCircle(new Point(350, 100), 50, thickBlack);
-            _drawBatch.DrawCircle(new Point(350, 225), 50, 16, thickDarkGray);
+            drawBatch.DrawLine(new Point(50, 50), new Point(250, 50), thickBlue);
+            drawBatch.DrawPath(wavyPath);
+            drawBatch.DrawRectangle(new Rectangle(50, 160, 200, 100), thickMagenta);
+            drawBatch.DrawCircle(new Point(350, 100), 50, thickBlack);
+            drawBatch.DrawCircle(new Point(350, 225), 50, 16, thickDarkGray);
 
-            _drawBatch.End();
+            drawBatch.End();
         }
 
-        public void DrawLineAlignment ()
+        [TestSheet("Pen Alignment")]
+        public static void DrawLineAlignment (DrawBatch drawBatch)
         {
             Pen insetPen = new Pen(Color.MediumTurquoise, 10) {
                 Alignment = PenAlignment.Inset
@@ -105,20 +108,20 @@ namespace LilyPathDemo
             GraphicsPath centerPath = new GraphicsPath(centerPen, StarPoints(new Vector2(350, 275), 5, 100, 50, false), PathType.Closed);
             GraphicsPath outsetPath = new GraphicsPath(outsetPen, StarPoints(new Vector2(125, 400), 5, 100, 50, false), PathType.Closed);
 
-            _drawBatch.Begin();
+            drawBatch.Begin();
 
             
-            _drawBatch.DrawPath(insetPath);
-            _drawBatch.DrawPrimitivePath(StarPoints(new Vector2(125, 150), 5, 100, 50, true), new Pen(Color.OrangeRed));
-            _drawBatch.DrawPath(centerPath);
-            _drawBatch.DrawPrimitivePath(StarPoints(new Vector2(350, 275), 5, 100, 50, true), new Pen(Color.OrangeRed));
-            _drawBatch.DrawPath(outsetPath);
-            _drawBatch.DrawPrimitivePath(StarPoints(new Vector2(125, 400), 5, 100, 50, true), new Pen(Color.OrangeRed));
+            drawBatch.DrawPath(insetPath);
+            drawBatch.DrawPrimitivePath(StarPoints(new Vector2(125, 150), 5, 100, 50, true), new Pen(Color.OrangeRed));
+            drawBatch.DrawPath(centerPath);
+            drawBatch.DrawPrimitivePath(StarPoints(new Vector2(350, 275), 5, 100, 50, true), new Pen(Color.OrangeRed));
+            drawBatch.DrawPath(outsetPath);
+            drawBatch.DrawPrimitivePath(StarPoints(new Vector2(125, 400), 5, 100, 50, true), new Pen(Color.OrangeRed));
 
-            _drawBatch.End();
+            drawBatch.End();
         }
 
-        private List<Vector2> StarPoints (Vector2 center, int pointCount, float outerRadius, float innerRadius, bool close)
+        private static List<Vector2> StarPoints (Vector2 center, int pointCount, float outerRadius, float innerRadius, bool close)
         {
             List<Vector2> points = new List<Vector2>();
 

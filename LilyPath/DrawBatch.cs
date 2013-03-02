@@ -370,8 +370,16 @@ namespace LilyPath
             AddTriangle(baseVertexIndex + 1, baseVertexIndex + 3, baseVertexIndex + 2);
         }
 
+        public void FillPath (IList<Vector2> points, Brush brush)
+        {
+            FillPath(points, 0, points.Count, brush);
+        }
+
         public void FillPath (IList<Vector2> points, int offset, int count, Brush brush)
         {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
             if (_triangulator == null)
                 _triangulator = new Triangulator();
 

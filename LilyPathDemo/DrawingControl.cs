@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using LilyPath;
 using System.Windows.Forms;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace LilyPathDemo
 {
@@ -47,7 +48,9 @@ namespace LilyPathDemo
                     wavy.Add(new Vector2(50 + i * 10, 110));
             }
 
-            drawBatch.Begin();
+            
+
+            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
 
             drawBatch.DrawPrimitiveLine(new Point(50, 50), new Point(250, 50), Pens.Blue);
             drawBatch.DrawPrimitivePath(wavy, Pens.Red);
@@ -80,7 +83,7 @@ namespace LilyPathDemo
 
             GraphicsPath wavyPath = new GraphicsPath(thickRed, wavy);
 
-            drawBatch.Begin();
+            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
 
             drawBatch.DrawLine(new Point(50, 50), new Point(250, 50), thickBlue);
             drawBatch.DrawPath(wavyPath);
@@ -108,9 +111,8 @@ namespace LilyPathDemo
             GraphicsPath centerPath = new GraphicsPath(centerPen, StarPoints(new Vector2(350, 275), 5, 100, 50, false), PathType.Closed);
             GraphicsPath outsetPath = new GraphicsPath(outsetPen, StarPoints(new Vector2(125, 400), 5, 100, 50, false), PathType.Closed);
 
-            drawBatch.Begin();
+            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
 
-            
             drawBatch.DrawPath(insetPath);
             drawBatch.DrawPrimitivePath(StarPoints(new Vector2(125, 150), 5, 100, 50, true), new Pen(Color.OrangeRed));
             drawBatch.DrawPath(centerPath);
@@ -119,6 +121,27 @@ namespace LilyPathDemo
             drawBatch.DrawPrimitivePath(StarPoints(new Vector2(125, 400), 5, 100, 50, true), new Pen(Color.OrangeRed));
 
             drawBatch.End();
+        }
+
+        [TestSheet("Filled Shapes")]
+        public static void DrawFilledShapes (DrawBatch drawBatch)
+        {
+            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+
+            drawBatch.FillRectangle(new Rectangle(50, 50, 200, 100), Brushes.Green);
+            drawBatch.FillCircle(new Point(350, 100), 50, Brushes.Blue);
+            drawBatch.FillCircle(new Point(500, 100), 50, 16, Brushes.Blue);
+            drawBatch.FillPath(StarPoints(new Vector2(150, 300), 8, 100, 50, false), Brushes.Gray);
+
+            drawBatch.End();
+        }
+
+        private static RasterizerState GetCommonRasterizerState ()
+        {
+            return new RasterizerState() {
+                FillMode = DemoState.FillMode,
+                MultiSampleAntiAlias = DemoState.MultisampleAA,
+            };
         }
 
         private static List<Vector2> StarPoints (Vector2 center, int pointCount, float outerRadius, float innerRadius, bool close)

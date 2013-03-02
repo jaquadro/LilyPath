@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using LilyPath;
 using System.Reflection;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace LilyPathDemo
 {
@@ -53,6 +54,37 @@ namespace LilyPathDemo
                     }
                 }
             }
+        }
+
+        private void solidToolStripMenuItem_Click (object sender, EventArgs e)
+        {
+            DemoState.FillMode = FillMode.Solid;
+            solidToolStripMenuItem.Checked = true;
+            wireframeToolStripMenuItem.Checked = false;
+        }
+
+        private void wireframeToolStripMenuItem_Click (object sender, EventArgs e)
+        {
+            DemoState.FillMode = FillMode.WireFrame;
+            solidToolStripMenuItem.Checked = false;
+            wireframeToolStripMenuItem.Checked = true;
+        }
+
+        private void multisampleAAToolStripMenuItem_Click (object sender, EventArgs e)
+        {
+            DemoState.MultisampleAA = !DemoState.MultisampleAA;
+            multisampleAAToolStripMenuItem.Checked = DemoState.MultisampleAA;
+        }
+    }
+
+    public static class DemoState
+    {
+        public static FillMode FillMode { get; set; }
+        public static bool MultisampleAA { get; set; }
+
+        static DemoState () {
+            FillMode = FillMode.Solid;
+            MultisampleAA = false;
         }
     }
 }

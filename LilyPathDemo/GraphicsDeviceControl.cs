@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework.Graphics;
 using OpenTK;
+using Microsoft.Xna.Framework;
+using OpenTK.Graphics.OpenGL;
 
 namespace LilyPathDemo
 {
@@ -196,9 +198,9 @@ namespace LilyPathDemo
 
         protected virtual void PaintUsingSystemDrawing (Graphics graphics, string text)
         {
-            graphics.Clear(Color.Black);
+            graphics.Clear(System.Drawing.Color.Black);
 
-            using (Brush brush = new SolidBrush(Color.White)) {
+            using (Brush brush = new SolidBrush(System.Drawing.Color.White)) {
                 using (StringFormat format = new StringFormat()) {
                     format.Alignment = StringAlignment.Center;
                     format.LineAlignment = StringAlignment.Center;

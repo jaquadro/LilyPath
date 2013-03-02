@@ -107,7 +107,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LilyPath.csproj">
+    <ProjectReference Include="..\LilyPath\LilyPath.csproj">
       <Project>{2921C80E-2B58-41C4-B834-B92A478C3631}</Project>
       <Name>LilyPath</Name>
     </ProjectReference>

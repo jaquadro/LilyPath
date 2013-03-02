@@ -14,6 +14,8 @@ namespace LilyPathDemo
 
         public Color ClearColor { get; set; }
 
+        public Action DrawAction { get; set; }
+
         protected override void Initialize ()
         {
             ClearColor = Color.GhostWhite;
@@ -30,8 +32,8 @@ namespace LilyPathDemo
         {
             GraphicsDevice.Clear(ClearColor);
 
-            //DrawPrimitiveShapes();
-            DrawLineAlignment();
+            if (DrawAction != null)
+                DrawAction();
         }
 
         public void DrawPrimitiveShapes ()
@@ -51,6 +53,38 @@ namespace LilyPathDemo
             _drawBatch.DrawPrimitiveRectangle(new Rectangle(50, 160, 200, 100), Pens.Magenta);
             _drawBatch.DrawPrimitiveCircle(new Point(350, 100), 50, Pens.Black);
             _drawBatch.DrawPrimitiveCircle(new Point(350, 225), 50, 16, Pens.DarkGray);
+
+            _drawBatch.End();
+        }
+
+        public void DrawOutlineShapes ()
+        {
+            List<Vector2> wavy = new List<Vector2>();
+            for (int i = 0; i < 20; i++) {
+                if (i % 2 == 0)
+                    wavy.Add(new Vector2(50 + i * 10, 100));
+                else
+                    wavy.Add(new Vector2(50 + i * 10, 110));
+            }
+
+            Pen thickBlue = new Pen(Color.Blue, 15);
+            Pen thickRed = new Pen(Color.Red, 15) {
+                EndCap = LineCap.Square,
+                StartCap = LineCap.Square,
+            };
+            Pen thickMagenta = new Pen(Color.Magenta, 15);
+            Pen thickBlack = new Pen(Color.Black, 15);
+            Pen thickDarkGray = new Pen(Color.DarkGray, 15);
+
+            GraphicsPath wavyPath = new GraphicsPath(thickRed, wavy);
+
+            _drawBatch.Begin();
+
+            _drawBatch.DrawLine(new Point(50, 50), new Point(250, 50), thickBlue);
+            _drawBatch.DrawPath(wavyPath);
+            _drawBatch.DrawRectangle(new Rectangle(50, 160, 200, 100), thickMagenta);
+            _drawBatch.DrawCircle(new Point(350, 100), 50, thickBlack);
+            _drawBatch.DrawCircle(new Point(350, 225), 50, 16, thickDarkGray);
 
             _drawBatch.End();
         }

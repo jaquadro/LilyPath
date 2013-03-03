@@ -527,6 +527,46 @@ namespace LilyPath
             AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex + subdivisions - 1, baseVertexIndex);
         }
 
+        public void FillArc (Point center, float radius, float startAngle, float arcAngle, Brush brush, ArcType arcType)
+        {
+            FillArc(center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5), brush, arcType);
+        }
+
+        public void FillArc (Point center, float radius, float startAngle, float arcAngle, int subdivisions, Brush brush, ArcType arcType)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
+
+            RequestBufferSpace(vertexCount + 1, (vertexCount - 1) * 3);
+            AddInfo(PrimitiveType.TriangleList, vertexCount + 1, (vertexCount - 1) * 3, brush);
+
+            int baseVertexIndex = _vertexBufferIndex;
+
+            for (int i = 0; i < vertexCount; i++)
+                AddVertex(_geometryBuffer[i], brush);
+
+            switch (arcType) {
+                case ArcType.Sector:
+                    AddVertex(new Vector2(center.X, center.Y), brush);
+                    break;
+                case ArcType.Segment:
+                    AddVertex(new Vector2((_geometryBuffer[0].X + _geometryBuffer[vertexCount - 1].X) / 2, 
+                        (_geometryBuffer[0].Y + _geometryBuffer[vertexCount - 1].Y) / 2), brush); 
+                    break;
+            }
+
+            if (arcAngle < 0) {
+                for (int i = 0; i < vertexCount - 1; i++)
+                    AddTriangle(baseVertexIndex + vertexCount, baseVertexIndex + i, baseVertexIndex + i + 1);
+            }
+            else {
+                for (int i = vertexCount - 1; i > 0; i--)
+                    AddTriangle(baseVertexIndex + vertexCount, baseVertexIndex + i, baseVertexIndex + i - 1);
+            }
+        }
+
         public void FillRectangle (Rectangle rect, Brush brush)
         {
             if (!_inDraw)

@@ -268,6 +268,38 @@ namespace LilyPathDemo
             drawBatch.End();
         }
 
+        [TestSheet("Filled Arcs")]
+        public static void DrawFilledArcs (DrawBatch drawBatch)
+        {
+            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+
+            drawBatch.FillArc(new Point(100, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), Brushes.Blue, ArcType.Segment);
+            drawBatch.FillArc(new Point(100, 125), 50, 0, (float)Math.PI, Brushes.Blue, ArcType.Segment);
+            drawBatch.FillArc(new Point(100, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), Brushes.Blue, ArcType.Segment);
+
+            drawBatch.FillArc(new Point(250, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 16, Brushes.Blue, ArcType.Segment);
+            drawBatch.FillArc(new Point(250, 125), 50, 0, (float)Math.PI, 16, Brushes.Blue, ArcType.Segment);
+            drawBatch.FillArc(new Point(250, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 16, Brushes.Blue, ArcType.Segment);
+
+            drawBatch.FillArc(new Point(400, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 4, Brushes.Blue, ArcType.Segment);
+            drawBatch.FillArc(new Point(400, 125), 50, 0, (float)Math.PI, 4, Brushes.Blue, ArcType.Segment);
+            drawBatch.FillArc(new Point(400, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 4, Brushes.Blue, ArcType.Segment);
+
+            drawBatch.FillArc(new Point(100, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), Brushes.Blue, ArcType.Sector);
+            drawBatch.FillArc(new Point(100, 410), 50, 0, (float)Math.PI, Brushes.Blue, ArcType.Sector);
+            drawBatch.FillArc(new Point(100, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), Brushes.Blue, ArcType.Sector);
+
+            drawBatch.FillArc(new Point(250, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 16, Brushes.Blue, ArcType.Sector);
+            drawBatch.FillArc(new Point(250, 410), 50, 0, (float)Math.PI, 16, Brushes.Blue, ArcType.Sector);
+            drawBatch.FillArc(new Point(250, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 16, Brushes.Blue, ArcType.Sector);
+
+            drawBatch.FillArc(new Point(400, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 4, Brushes.Blue, ArcType.Sector);
+            drawBatch.FillArc(new Point(400, 410), 50, 0, (float)Math.PI, 4, Brushes.Blue, ArcType.Sector);
+            drawBatch.FillArc(new Point(400, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 4, Brushes.Blue, ArcType.Sector);
+
+            drawBatch.End();
+        }
+
         private static RasterizerState GetCommonRasterizerState ()
         {
             return new RasterizerState() {

@@ -150,11 +150,15 @@ namespace LilyPath
 
             float offset01 = Vector2.Dot(edgeBCt, point1);
             float t0 = (offset01 - Vector2.Dot(edgeBCt, point2)) / Vector2.Dot(edgeBCt, edgeAB);
-            Vector2 point0 = new Vector2(point2.X + t0 * edgeAB.X, point2.Y + t0 * edgeAB.Y);
+            Vector2 point0 = (!float.IsNaN(t0))
+                ? new Vector2(point2.X + t0 * edgeAB.X, point2.Y + t0 * edgeAB.Y)
+                : new Vector2((point2.X + point1.X) / 2, (point2.Y + point1.Y) / 2);
 
             float offset35 = Vector2.Dot(edgeBCt, point3);
             float t5 = (offset35 - Vector2.Dot(edgeBCt, point4)) / Vector2.Dot(edgeBCt, edgeAB);
-            Vector2 point5 = new Vector2(point4.X + t5 * edgeAB.X, point4.Y + t5 * edgeAB.Y);
+            Vector2 point5 = (!float.IsNaN(t5))
+                ? new Vector2(point4.X + t5 * edgeAB.X, point4.Y + t5 * edgeAB.Y)
+                : new Vector2((point4.X + point3.X) / 2, (point4.Y + point3.Y) / 2);
 
             outputBuffer[outputIndex + 0] = point0;
             outputBuffer[outputIndex + 1] = point5;

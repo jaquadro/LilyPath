@@ -321,6 +321,21 @@ namespace LilyPath
                 _geometryBuffer[subdivisions] = new Vector2(center.X + radius * unitCircle[0].X, center.Y - radius * unitCircle[0].Y);
         }
 
+        public void DrawArc (Point center, float radius, float startAngle, float arcAngle, Pen pen)
+        {
+            DrawArc(center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5), pen);
+        }
+
+        public void DrawArc (Point center, float radius, float startAngle, float arcAngle, int subdivisions, Pen pen)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
+            if (vertexCount > 1)
+                AddPath(_geometryBuffer, 0, vertexCount, pen);
+        }
+
         public void DrawPrimitiveArc (Point center, float radius, float startAngle, float arcAngle, Pen pen)
         {
             DrawPrimitiveArc(center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5), pen);
@@ -332,7 +347,8 @@ namespace LilyPath
                 throw new InvalidOperationException();
 
             int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
-            DrawPrimitivePath(_geometryBuffer, pen, 0, vertexCount, PathType.Open);
+            if (vertexCount > 1)
+                DrawPrimitivePath(_geometryBuffer, pen, 0, vertexCount, PathType.Open);
         }
 
         private float ClampAngle (float angle)
@@ -355,19 +371,25 @@ namespace LilyPath
             List<Vector2> unitCircle = CalculateCircleSubdivisions(subdivisions);
 
             float subLength = (float)(2 * Math.PI / subdivisions);
-            int startIndex = (int)Math.Ceiling(startAngle / subLength);
-            int stopIndex = (int)Math.Floor(stopAngle / subLength);
 
             Vector2 unitStart = new Vector2((float)Math.Cos(startAngle), (float)Math.Sin(startAngle));
             Vector2 unitStop = new Vector2((float)Math.Cos(stopAngle), (float)Math.Sin(stopAngle));
 
+            int startIndex, stopIndex;
             int vertexCount = 0;
+
             if (arcAngle >= 0) {
+                startIndex = (int)Math.Ceiling(startAngle / subLength);
+                stopIndex = (int)Math.Floor(stopAngle / subLength);
+
                 vertexCount = (stopIndex >= startIndex)
                     ? stopIndex - startIndex + 1
                     : (unitCircle.Count - startIndex) + stopIndex + 1;
             }
             else {
+                startIndex = (int)Math.Floor(startAngle / subLength);
+                stopIndex = (int)Math.Ceiling(stopAngle / subLength);
+
                 vertexCount = (startIndex >= stopIndex)
                     ? startIndex - stopIndex + 1
                     : (unitCircle.Count - stopIndex) + startIndex + 1;
@@ -584,6 +606,25 @@ namespace LilyPath
             }
 
             AddSegment(baseVertexIndex + (count - 1) * 2, baseVertexIndex + 0);
+        }
+
+        private void AddPath (Vector2[] points, int offset, int count, Pen pen)
+        {
+            RequestBufferSpace(count * 2, (count - 1) * 6);
+
+            AddInfo(PrimitiveType.TriangleList, count * 2, (count - 1) * 6, pen.Brush);
+
+            int baseVertexIndex = _vertexBufferIndex;
+
+            AddStartPoint(points[offset + 0], points[offset + 1], pen);
+
+            for (int i = 0; i < count - 2; i++)
+                AddMiteredJoint(points[offset + i], points[offset + i + 1], points[offset + i + 2], pen);
+
+            AddEndPoint(points[offset + count - 2], points[offset + count - 1], pen);
+
+            for (int i = 0; i < count - 1; i++)
+                AddSegment(baseVertexIndex + i * 2, baseVertexIndex + (i + 1) * 2);
         }
 
         private void AddVertex (Vector2 position, Pen pen)

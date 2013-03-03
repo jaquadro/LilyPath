@@ -149,6 +149,56 @@ namespace LilyPathDemo
             drawBatch.DrawPrimitiveArc(new Point(100, 325), 50, 0, -(float)Math.PI, Pens.Blue);
             drawBatch.DrawPrimitiveArc(new Point(100, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5), Pens.Blue);
 
+            drawBatch.DrawPrimitiveArc(new Point(250, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 16, Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(250, 125), 50, 0, (float)Math.PI, 16, Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(250, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 16, Pens.Blue);
+
+            drawBatch.DrawPrimitiveArc(new Point(250, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5), 16, Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(250, 325), 50, 0, -(float)Math.PI, 16, Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(250, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5), 16, Pens.Blue);
+
+            drawBatch.DrawPrimitiveArc(new Point(400, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 4, Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(400, 125), 50, 0, (float)Math.PI, 4, Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(400, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 4, Pens.Blue);
+
+            drawBatch.DrawPrimitiveArc(new Point(400, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5), 4, Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(400, 325), 50, 0, -(float)Math.PI, 4, Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(400, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5), 4, Pens.Blue);
+
+            drawBatch.End();
+        }
+
+        [TestSheet("Arcs")]
+        public static void DrawArcs (DrawBatch drawBatch)
+        {
+            Pen thickPen = new Pen(Color.Blue, 15);
+
+            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+
+            drawBatch.DrawArc(new Point(100, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), thickPen);
+            drawBatch.DrawArc(new Point(100, 125), 50, 0, (float)Math.PI, thickPen);
+            drawBatch.DrawArc(new Point(100, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), thickPen);
+
+            drawBatch.DrawArc(new Point(100, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5), thickPen);
+            drawBatch.DrawArc(new Point(100, 325), 50, 0, -(float)Math.PI, thickPen);
+            drawBatch.DrawArc(new Point(100, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5), thickPen);
+
+            drawBatch.DrawArc(new Point(250, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 16, thickPen);
+            drawBatch.DrawArc(new Point(250, 125), 50, 0, (float)Math.PI, 16, thickPen);
+            drawBatch.DrawArc(new Point(250, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 16, thickPen);
+
+            drawBatch.DrawArc(new Point(250, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5), 16, thickPen);
+            drawBatch.DrawArc(new Point(250, 325), 50, 0, -(float)Math.PI, 16, thickPen);
+            drawBatch.DrawArc(new Point(250, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5), 16, thickPen);
+
+            drawBatch.DrawArc(new Point(400, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 4, thickPen);
+            drawBatch.DrawArc(new Point(400, 125), 50, 0, (float)Math.PI, 4, thickPen);
+            drawBatch.DrawArc(new Point(400, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 4, thickPen);
+
+            drawBatch.DrawArc(new Point(400, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5), 4, thickPen);
+            drawBatch.DrawArc(new Point(400, 325), 50, 0, -(float)Math.PI, 4, thickPen);
+            drawBatch.DrawArc(new Point(400, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5), 4, thickPen);
+
             drawBatch.End();
         }
 

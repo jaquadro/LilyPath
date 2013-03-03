@@ -311,16 +311,118 @@ namespace LilyPath
         {
             List<Vector2> unitCircle = CalculateCircleSubdivisions(subdivisions);
 
-            if (_geometryBuffer.Length < subdivisions + 1) {
+            if (_geometryBuffer.Length < subdivisions + 1)
                 Array.Resize(ref _geometryBuffer, (subdivisions + 1) * 2);
-            }
 
-            for (int i = 0; i < subdivisions; i++) {
-                _geometryBuffer[i] = new Vector2(center.X + radius * unitCircle[i].X, center.Y + radius * unitCircle[i].Y);
-            }
+            for (int i = 0; i < subdivisions; i++)
+                _geometryBuffer[i] = new Vector2(center.X + radius * unitCircle[i].X, center.Y - radius * unitCircle[i].Y);
 
             if (connect)
-                _geometryBuffer[subdivisions] = new Vector2(center.X + radius * unitCircle[0].X, center.Y + radius * unitCircle[0].Y);
+                _geometryBuffer[subdivisions] = new Vector2(center.X + radius * unitCircle[0].X, center.Y - radius * unitCircle[0].Y);
+        }
+
+        public void DrawPrimitiveArc (Point center, float radius, float startAngle, float arcAngle, Pen pen)
+        {
+            DrawPrimitiveArc(center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5), pen);
+        }
+
+        public void DrawPrimitiveArc (Point center, float radius, float startAngle, float arcAngle, int subdivisions, Pen pen)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
+            DrawPrimitivePath(_geometryBuffer, pen, 0, vertexCount, PathType.Open);
+        }
+
+        private float ClampAngle (float angle)
+        {
+            if (angle < 0)
+                angle += (float)(Math.Ceiling(angle / (Math.PI * -2)) * Math.PI * 2);
+            else if (angle >= (Math.PI * 2))
+                angle -= (float)(Math.Floor(angle / (Math.PI * 2)) * Math.PI * 2);
+
+            return angle;
+        }
+
+        private int BuildArcGeometryBuffer (Point center, float radius, int subdivisions, float startAngle, float arcAngle)
+        {
+            float stopAngle = startAngle + arcAngle;
+
+            startAngle = ClampAngle(startAngle);
+            stopAngle = ClampAngle(stopAngle);
+
+            List<Vector2> unitCircle = CalculateCircleSubdivisions(subdivisions);
+
+            float subLength = (float)(2 * Math.PI / subdivisions);
+            int startIndex = (int)Math.Ceiling(startAngle / subLength);
+            int stopIndex = (int)Math.Floor(stopAngle / subLength);
+
+            Vector2 unitStart = new Vector2((float)Math.Cos(startAngle), (float)Math.Sin(startAngle));
+            Vector2 unitStop = new Vector2((float)Math.Cos(stopAngle), (float)Math.Sin(stopAngle));
+
+            int vertexCount = 0;
+            if (arcAngle >= 0) {
+                vertexCount = (stopIndex >= startIndex)
+                    ? stopIndex - startIndex + 1
+                    : (unitCircle.Count - startIndex) + stopIndex + 1;
+            }
+            else {
+                vertexCount = (startIndex >= stopIndex)
+                    ? startIndex - stopIndex + 1
+                    : (unitCircle.Count - stopIndex) + startIndex + 1;
+            }
+            int bufIndex = 0;
+
+            if (_geometryBuffer.Length < vertexCount + 2)
+                Array.Resize(ref _geometryBuffer, (vertexCount + 2) * 2);
+
+            if (arcAngle >= 0) {
+                if ((startIndex * subLength) - startAngle > 0.005f) {
+                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(startAngle), center.Y - radius * (float)Math.Sin(startAngle));
+                    vertexCount++;
+                }
+
+                if (startIndex <= stopIndex) {
+                    for (int i = startIndex; i <= stopIndex; i++)
+                        _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * unitCircle[i].X, center.Y - radius * unitCircle[i].Y);
+                }
+                else {
+                    for (int i = startIndex; i < unitCircle.Count; i++)
+                        _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * unitCircle[i].X, center.Y - radius * unitCircle[i].Y);
+                    for (int i = 0; i <= stopIndex; i++)
+                        _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * unitCircle[i].X, center.Y - radius * unitCircle[i].Y);
+                }
+
+                if (stopAngle - (stopIndex * subLength) > 0.005f) {
+                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(stopAngle), center.Y - radius * (float)Math.Sin(stopAngle));
+                    vertexCount++;
+                }
+            }
+            else {
+                if (startAngle - (startIndex * subLength) > 0.005f) {
+                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(startAngle), center.Y - radius * (float)Math.Sin(startAngle));
+                    vertexCount++;
+                }
+
+                if (stopIndex <= startIndex) {
+                    for (int i = startIndex; i >= stopIndex; i--)
+                        _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * unitCircle[i].X, center.Y - radius * unitCircle[i].Y);
+                }
+                else {
+                    for (int i = startIndex; i >= 0; i--)
+                        _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * unitCircle[i].X, center.Y - radius * unitCircle[i].Y);
+                    for (int i = unitCircle.Count - 1; i >= stopIndex; i--)
+                        _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * unitCircle[i].X, center.Y - radius * unitCircle[i].Y);
+                }
+
+                if ((stopIndex * subLength) - stopAngle > 0.005f) {
+                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(stopAngle), center.Y - radius * (float)Math.Sin(stopAngle));
+                    vertexCount++;
+                }
+            }
+
+            return vertexCount;
         }
 
         public void FillCircle (Point center, float radius, Brush brush)

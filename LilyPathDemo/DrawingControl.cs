@@ -136,6 +136,22 @@ namespace LilyPathDemo
             drawBatch.End();
         }
 
+        [TestSheet("Primitive Arcs")]
+        public static void DrawPrimitiveArcs (DrawBatch drawBatch)
+        {
+            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+
+            drawBatch.DrawPrimitiveArc(new Point(100, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(100, 125), 50, 0, (float)Math.PI, Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(100, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), Pens.Blue);
+
+            drawBatch.DrawPrimitiveArc(new Point(100, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5), Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(100, 325), 50, 0, -(float)Math.PI, Pens.Blue);
+            drawBatch.DrawPrimitiveArc(new Point(100, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5), Pens.Blue);
+
+            drawBatch.End();
+        }
+
         private static RasterizerState GetCommonRasterizerState ()
         {
             return new RasterizerState() {

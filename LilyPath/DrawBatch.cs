@@ -103,7 +103,7 @@ namespace LilyPath
             _inDraw = false;
         }
 
-        public void DrawRectangle (Rectangle rect, Pen pen)
+        public void DrawRectangle (Pen pen, Rectangle rect)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -130,7 +130,7 @@ namespace LilyPath
             AddSegment(baseVertexIndex + 6, baseVertexIndex + 0);
         }
 
-        public void DrawPrimitiveRectangle (Rectangle rect, Pen pen)
+        public void DrawPrimitiveRectangle (Pen pen, Rectangle rect)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -156,7 +156,7 @@ namespace LilyPath
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex);
         }
 
-        public void DrawPoint (Point point, Pen pen)
+        public void DrawPoint (Pen pen, Point point)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -176,7 +176,7 @@ namespace LilyPath
             AddSegment(baseVertexIndex + 0, baseVertexIndex + 2);
         }
 
-        public void DrawLine (Point p0, Point p1, Pen pen)
+        public void DrawLine (Pen pen, Point p0, Point p1)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -193,7 +193,7 @@ namespace LilyPath
             AddSegment(baseVertexIndex + 0, baseVertexIndex + 2);
         }
 
-        public void DrawPrimitiveLine (Point p0, Point p1, Pen pen)
+        public void DrawPrimitiveLine (Pen pen, Point p0, Point p1)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -211,17 +211,22 @@ namespace LilyPath
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 1);
         }
 
-        public void DrawPrimitivePath (IList<Vector2> points, Pen pen)
+        public void DrawPrimitivePath (Pen pen, IList<Vector2> points)
         {
-            DrawPrimitivePath(points, pen, 0, points.Count, PathType.Open);
+            DrawPrimitivePath(pen, points, 0, points.Count, PathType.Open);
         }
 
-        public void DrawPrimitivePath (IList<Vector2> points, Pen pen, PathType pathType)
+        public void DrawPrimitivePath (Pen pen, IList<Vector2> points, PathType pathType)
         {
-            DrawPrimitivePath(points, pen, 0, points.Count, pathType);
+            DrawPrimitivePath(pen, points, 0, points.Count, pathType);
         }
 
-        public void DrawPrimitivePath (IList<Vector2> points, Pen pen, int offset, int count, PathType pathType)
+        public void DrawPrimitivePath (Pen pen, IList<Vector2> points, int offset, int count)
+        {
+            DrawPrimitivePath(pen, points, offset, count, PathType.Open);
+        }
+
+        public void DrawPrimitivePath (Pen pen, IList<Vector2> points, int offset, int count, PathType pathType)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -285,12 +290,12 @@ namespace LilyPath
             _indexBufferIndex += path.IndexCount;
         }
 
-        public void DrawCircle (Point center, float radius, Pen pen)
+        public void DrawCircle (Pen pen, Point center, float radius)
         {
-            DrawCircle(center, radius, (int)Math.Ceiling(radius / 1.5), pen);
+            DrawCircle(pen, center, radius, (int)Math.Ceiling(radius / 1.5));
         }
 
-        public void DrawCircle (Point center, float radius, int subdivisions, Pen pen)
+        public void DrawCircle (Pen pen, Point center, float radius, int subdivisions)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -299,18 +304,18 @@ namespace LilyPath
             AddClosedPath(_geometryBuffer, 0, subdivisions, pen);
         }
 
-        public void DrawPrimitiveCircle (Point center, float radius, Pen pen)
+        public void DrawPrimitiveCircle (Pen pen, Point center, float radius)
         {
-            DrawPrimitiveCircle(center, radius, (int)Math.Ceiling(radius / 1.5), pen);
+            DrawPrimitiveCircle(pen, center, radius, (int)Math.Ceiling(radius / 1.5));
         }
 
-        public void DrawPrimitiveCircle (Point center, float radius, int subdivisions, Pen pen)
+        public void DrawPrimitiveCircle (Pen pen, Point center, float radius, int subdivisions)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
 
             BuildCircleGeometryBuffer(center, radius, subdivisions, false);
-            DrawPrimitivePath(_geometryBuffer, pen, 0, subdivisions, PathType.Closed);
+            DrawPrimitivePath(pen, _geometryBuffer, 0, subdivisions, PathType.Closed);
         }
 
         private void BuildCircleGeometryBuffer (Point center, float radius, int subdivisions, bool connect)
@@ -327,12 +332,12 @@ namespace LilyPath
                 _geometryBuffer[subdivisions] = new Vector2(center.X + radius * unitCircle[0].X, center.Y - radius * unitCircle[0].Y);
         }
 
-        public void DrawArc (Point center, float radius, float startAngle, float arcAngle, Pen pen)
+        public void DrawArc (Pen pen, Point center, float radius, float startAngle, float arcAngle)
         {
-            DrawArc(center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5), pen);
+            DrawArc(pen, center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5));
         }
 
-        public void DrawArc (Point center, float radius, float startAngle, float arcAngle, int subdivisions, Pen pen)
+        public void DrawArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, int subdivisions)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -342,27 +347,27 @@ namespace LilyPath
                 AddPath(_geometryBuffer, 0, vertexCount, pen);
         }
 
-        public void DrawPrimitiveArc (Point center, float radius, float startAngle, float arcAngle, Pen pen)
+        public void DrawPrimitiveArc (Pen pen, Point center, float radius, float startAngle, float arcAngle)
         {
-            DrawPrimitiveArc(center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5), pen);
+            DrawPrimitiveArc(pen, center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5));
         }
 
-        public void DrawPrimitiveArc (Point center, float radius, float startAngle, float arcAngle, int subdivisions, Pen pen)
+        public void DrawPrimitiveArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, int subdivisions)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
 
             int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
             if (vertexCount > 1)
-                DrawPrimitivePath(_geometryBuffer, pen, 0, vertexCount, PathType.Open);
+                DrawPrimitivePath(pen, _geometryBuffer, 0, vertexCount, PathType.Open);
         }
 
-        public void DrawPrimitiveClosedArc (Point center, float radius, float startAngle, float arcAngle, Pen pen, ArcType arcType)
+        public void DrawPrimitiveClosedArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
-            DrawPrimitiveClosedArc(center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5), pen, arcType);
+            DrawPrimitiveClosedArc(pen, center, radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
         }
 
-        public void DrawPrimitiveClosedArc (Point center, float radius, float startAngle, float arcAngle, int subdivisions, Pen pen, ArcType arcType)
+        public void DrawPrimitiveClosedArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, ArcType arcType, int subdivisions)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -376,16 +381,16 @@ namespace LilyPath
                     _geometryBuffer[vertexCount++] = new Vector2(center.X, center.Y);
                 }
 
-                DrawPrimitivePath(_geometryBuffer, pen, 0, vertexCount, PathType.Closed);
+                DrawPrimitivePath(pen, _geometryBuffer, 0, vertexCount, PathType.Closed);
             }
         }
 
-        public void DrawClosedArc (Point center, float radius, float startAngle, float arcAngle, Pen pen, ArcType arcType)
+        public void DrawClosedArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
-            DrawClosedArc(center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5), pen, arcType);
+            DrawClosedArc(pen, center, radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
         }
 
-        public void DrawClosedArc (Point center, float radius, float startAngle, float arcAngle, int subdivisions, Pen pen, ArcType arcType)
+        public void DrawClosedArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, ArcType arcType, int subdivisions)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -499,12 +504,12 @@ namespace LilyPath
             return vertexCount;
         }
 
-        public void FillCircle (Point center, float radius, Brush brush)
+        public void FillCircle (Brush brush, Point center, float radius)
         {
-            FillCircle(center, radius, (int)Math.Ceiling(radius / 1.5), brush);
+            FillCircle(brush, center, radius, (int)Math.Ceiling(radius / 1.5));
         }
 
-        public void FillCircle (Point center, float radius, int subdivisions, Brush brush)
+        public void FillCircle (Brush brush, Point center, float radius, int subdivisions)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -527,12 +532,12 @@ namespace LilyPath
             AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex + subdivisions - 1, baseVertexIndex);
         }
 
-        public void FillArc (Point center, float radius, float startAngle, float arcAngle, Brush brush, ArcType arcType)
+        public void FillArc (Brush brush, Point center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
-            FillArc(center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5), brush, arcType);
+            FillArc(brush, center, radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
         }
 
-        public void FillArc (Point center, float radius, float startAngle, float arcAngle, int subdivisions, Brush brush, ArcType arcType)
+        public void FillArc (Brush brush, Point center, float radius, float startAngle, float arcAngle, ArcType arcType, int subdivisions)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -567,7 +572,7 @@ namespace LilyPath
             }
         }
 
-        public void FillRectangle (Rectangle rect, Brush brush)
+        public void FillRectangle (Brush brush, Rectangle rect)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
@@ -586,12 +591,12 @@ namespace LilyPath
             AddTriangle(baseVertexIndex + 1, baseVertexIndex + 3, baseVertexIndex + 2);
         }
 
-        public void FillPath (IList<Vector2> points, Brush brush)
+        public void FillPath (Brush brush, IList<Vector2> points)
         {
-            FillPath(points, 0, points.Count, brush);
+            FillPath(brush, points, 0, points.Count);
         }
 
-        public void FillPath (IList<Vector2> points, int offset, int count, Brush brush)
+        public void FillPath (Brush brush, IList<Vector2> points, int offset, int count)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();

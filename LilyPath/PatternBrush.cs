@@ -7,13 +7,30 @@ using Microsoft.Xna.Framework;
 
 namespace LilyPath
 {
+    /// <summary>
+    /// A <see cref="Brush"/> that represents a texture.
+    /// </summary>
     public class PatternBrush : Brush
     {
+        /// <summary>
+        /// Creates a new <see cref="PatternBrush"/> with the given <see cref="GraphicsDevice"/> and texture.
+        /// </summary>
+        /// <param name="device">A valid <see cref="GraphicsDevice"/>.</param>
+        /// <param name="pattern">A texture.</param>
         public PatternBrush (GraphicsDevice device, Texture2D pattern)
             : this(device, pattern, 1f)
         {
         }
 
+        /// <summary>
+        /// Creates a new <see cref="PatternBrush"/> with the given <see cref="GraphicsDevice"/>, texture, and opacity.
+        /// </summary>
+        /// <param name="device">A valid <see cref="GraphicsDevice"/>.</param>
+        /// <param name="pattern">A texture.</param>
+        /// <param name="opacity">The opacity to render the texture with.</param>
+        /// <remarks>The <see cref="Brush.Alpha"/> property of the brush is intialized to the opacity value.
+        /// When the brush is rendered, any opacity already present in the texture is blended with
+        /// the opacity value.</remarks>
         public PatternBrush (GraphicsDevice device, Texture2D pattern, float opacity)
             : base()
         {
@@ -26,6 +43,7 @@ namespace LilyPath
             Texture.SetData(data);
         }
 
+        /// <inherit />
         protected override void DisposeManaged ()
         {
             Texture.Dispose();

@@ -4,34 +4,53 @@ using Microsoft.Xna.Framework;
 
 namespace LilyPath
 {
-    public enum LineCap
-    {
-        Flat,
-        Square,
-    }
-
-    public enum PenAlignment
-    {
-        Center,
-        Inset,
-        Outset
-    }
-
+    /// <summary>
+    /// A <see cref="Pen"/> that can only have a solid color and width of 1.
+    /// </summary>
     public class PrimitivePen : Pen
     {
+        /// <summary>
+        /// Creates a new <see cref="PrimitivePen"/> with the given color.
+        /// </summary>
+        /// <param name="color">The pen color.</param>
         public PrimitivePen (Color color)
             : base(color, 1)
         { }
     }
 
+    /// <summary>
+    /// Objects used to draw paths.
+    /// </summary>
     public class Pen : IDisposable
     {
+        /// <summary>
+        /// The solid color of the pen if no <see cref="Brush"/> is defined.
+        /// </summary>
         public Color Color { get; set; }
+
+        /// <summary>
+        /// The <see cref="Brush"/> used to fill stroked paths.
+        /// </summary>
         public Brush Brush { get; set; }
+
+        /// <summary>
+        /// The width of the stroked path in graphical units (usually pixels).
+        /// </summary>
         public float Width { get; set; }
 
+        /// <summary>
+        /// The alignment of the stroked path relative to the ideal path being stroked.
+        /// </summary>
         public PenAlignment Alignment { get; set; }
+
+        /// <summary>
+        /// How the start of a stroked path is terminated.
+        /// </summary>
         public LineCap StartCap { get; set; }
+
+        /// <summary>
+        /// How the end of a stroked path is terminated.
+        /// </summary>
         public LineCap EndCap { get; set; }
 
         private Pen ()
@@ -42,6 +61,11 @@ namespace LilyPath
             EndCap = LineCap.Flat;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Pen"/> with the given brush and width.
+        /// </summary>
+        /// <param name="brush"></param>
+        /// <param name="width"></param>
         public Pen (Brush brush, float width)
             : this()
         {
@@ -49,6 +73,11 @@ namespace LilyPath
             Width = width;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Pen"/> with the given color and width.
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="width"></param>
         public Pen (Color color, float width)
             : this()
         {
@@ -56,11 +85,19 @@ namespace LilyPath
             Width = width;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Pen"/> with the given brush and a width of 1.
+        /// </summary>
+        /// <param name="brush"></param>
         public Pen (Brush brush)
             : this(brush, 1)
         {
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Pen"/> with the given color and a width of 1.
+        /// </summary>
+        /// <param name="color"></param>
         public Pen (Color color)
             : this(color, 1)
         {
@@ -70,6 +107,9 @@ namespace LilyPath
 
         private bool _disposed;
 
+        /// <summary>
+        /// Releases all resources used by the <see cref="Pen"/> object.
+        /// </summary>
         public void Dispose ()
         {
             Dispose(true);
@@ -89,13 +129,22 @@ namespace LilyPath
             }
         }
 
+        /// <summary>
+        /// Attempts to dispose unmanaged resources.
+        /// </summary>
         ~Pen ()
         {
             Dispose(false);
         }
 
+        /// <summary>
+        /// Releases the managed resources used by the <see cref="Pen"/>.
+        /// </summary>
         protected virtual void DisposeManaged () { }
 
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="Pen"/>.
+        /// </summary>
         protected virtual void DisposeUnmanaged () { }
 
         #endregion

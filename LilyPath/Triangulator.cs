@@ -4,6 +4,9 @@ using Microsoft.Xna.Framework;
 
 namespace LilyPath
 {
+    /// <summary>
+    /// Computes a set of interior triangles from a set of points that defines a containing path.
+    /// </summary>
     public class Triangulator
     {
         private int[] _triPrev = new int[128];
@@ -12,16 +15,28 @@ namespace LilyPath
         private int[] _indexComputeBuffer = new int[128];
         private int _indexCount = 0;
 
+        /// <summary>
+        /// The indexes of triangle list entries for the list of points used in the last <see cref="Triangulate"/> call.
+        /// </summary>
         public int[] ComputedIndexes
         {
             get { return _indexComputeBuffer; }
         }
 
+        /// <summary>
+        /// The number of indexes generated in the last computation.
+        /// </summary>
         public int ComputedIndexCount
         {
             get { return _indexCount; }
         }
 
+        /// <summary>
+        /// Computes a triangle list that fully covers the area enclosed by the given set of points.
+        /// </summary>
+        /// <param name="points">A list of points that defines an enclosing path.</param>
+        /// <param name="offset">The offset of the first point in the list.</param>
+        /// <param name="count">The number of points in the path.</param>
         public void Triangulate (IList<Vector2> points, int offset, int count)
         {
             Initialize(count);

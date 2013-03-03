@@ -3,19 +3,50 @@ using Microsoft.Xna.Framework;
 
 namespace LilyPath
 {
+    /// <summary>
+    /// Represents computed path geometry.
+    /// </summary>
     public interface IGraphicsPath
     {
+        /// <summary>
+        /// The number of vertices in the computed geometry.
+        /// </summary>
         int VertexCount { get; }
+
+        /// <summary>
+        /// The number of vertex indexes in the computed geometry.
+        /// </summary>
         int IndexCount { get; }
 
+        /// <summary>
+        /// The raw vertex data of the computed geometry.
+        /// </summary>
         Vector2[] VertexPositionData { get; }
+
+        /// <summary>
+        /// The raw texture data of the computed geometry.
+        /// </summary>
         Vector2[] VertexTextureData { get; }
+
+        /// <summary>
+        /// The raw color data of the computed geometry.
+        /// </summary>
         Color[] VertexColorData { get; }
+
+        /// <summary>
+        /// The raw index data of the computed geometry.
+        /// </summary>
         short[] IndexData { get; }
 
+        /// <summary>
+        /// The <see cref="Pen"/> used to compute the geometry.
+        /// </summary>
         Pen Pen { get; }
     }
 
+    /// <summary>
+    /// Represents a stroked path.
+    /// </summary>
     public class GraphicsPath : IGraphicsPath
     {
         private Pen _pen;
@@ -29,20 +60,43 @@ namespace LilyPath
         private Color[] _colorData;
         private short[] _indexData;
 
+        /// <summary>
+        /// Create an empty path with a given <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen"></param>
         public GraphicsPath (Pen pen)
         {
             _pen = pen;
         }
 
+        /// <summary>
+        /// Compute a stroked open path given a set of points and a <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="points">The points making up the ideal path.</param>
         public GraphicsPath (Pen pen, IList<Vector2> points)
-            : this(pen, points, 0, points.Count, PathType.Open)
+            : this(pen, points, PathType.Open, 0, points.Count)
         { }
 
+        /// <summary>
+        /// Compute a stroked open or closed path given a set of points and a <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="points">The points making up the ideal path.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
         public GraphicsPath (Pen pen, IList<Vector2> points, PathType pathType)
-            : this(pen, points, 0, points.Count, pathType)
+            : this(pen, points, pathType, 0, points.Count)
         { }
 
-        public GraphicsPath (Pen pen, IList<Vector2> points, int offset, int count, PathType pathType)
+        /// <summary>
+        /// Compute a stroked open or closed path given a set of points and a <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="points">The points making up the ideal path.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <param name="offset">The offset into the list of points that starts the path.</param>
+        /// <param name="count">The number of points in the path.</param>
+        public GraphicsPath (Pen pen, IList<Vector2> points, PathType pathType, int offset, int count)
             : this(pen)
         {
             _pointCount = count;
@@ -60,36 +114,43 @@ namespace LilyPath
 
         #region IGraphicsPath Interface
 
+        /// <inherit />
         public int IndexCount
         {
             get { return _indexCount; }
         }
 
+        /// <inherit />
         public int VertexCount
         {
             get { return _vertexCount; }
         }
 
+        /// <inherit />
         public Vector2[] VertexPositionData
         {
             get { return _positionData; }
         }
 
+        /// <inherit />
         public Vector2[] VertexTextureData
         {
             get { return _textureData; }
         }
 
+        /// <inherit />
         public Color[] VertexColorData
         {
             get { return _colorData; }
         }
 
+        /// <inherit />
         public short[] IndexData
         {
             get { return _indexData; }
         }
 
+        /// <inherit />
         public Pen Pen
         {
             get { return _pen; }

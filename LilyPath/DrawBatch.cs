@@ -5,6 +5,12 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace LilyPath
 {
+    public enum ArcType
+    {
+        Segment,
+        Sector
+    }
+
     public class DrawBatch
     {
         private struct DrawingInfo
@@ -349,6 +355,52 @@ namespace LilyPath
             int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
             if (vertexCount > 1)
                 DrawPrimitivePath(_geometryBuffer, pen, 0, vertexCount, PathType.Open);
+        }
+
+        public void DrawPrimitiveClosedArc (Point center, float radius, float startAngle, float arcAngle, Pen pen, ArcType arcType)
+        {
+            DrawPrimitiveClosedArc(center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5), pen, arcType);
+        }
+
+        public void DrawPrimitiveClosedArc (Point center, float radius, float startAngle, float arcAngle, int subdivisions, Pen pen, ArcType arcType)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
+            if (vertexCount > 1) {
+                if (arcType == ArcType.Sector) {
+                    if (_geometryBuffer.Length < vertexCount + 1)
+                        Array.Resize(ref _geometryBuffer, (vertexCount + 1) * 2);
+
+                    _geometryBuffer[vertexCount++] = new Vector2(center.X, center.Y);
+                }
+
+                DrawPrimitivePath(_geometryBuffer, pen, 0, vertexCount, PathType.Closed);
+            }
+        }
+
+        public void DrawClosedArc (Point center, float radius, float startAngle, float arcAngle, Pen pen, ArcType arcType)
+        {
+            DrawClosedArc(center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5), pen, arcType);
+        }
+
+        public void DrawClosedArc (Point center, float radius, float startAngle, float arcAngle, int subdivisions, Pen pen, ArcType arcType)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
+            if (vertexCount > 1) {
+                if (arcType == ArcType.Sector) {
+                    if (_geometryBuffer.Length < vertexCount + 1)
+                        Array.Resize(ref _geometryBuffer, (vertexCount + 1) * 2);
+
+                    _geometryBuffer[vertexCount++] = new Vector2(center.X, center.Y);
+                }
+
+                AddClosedPath(_geometryBuffer, 0, vertexCount, pen);
+            }
         }
 
         private float ClampAngle (float angle)

@@ -16,12 +16,6 @@ namespace LilyPath
         Pen Pen { get; }
     }
 
-    public enum PathType
-    {
-        Open,
-        Closed,
-    }
-
     public class GraphicsPath : IGraphicsPath
     {
         private Pen _pen;

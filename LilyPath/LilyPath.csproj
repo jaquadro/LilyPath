@@ -47,11 +47,11 @@
     <Compile Include="Brush.cs" />
     <Compile Include="Brushes.cs" />
     <Compile Include="DrawBatch.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="GraphicsPath.cs" />
     <Compile Include="PatternBrush.cs" />
     <Compile Include="Pen.cs" />
     <Compile Include="Pens.cs" />
-    <Compile Include="Primitives2D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SolidColorBrush.cs" />
     <Compile Include="Triangulator.cs" />

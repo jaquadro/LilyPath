@@ -5,12 +5,15 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace LilyPath
 {
-    public enum ArcType
-    {
-        Segment,
-        Sector
-    }
-
+    /// <summary>
+    /// Enables a group of figures to be drawn using the same settings.
+    /// </summary>
+    /// <remarks><para>Figures can be made up of primitive lines or paths stroked
+    /// or filled into more complex polygon geometry.</para>
+    /// <para>When drawing paths with a thick pen and very short segments, such as closed
+    /// arcs, you may encounter overdraw that is visible with semitransparent pens.  You can 
+    /// avoid this overdraw by using an inset or outset <see cref="PenAlignment"/> on your pen,
+    /// depending on the winding order of the path being stroked.</para></remarks>
     public class DrawBatch
     {
         private struct DrawingInfo
@@ -47,6 +50,10 @@ namespace LilyPath
 
         private Texture2D _defaultTexture;
 
+        /// <summary>
+        /// Enables a group of figures to be drawn using the same settings.
+        /// </summary>
+        /// <param name="device"></param>
         public DrawBatch (GraphicsDevice device)
         {
             if (device == null)
@@ -68,16 +75,30 @@ namespace LilyPath
             _defaultTexture.SetData<Color>(new Color[] { Color.White * .6f });
         }
 
+        /// <summary>
+        /// The <see cref="GraphicsDevice"/> associated with this batch.
+        /// </summary>
         public GraphicsDevice GraphicsDevice
         {
             get { return _device; }
         }
 
+        /// <summary>
+        /// Begins a draw batch operation using deferred sort and default state objects.
+        /// </summary>
         public void Begin ()
         {
             Begin(null, null, null, null, Matrix.Identity);
         }
 
+        /// <summary>
+        /// Begins a draw batch operation using deferred sort and the given state objects and transformation matrix.
+        /// </summary>
+        /// <param name="blendState">Blending options.</param>
+        /// <param name="samplerState">Texture sampling options.</param>
+        /// <param name="depthStencilState">Depth and stencil options.</param>
+        /// <param name="rasterizerState">Rasterization options.</param>
+        /// <param name="transform">Transformation matrix for scale, rotate, translate options.</param>
         public void Begin (BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix transform)
         {
             if (_inDraw)
@@ -96,13 +117,25 @@ namespace LilyPath
             _vertexBufferIndex = 0;
         }
 
+        /// <summary>
+        /// Flushes the draw batch.
+        /// </summary>
         public void End ()
         {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
             FlushBuffer();
 
             _inDraw = false;
         }
 
+        /// <summary>
+        /// Computes and adds a rectangle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="rect">The rectangle to be rendered.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawRectangle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawRectangle (Pen pen, Rectangle rect)
         {
             if (!_inDraw)
@@ -129,7 +162,13 @@ namespace LilyPath
             AddSegment(baseVertexIndex + 4, baseVertexIndex + 6);
             AddSegment(baseVertexIndex + 6, baseVertexIndex + 0);
         }
-        
+
+        /// <summary>
+        /// Adds a primitive rectangle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying a color to render the path with.</param>
+        /// <param name="rect">The rectangle to be rendered.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveRectangle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPrimitiveRectangle (Pen pen, Rectangle rect)
         {
             if (!_inDraw)
@@ -156,11 +195,23 @@ namespace LilyPath
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex);
         }
 
+        /// <summary>
+        /// Computes and adds a point path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="point">The point to be rendered.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPoint</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPoint (Pen pen, Point point)
         {
             DrawPoint(pen, new Vector2(point.X, point.Y));
         }
 
+        /// <summary>
+        /// Computes and adds a point path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="point">The point to be rendered.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPoint</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPoint (Pen pen, Vector2 point)
         {
             if (!_inDraw)
@@ -181,11 +232,25 @@ namespace LilyPath
             AddSegment(baseVertexIndex + 0, baseVertexIndex + 2);
         }
 
+        /// <summary>
+        /// Computes and adds a line segment path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="p0">The first point of the line segment.</param>
+        /// <param name="p1">The second point of the line segment.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawLine</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawLine (Pen pen, Point p0, Point p1)
         {
             DrawLine(pen, new Vector2(p0.X, p0.Y), new Vector2(p1.X, p1.Y));
         }
 
+        /// <summary>
+        /// Computes and adds a line segment path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="p0">The first point of the line segment.</param>
+        /// <param name="p1">The second point of the line segment.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawLine</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawLine (Pen pen, Vector2 p0, Vector2 p1)
         {
             if (!_inDraw)
@@ -203,11 +268,25 @@ namespace LilyPath
             AddSegment(baseVertexIndex + 0, baseVertexIndex + 2);
         }
 
+        /// <summary>
+        /// Adds a primitive line segment path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying a color to render the path with.</param>
+        /// <param name="p0">The first point of the line segment.</param>
+        /// <param name="p1">The second point of the line segment.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveLine</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPrimitiveLine (Pen pen, Point p0, Point p1)
         {
             DrawPrimitiveLine(pen, new Vector2(p0.X, p0.Y), new Vector2(p1.X, p1.Y));
         }
 
+        /// <summary>
+        /// Adds a primitive line segment path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying a color to render the path with.</param>
+        /// <param name="p0">The first point of the line segment.</param>
+        /// <param name="p1">The second point of the line segment.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveLine</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPrimitiveLine (Pen pen, Vector2 p0, Vector2 p1)
         {
             if (!_inDraw)
@@ -226,21 +305,51 @@ namespace LilyPath
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 1);
         }
 
+        /// <summary>
+        /// Adds a primitive multisegment path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying a color to render the path with.</param>
+        /// <param name="points">The list of points that make up the path to be rendered.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitivePath</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPrimitivePath (Pen pen, IList<Vector2> points)
         {
             DrawPrimitivePath(pen, points, 0, points.Count, PathType.Open);
         }
 
+        /// <summary>
+        /// Adds a primitive multisegment path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying a color to render the path with.</param>
+        /// <param name="points">The list of points that make up the path to be rendered.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitivePath</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPrimitivePath (Pen pen, IList<Vector2> points, PathType pathType)
         {
             DrawPrimitivePath(pen, points, 0, points.Count, pathType);
         }
 
+        /// <summary>
+        /// Adds a primitive multisegment path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying a color to render the path with.</param>
+        /// <param name="points">The list of points that make up the path to be rendered.</param>
+        /// <param name="offset">The offset into the <paramref name="points"/> list to begin rendering.</param>
+        /// <param name="count">The number of points that should be rendered, starting from <paramref name="offset"/>.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitivePath</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPrimitivePath (Pen pen, IList<Vector2> points, int offset, int count)
         {
             DrawPrimitivePath(pen, points, offset, count, PathType.Open);
         }
 
+        /// <summary>
+        /// Adds a primitive multisegment path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying a color to render the path with.</param>
+        /// <param name="points">The list of points that make up the path to be rendered.</param>
+        /// <param name="offset">The offset into the <paramref name="points"/> list to begin rendering.</param>
+        /// <param name="count">The number of points that should be rendered, starting from <paramref name="offset"/>.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitivePath</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPrimitivePath (Pen pen, IList<Vector2> points, int offset, int count, PathType pathType)
         {
             if (!_inDraw)
@@ -271,6 +380,11 @@ namespace LilyPath
             }
         }
 
+        /// <summary>
+        /// Adds a precomputed path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="path">A path that has already been stroked with a <see cref="Pen"/>.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPath</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPath (GraphicsPath path)
         {
             if (!_inDraw)
@@ -305,21 +419,53 @@ namespace LilyPath
             _indexBufferIndex += path.IndexCount;
         }
 
+        /// <summary>
+        /// Computes and adds a circle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the circle is computed as the radius / 1.5.</remarks>
         public void DrawCircle (Pen pen, Point center, float radius)
         {
             DrawCircle(pen, new Vector2(center.X, center.Y), radius, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Computes and adds a circle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the circle is computed as the radius / 1.5.</remarks>
         public void DrawCircle (Pen pen, Vector2 center, float radius)
         {
             DrawCircle(pen, center, radius, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Computes and adds a circle path to the batch of figures to be rendered using a given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <param name="subdivisions">The number of subdivisions (sides) to render the circle with.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawCircle (Pen pen, Point center, float radius, int subdivisions)
         {
             DrawCircle(pen, new Vector2(center.X, center.Y), radius, subdivisions);
         }
 
+        /// <summary>
+        /// Computes and adds a circle path to the batch of figures to be rendered using a given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <param name="subdivisions">The number of subdivisions (sides) to render the circle with.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawCircle (Pen pen, Vector2 center, float radius, int subdivisions)
         {
             if (!_inDraw)
@@ -329,21 +475,53 @@ namespace LilyPath
             AddClosedPath(_geometryBuffer, 0, subdivisions, pen);
         }
 
+        /// <summary>
+        /// Adds a primitive circle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the circle is computed as the radius / 1.5.</remarks>
         public void DrawPrimitiveCircle (Pen pen, Point center, float radius)
         {
             DrawPrimitiveCircle(pen, new Vector2(center.X, center.Y), radius, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Adds a primitive circle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the circle is computed as the radius / 1.5.</remarks>
         public void DrawPrimitiveCircle (Pen pen, Vector2 center, float radius)
         {
             DrawPrimitiveCircle(pen, center, radius, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Adds a primitive circle path to the batch of figures to be rendered using a given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <param name="subdivisions">The number of subdivisions (sides) to render the circle with.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPrimitiveCircle (Pen pen, Point center, float radius, int subdivisions)
         {
             DrawPrimitiveCircle(pen, new Vector2(center.X, center.Y), radius, subdivisions);
         }
 
+        /// <summary>
+        /// Adds a primitive circle path to the batch of figures to be rendered using a given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <param name="subdivisions">The number of subdivisions (sides) to render the circle with.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void DrawPrimitiveCircle (Pen pen, Vector2 center, float radius, int subdivisions)
         {
             if (!_inDraw)
@@ -367,21 +545,63 @@ namespace LilyPath
                 _geometryBuffer[subdivisions] = new Vector2(center.X + radius * unitCircle[0].X, center.Y - radius * unitCircle[0].Y);
         }
 
+        /// <summary>
+        /// Computes and adds an arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawArc (Pen pen, Point center, float radius, float startAngle, float arcAngle)
         {
             DrawArc(pen, new Vector2(center.X, center.Y), radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Computes and adds an arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle)
         {
             DrawArc(pen, center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Computes and adds an arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>subdivisions * (arcAngle / 2PI)</c>.</remarks>
         public void DrawArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, int subdivisions)
         {
             DrawArc(pen, new Vector2(center.X, center.Y), radius, startAngle, arcAngle, subdivisions);
         }
 
+        /// <summary>
+        /// Computes and adds an arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>subdivisions * (arcAngle / 2PI)</c>.</remarks>
         public void DrawArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle, int subdivisions)
         {
             if (!_inDraw)
@@ -392,21 +612,63 @@ namespace LilyPath
                 AddPath(_geometryBuffer, 0, vertexCount, pen);
         }
 
+        /// <summary>
+        /// Adds a primitive arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawPrimitiveArc (Pen pen, Point center, float radius, float startAngle, float arcAngle)
         {
             DrawPrimitiveArc(pen, new Vector2(center.X, center.Y), radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Adds a primitive arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawPrimitiveArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle)
         {
             DrawPrimitiveArc(pen, center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Adds a primitive arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawPrimitiveArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, int subdivisions)
         {
             DrawPrimitiveArc(pen, new Vector2(center.X, center.Y), radius, startAngle, arcAngle, subdivisions);
         }
 
+        /// <summary>
+        /// Adds a primitive arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawPrimitiveArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle, int subdivisions)
         {
             if (!_inDraw)
@@ -417,21 +679,67 @@ namespace LilyPath
                 DrawPrimitivePath(pen, _geometryBuffer, 0, vertexCount, PathType.Open);
         }
 
+        /// <summary>
+        /// Adds a closed primitive arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveClosedArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawPrimitiveClosedArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
             DrawPrimitiveClosedArc(pen, new Vector2(center.X, center.Y), radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Adds a closed primitive arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveClosedArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawPrimitiveClosedArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
             DrawPrimitiveClosedArc(pen, center, radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Adds a closed primitive arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveClosedArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(subdivisions * (arcAngle / 2PI)</c>.</remarks>
         public void DrawPrimitiveClosedArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, ArcType arcType, int subdivisions)
         {
             DrawPrimitiveClosedArc(pen, new Vector2(center.X, center.Y), radius, startAngle, arcAngle, arcType, subdivisions);
         }
 
+        /// <summary>
+        /// Adds a closed primitive arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveClosedArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(subdivisions * (arcAngle / 2PI)</c>.</remarks>
         public void DrawPrimitiveClosedArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle, ArcType arcType, int subdivisions)
         {
             if (!_inDraw)
@@ -450,21 +758,67 @@ namespace LilyPath
             }
         }
 
+        /// <summary>
+        /// Computes and adds a closed arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawClosedArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawClosedArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
             DrawClosedArc(pen, new Vector2(center.X, center.Y), radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Computes and adds a closed arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawClosedArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawClosedArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
             DrawClosedArc(pen, center, radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Computes and adds a closed arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawClosedArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks><para>The number of subdivisions in the arc is computed as <c>subdivisions * (arcAngle / 2PI)</c>.</para></remarks>
         public void DrawClosedArc (Pen pen, Point center, float radius, float startAngle, float arcAngle, ArcType arcType, int subdivisions)
         {
             DrawClosedArc(pen, new Vector2(center.X, center.Y), radius, startAngle, arcAngle, arcType, subdivisions);
         }
 
+        /// <summary>
+        /// Computes and adds a closed arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawClosedArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>subdivisions * (arcAngle / 2PI)</c>.</remarks>
         public void DrawClosedArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle, ArcType arcType, int subdivisions)
         {
             if (!_inDraw)
@@ -579,21 +933,53 @@ namespace LilyPath
             return vertexCount;
         }
 
+        /// <summary>
+        /// Adds a filled circle to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <exception cref="InvalidOperationException"><c>FillCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the circle is computed as <c>(radius / 1.5)</c>.</remarks>
         public void FillCircle (Brush brush, Point center, float radius)
         {
             FillCircle(brush, new Vector2(center.X, center.Y), radius, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Adds a filled circle to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <exception cref="InvalidOperationException"><c>FillCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the circle is computed as <c>(radius / 1.5)</c>.</remarks>
         public void FillCircle (Brush brush, Vector2 center, float radius)
         {
             FillCircle(brush, center, radius, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Adds a filled circle to the batch of figures to be rendered using the given number of subdivisions.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <param name="subdivisions">The number of subdivisions to render the circle with.</param>
+        /// <exception cref="InvalidOperationException"><c>FillCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void FillCircle (Brush brush, Point center, float radius, int subdivisions)
         {
             FillCircle(brush, new Vector2(center.X, center.Y), radius, subdivisions);
         }
 
+        /// <summary>
+        /// Adds a filled circle to the batch of figures to be rendered using the given number of subdivisions.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="center">The center coordinate of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <param name="subdivisions">The number of subdivisions to render the circle with.</param>
+        /// <exception cref="InvalidOperationException"><c>FillCircle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void FillCircle (Brush brush, Vector2 center, float radius, int subdivisions)
         {
             if (!_inDraw)
@@ -617,21 +1003,67 @@ namespace LilyPath
             AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex + subdivisions - 1, baseVertexIndex);
         }
 
+        /// <summary>
+        /// Adds a filled arc to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="center">The center coordinate of the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <exception cref="InvalidOperationException"><c>FillArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void FillArc (Brush brush, Point center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
             FillArc(brush, new Vector2(center.X, center.Y), radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Adds a filled arc to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="center">The center coordinate of the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <exception cref="InvalidOperationException"><c>FillArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void FillArc (Brush brush, Vector2 center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
             FillArc(brush, center, radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
         }
 
+        /// <summary>
+        /// Adds a filled arc to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="center">The center coordinate of the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <param name="subdivisions">The number of subdivisions in the circle with the same radius as the arc.</param>
+        /// <exception cref="InvalidOperationException"><c>FillArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>subdivisions * (arcAngle / 2PI)</c>.</remarks>
         public void FillArc (Brush brush, Point center, float radius, float startAngle, float arcAngle, ArcType arcType, int subdivisions)
         {
             FillArc(brush, new Vector2(center.X, center.Y), radius, startAngle, arcAngle, arcType, subdivisions);
         }
 
+        /// <summary>
+        /// Adds a filled arc to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="center">The center coordinate of the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
+        /// <param name="subdivisions">The number of subdivisions in the circle with the same radius as the arc.</param>
+        /// <exception cref="InvalidOperationException"><c>FillArc</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>subdivisions * (arcAngle / 2PI)</c>.</remarks>
         public void FillArc (Brush brush, Vector2 center, float radius, float startAngle, float arcAngle, ArcType arcType, int subdivisions)
         {
             if (!_inDraw)
@@ -667,6 +1099,12 @@ namespace LilyPath
             }
         }
 
+        /// <summary>
+        /// Adds a filled rectangle to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="rect">The rectangle to be rendered.</param>
+        /// <exception cref="InvalidOperationException"><c>FillRectangle</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
         public void FillRectangle (Brush brush, Rectangle rect)
         {
             if (!_inDraw)
@@ -686,11 +1124,27 @@ namespace LilyPath
             AddTriangle(baseVertexIndex + 1, baseVertexIndex + 3, baseVertexIndex + 2);
         }
 
+        /// <summary>
+        /// Adds a filled region enclosed by the given multisegment path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="rect">The list of points that make up the multisegment path enclosing the region.</param>
+        /// <exception cref="InvalidOperationException"><c>FillPath</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>Paths should be created with a counter-clockwise winding order, or the resulting geometry will be backface-culled.</remarks>
         public void FillPath (Brush brush, IList<Vector2> points)
         {
             FillPath(brush, points, 0, points.Count);
         }
 
+        /// <summary>
+        /// Adds a filled region enclosed by the given multisegment path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="rect">The list of points that make up the multisegment path enclosing the region.</param>
+        /// <param name="offset">The offset into the <paramref name="points"/> list to begin rendering.</param>
+        /// <param name="count">The number of points that should be rendered, starting from <paramref name="offset"/>.</param>
+        /// <exception cref="InvalidOperationException"><c>FillPath</c> was called, but <see cref="Begin"/> has not yet been called.</exception>
+        /// <remarks>Paths should be created with a counter-clockwise winding order, or the resulting geometry will be backface-culled.</remarks>
         public void FillPath (Brush brush, IList<Vector2> points, int offset, int count)
         {
             if (!_inDraw)

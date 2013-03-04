@@ -82,6 +82,26 @@ namespace LilyPath
         }
 
         /// <summary>
+        /// Appends a point to the end of the path offset from the path's current endpoint by the given length and angle.
+        /// </summary>
+        /// <param name="length">The length of the line being added.</param>
+        /// <param name="angle">The angle of the line in radians.  Positive values are counter-clockwise.</param>
+        /// <exception cref="InvalidOperationException">The path has no existing points.</exception>
+        public void AddLine (float length, float angle)
+        {
+            if (_geometryIndex == 0)
+                throw new InvalidOperationException("Cannot add a line from partial information to an empty path.");
+
+            if (length == 0)
+                return;
+
+            Vector2 start = _geometryBuffer[_geometryIndex - 1];
+            Vector2 end = new Vector2(start.X + length * (float)Math.Cos(angle), start.Y + length * (float)Math.Sin(angle));
+
+            _geometryBuffer[_geometryIndex++] = end;
+        }
+
+        /// <summary>
         /// Appends an arc between the current endpoint and given point to the end of the path.
         /// </summary>
         /// <param name="point">The endpoint of the arc.</param>
@@ -108,6 +128,9 @@ namespace LilyPath
         {
             if (_geometryIndex == 0)
                 throw new InvalidOperationException("Cannot add an arc from partial information to an empty path.");
+
+            if (_geometryBuffer[_geometryIndex - 1] == point)
+                return;
 
             _geometryIndex--;
 
@@ -157,7 +180,7 @@ namespace LilyPath
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
         /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
-        public void Addarc (Vector2 center, float radius, float startAngle, float arcAngle)
+        public void AddArc (Vector2 center, float radius, float startAngle, float arcAngle)
         {
             AddArc(center, radius, startAngle, arcAngle, DefaultSubdivisions(radius));
         }
@@ -175,7 +198,7 @@ namespace LilyPath
         {
             Vector2 startPoint = new Vector2(center.X + radius * (float)Math.Cos(startAngle), center.Y + radius * (float)Math.Sin(startAngle));
 
-            if (!LastPointEqual(startPoint))
+            if (LastPointEqual(startPoint))
                 _geometryIndex--;
 
             BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
@@ -205,10 +228,61 @@ namespace LilyPath
         /// <param name="subdivisions">The number of subdivisions in a circle of the same arc radius.</param>
         public void AddArc (Vector2 p0, Vector2 p1, float height, int subdivisions)
         {
-            if (!LastPointEqual(p0))
+            if (p0 == p1)
+                return;
+
+            if (LastPointEqual(p0))
                 _geometryIndex--;
 
             BuildArcGeometryBuffer(p0, p1, height, subdivisions);
+        }
+
+        /// <summary>
+        /// Creates an open <see cref="GraphicsPath"/> from the path with a given <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <returns>A computed <see cref="GraphicsPath"/>.</returns>
+        public GraphicsPath Stroke (Pen pen)
+        {
+            return Stroke(pen, PathType.Open);
+        }
+
+        /// <summary>
+        /// Creates an open or closed <see cref="GraphicsPath"/> from the path with a given <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <returns>A computed <see cref="GraphicsPath"/>.</returns>
+        public GraphicsPath Stroke (Pen pen, PathType pathType)
+        {
+            return new GraphicsPath(pen, _geometryBuffer, pathType, 0, _geometryIndex);
+        }
+
+        /// <summary>
+        /// Creates an open <see cref="GraphicsPath"/> from a transformed copy of the path with a given <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="transform">The transform matrix to apply to all of the points in the path.</param>
+        /// <returns>A computed <see cref="GraphicsPath"/>.</returns>
+        public GraphicsPath Stroke (Pen pen, Matrix transform)
+        {
+            return Stroke(pen, transform, PathType.Open);
+        }
+
+        /// <summary>
+        /// Creates an open or closed <see cref="GraphicsPath"/> from a transformed copy of the path with a given <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="transform">The transform matrix to apply to all of the points in the path.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <returns>A computed <see cref="GraphicsPath"/>.</returns>
+        public GraphicsPath Stroke (Pen pen, Matrix transform, PathType pathType)
+        {
+            Vector2[] buffer = new Vector2[_geometryIndex];
+            for (int i = 0; i < _geometryIndex; i++)
+                buffer[i] = Vector2.Transform(_geometryBuffer[i], transform);
+
+            return new GraphicsPath(pen, buffer, pathType, 0, _geometryIndex);
         }
 
         private void CheckBufferFreeSpace (int vertexCount)
@@ -229,8 +303,8 @@ namespace LilyPath
             Vector2 edge01t = new Vector2(-edge01.Y, edge01.X);
             Vector2 center = p01mid + edge01t * (radius - height);
 
-            float startAngle = PointToAngle(center, p0);
-            float endAngle = PointToAngle(center, p1);
+            float startAngle = PointToAngle(center, new Vector2(p0.X, 2 * center.Y - p0.Y));
+            float endAngle = PointToAngle(center, new Vector2(p1.X, 2 * center.Y - p1.Y));
 
             float arcAngle;
             if (height >= 0) {

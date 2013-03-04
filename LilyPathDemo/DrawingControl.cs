@@ -398,12 +398,78 @@ namespace LilyPathDemo
             drawBatch.End();
         }
 
+        private static GraphicsPath _outerFlower;
+        private static GraphicsPath _innerFlower;
+        private static GraphicsPath[] _lillypads;
+
+        [TestSheet("Water Lily")]
+        public static void DrawWaterLily (DrawBatch drawBatch)
+        {
+            Vector2 center = new Vector2(300, 250);
+
+            if (_outerFlower == null) {
+                Pen pen = new Pen(Color.Pink, 15) { Alignment = PenAlignment.Outset };
+                _outerFlower = CreateFlowerGP(pen, center, 10, 150, 100);
+            }
+
+            if (_innerFlower == null) {
+                Pen pen = new Pen(Color.HotPink, 10) { Alignment = PenAlignment.Outset };
+                _innerFlower = CreateFlowerGP(pen, center, 15, 100, 50);
+            }
+
+            if (_lillypads == null) {
+                _lillypads = new GraphicsPath[3];
+                Pen pen = new Pen(Color.Green, 15) { Alignment = PenAlignment.Center };
+
+                _lillypads[0] = CreateLillyPadGP(pen, new Vector2(400, 400), 125, 0);
+                _lillypads[1] = CreateLillyPadGP(pen, new Vector2(200, 250), 150, 2);
+                _lillypads[2] = CreateLillyPadGP(pen, new Vector2(450, 150), 100, 5);
+            }
+
+            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+
+            foreach (GraphicsPath path in _lillypads)
+                drawBatch.DrawPath(path);
+            drawBatch.DrawPath(_outerFlower);
+            drawBatch.DrawPath(_innerFlower);
+
+            drawBatch.End();
+        }
+
         private static RasterizerState GetCommonRasterizerState ()
         {
             return new RasterizerState() {
                 FillMode = DemoState.FillMode,
                 MultiSampleAntiAlias = DemoState.MultisampleAA,
             };
+        }
+
+        private static GraphicsPath CreateFlowerGP (Pen pen, Vector2 center, int petalCount, float petalLength, float petalWidth)
+        {
+            List<Vector2> points = StarPoints(center, petalCount / 2, petalLength, petalLength, false);
+
+            PathBuilder builder = new PathBuilder();
+            builder.AddPoint(center);
+
+            foreach (Vector2 point in points) {
+                builder.AddArcByPoint(point, petalWidth / 2);
+                builder.AddArcByPoint(center, petalWidth / 2);
+            }
+
+            return builder.Stroke(pen, PathType.Closed);
+        }
+
+        private static GraphicsPath CreateLillyPadGP (Pen pen, Vector2 center, int radius, float rotation)
+        {
+            float segment = (float)(Math.PI * 2 / 32);
+
+            PathBuilder builder = new PathBuilder();
+
+            builder.AddPoint(center);
+            builder.AddLine(radius, segment * 7 + rotation);
+            builder.AddArcByAngle(center, segment * 30, radius / 2);
+
+            return builder.Stroke(pen, PathType.Closed);
         }
 
         private static List<Vector2> StarPoints (Vector2 center, int pointCount, float outerRadius, float innerRadius, bool close)

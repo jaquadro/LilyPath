@@ -4,6 +4,9 @@ using Microsoft.Xna.Framework;
 
 namespace LilyPath
 {
+    /// <summary>
+    /// An object for building up an ideal path from pieces.
+    /// </summary>
     public class PathBuilder
     {
         private static Dictionary<int, List<Vector2>> _circleCache = new Dictionary<int, List<Vector2>>();
@@ -11,16 +14,27 @@ namespace LilyPath
         private Vector2[] _geometryBuffer;
         private int _geometryIndex;
 
+        /// <summary>
+        /// Creates a new <see cref="PathBuilder"/> object.
+        /// </summary>
         public PathBuilder ()
             : this(256)
         { }
 
+        /// <summary>
+        /// Creates a new <see cref="PathBuilder"/> object with a given initial buffer size.
+        /// </summary>
+        /// <param name="initialBufferSize">The initial size of the internal vertex buffer.</param>
         public PathBuilder (int initialBufferSize)
         {
             _geometryBuffer = new Vector2[initialBufferSize];
             _geometryIndex = 0;
         }
 
+        /// <summary>
+        /// Appends a point to the end of the path.
+        /// </summary>
+        /// <param name="point">A point.</param>
         public void AddPoint (Vector2 point)
         {
             CheckBufferFreeSpace(1);
@@ -29,6 +43,10 @@ namespace LilyPath
                 _geometryBuffer[_geometryIndex++] = point;
         }
 
+        /// <summary>
+        /// Appends a list of points to the end of the path.
+        /// </summary>
+        /// <param name="points">A list of points.</param>
         public void AddPath (IList<Vector2> points)
         {
             Vector2 lastPoint = (_geometryIndex > 0) ? _geometryBuffer[_geometryIndex - 1] : new Vector2(float.NaN, float.NaN);
@@ -42,6 +60,10 @@ namespace LilyPath
             }
         }
 
+        /// <summary>
+        /// Appends all of the points within another <see cref="PathBuilder"/> object to the end of the path.
+        /// </summary>
+        /// <param name="path">An existing path.</param>
         public void AddPath (PathBuilder path)
         {
             if (path._geometryIndex == 0)
@@ -59,6 +81,12 @@ namespace LilyPath
                 _geometryBuffer[_geometryIndex++] = path._geometryBuffer[i];
         }
 
+        /// <summary>
+        /// Appends an arc between the current endpoint and given point to the end of the path.
+        /// </summary>
+        /// <param name="point">The endpoint of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting the path's current endpoint and <paramref name="point"/>.</param>
+        /// <exception cref="InvalidOperationException">The path has no existing points.</exception>
         public void AddArcByPoint (Vector2 point, float height)
         {
             if (_geometryIndex == 0)
@@ -69,6 +97,13 @@ namespace LilyPath
             AddArcByPoint(point, height, DefaultSubdivisions(radius));
         }
 
+        /// <summary>
+        /// Appends an arc between the current endpoint and given point to the end of the path.
+        /// </summary>
+        /// <param name="point">The endpoint of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting the path's current endpoint and <paramref name="point"/>.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same arc radius.</param>
+        /// <exception cref="InvalidOperationException">The path has no existing points.</exception>
         public void AddArcByPoint (Vector2 point, float height, int subdivisions)
         {
             if (_geometryIndex == 0)
@@ -79,6 +114,12 @@ namespace LilyPath
             BuildArcGeometryBuffer(_geometryBuffer[_geometryIndex], point, height, subdivisions);
         }
 
+        /// <summary>
+        /// Appends an arc between the current endpoint and a point defined by a center and arc angle.
+        /// </summary>
+        /// <param name="center">The center of a circle containing the path's current endpoint and destination point.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <exception cref="InvalidOperationException">The path has no existing points.</exception>
         public void AddArcByAngle (Vector2 center, float arcAngle)
         {
             if (_geometryIndex == 0)
@@ -88,6 +129,13 @@ namespace LilyPath
             AddArcByAngle(center, arcAngle, DefaultSubdivisions(radius));
         }
 
+        /// <summary>
+        /// Appends an arc between the current endpoint and a point defined by a center and arc angle.
+        /// </summary>
+        /// <param name="center">The center of a circle containing the path's current endpoint and destination point.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same arc radius.</param>
+        /// <exception cref="InvalidOperationException">The path has no existing points.</exception>
         public void AddArcByAngle (Vector2 center, float arcAngle, int subdivisions)
         {
             if (_geometryIndex == 0)
@@ -101,11 +149,28 @@ namespace LilyPath
             BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
         }
 
+        /// <summary>
+        /// Appends a fully-defined arc to the end of the path, connected by an additional line segment if the arc does not
+        /// begin at the path's current endpoint.
+        /// </summary>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
         public void Addarc (Vector2 center, float radius, float startAngle, float arcAngle)
         {
             AddArc(center, radius, startAngle, arcAngle, DefaultSubdivisions(radius));
         }
 
+        /// <summary>
+        /// Appends a fully-defined arc to the end of the path, connected by an additional line segment if the arc does not
+        /// begin at the path's current endpoint.
+        /// </summary>
+        /// <param name="center">The center coordinate of the the arc.</param>
+        /// <param name="radius">The radius of the arc.</param>
+        /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same arc radius.</param>
         public void AddArc (Vector2 center, float radius, float startAngle, float arcAngle, int subdivisions)
         {
             Vector2 startPoint = new Vector2(center.X + radius * (float)Math.Cos(startAngle), center.Y + radius * (float)Math.Sin(startAngle));
@@ -116,6 +181,13 @@ namespace LilyPath
             BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
         }
 
+        /// <summary>
+        /// Appends a fully-defined arc to the end of the path, connected by an additional line segment if the arc does not
+        /// begin at the path's current endpoint.
+        /// </summary>
+        /// <param name="p0">The starting point of the arc.</param>
+        /// <param name="p1">The ending point of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting <paramref name="p0"/> and <paramref name="p1"/>.</param>
         public void AddArc (Vector2 p0, Vector2 p1, float height)
         {
             float width = (p1 - p0).Length();
@@ -123,6 +195,14 @@ namespace LilyPath
             AddArc(p0, p1, height, DefaultSubdivisions(radius));
         }
 
+        /// <summary>
+        /// Appends a fully-defined arc to the end of the path, connected by an additional line segment if the arc does not
+        /// begin at the path's current endpoint.
+        /// </summary>
+        /// <param name="p0">The starting point of the arc.</param>
+        /// <param name="p1">The ending point of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting <paramref name="p0"/> and <paramref name="p1"/>.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same arc radius.</param>
         public void AddArc (Vector2 p0, Vector2 p1, float height, int subdivisions)
         {
             if (!LastPointEqual(p0))

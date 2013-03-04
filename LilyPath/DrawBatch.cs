@@ -613,6 +613,71 @@ namespace LilyPath
         }
 
         /// <summary>
+        /// Computes and adds an arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="p0">The starting point of the arc.</param>
+        /// <param name="p1">The ending point of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting <paramref name="p0"/> and <paramref name="p1"/>.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
+        public void DrawArc (Pen pen, Point p0, Point p1, float height)
+        {
+            DrawArc(pen, new Vector2(p0.X, p0.Y), new Vector2(p1.X, p1.Y), height);
+        }
+
+        /// <summary>
+        /// Computes and adds an arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="p0">The starting point of the arc.</param>
+        /// <param name="p1">The ending point of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting <paramref name="p0"/> and <paramref name="p1"/>.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
+        public void DrawArc (Pen pen, Vector2 p0, Vector2 p1, float height)
+        {
+            float width = (p1 - p0).Length();
+            float radius = (height / 2) + (width * width) / (height * 8);
+            DrawArc(pen, p0, p1, height, (int)Math.Ceiling(Math.Abs(radius) / 1.5));
+        }
+
+        /// <summary>
+        /// Computes and adds an arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="p0">The starting point of the arc.</param>
+        /// <param name="p1">The ending point of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting <paramref name="p0"/> and <paramref name="p1"/>.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same arc radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(subdivisions) * (arcAngle / 2PI)</c>.</remarks>
+        public void DrawArc (Pen pen, Point p0, Point p1, float height, int subdivisions)
+        {
+            DrawArc(pen, new Vector2(p0.X, p0.Y), new Vector2(p1.X, p1.Y), height, subdivisions);
+        }
+
+        /// <summary>
+        /// Computes and adds an arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="p0">The starting point of the arc.</param>
+        /// <param name="p1">The ending point of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting <paramref name="p0"/> and <paramref name="p1"/>.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same arc radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(subdivisions) * (arcAngle / 2PI)</c>.</remarks>
+        public void DrawArc (Pen pen, Vector2 p0, Vector2 p1, float height, int subdivisions)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            int vertexCount = BuildArcGeometryBuffer(p0, p1, height, subdivisions);
+            if (vertexCount > 1)
+                AddPath(_geometryBuffer, 0, vertexCount, pen);
+        }
+
+        /// <summary>
         /// Adds a primitive arc path to the batch of figures to be rendered.
         /// </summary>
         /// <param name="pen">The pen supplying the color to render the path with.</param>
@@ -706,7 +771,7 @@ namespace LilyPath
         {
             float width = (p1 - p0).Length();
             float radius = (height / 2) + (width * width) / (height * 8);
-            DrawPrimitiveArc(pen, p0, p1, height, (int)Math.Ceiling(radius / 1.5));
+            DrawPrimitiveArc(pen, p0, p1, height, (int)Math.Ceiling(Math.Abs(radius) / 1.5));
         }
 
         /// <summary>

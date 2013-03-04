@@ -680,6 +680,71 @@ namespace LilyPath
         }
 
         /// <summary>
+        /// Adds a primitive arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="p0">The starting point of the arc.</param>
+        /// <param name="p1">The ending point of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting <paramref name="p0"/> and <paramref name="p1"/>.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
+        public void DrawPrimitiveArc (Pen pen, Point p0, Point p1, float height)
+        {
+            DrawPrimitiveArc(pen, new Vector2(p0.X, p0.Y), new Vector2(p1.X, p1.Y), height);
+        }
+
+        /// <summary>
+        /// Adds a primitive arc path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="p0">The starting point of the arc.</param>
+        /// <param name="p1">The ending point of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting <paramref name="p0"/> and <paramref name="p1"/>.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
+        public void DrawPrimitiveArc (Pen pen, Vector2 p0, Vector2 p1, float height)
+        {
+            float width = (p1 - p0).Length();
+            float radius = (height / 2) + (width * width) / (height * 8);
+            DrawPrimitiveArc(pen, p0, p1, height, (int)Math.Ceiling(radius / 1.5));
+        }
+
+        /// <summary>
+        /// Adds a primitive arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="p0">The starting point of the arc.</param>
+        /// <param name="p1">The ending point of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting <paramref name="p0"/> and <paramref name="p1"/>.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same arc radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(subdivisions) * (arcAngle / 2PI)</c>.</remarks>
+        public void DrawPrimitiveArc (Pen pen, Point p0, Point p1, float height, int subdivisions)
+        {
+            DrawPrimitiveArc(pen, new Vector2(p0.X, p0.Y), new Vector2(p1.X, p1.Y), height, subdivisions);
+        }
+
+        /// <summary>
+        /// Adds a primitive arc path to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="p0">The starting point of the arc.</param>
+        /// <param name="p1">The ending point of the arc.</param>
+        /// <param name="height">The furthest point on the arc from the line connecting <paramref name="p0"/> and <paramref name="p1"/>.</param>
+        /// <param name="subdivisions">The number of subdivisions in a circle of the same arc radius.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the arc is computed as <c>(subdivisions) * (arcAngle / 2PI)</c>.</remarks>
+        public void DrawPrimitiveArc (Pen pen, Vector2 p0, Vector2 p1, float height, int subdivisions)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            int vertexCount = BuildArcGeometryBuffer(p0, p1, height, subdivisions);
+            if (vertexCount > 1)
+                DrawPrimitivePath(pen, _geometryBuffer, 0, vertexCount, PathType.Open);
+        }
+
+        /// <summary>
         /// Adds a closed primitive arc path to the batch of figures to be rendered.
         /// </summary>
         /// <param name="pen">The pen supplying the color to render the path with.</param>
@@ -845,6 +910,59 @@ namespace LilyPath
                 angle -= (float)(Math.Floor(angle / (Math.PI * 2)) * Math.PI * 2);
 
             return angle;
+        }
+
+        private int BuildArcGeometryBuffer (Vector2 p0, Vector2 p1, float height, int subdivisions)
+        {
+            Vector2 edge01 = p1 - p0;
+            Vector2 p01mid = Vector2.Lerp(p0, p1, 0.5f);
+
+            float width = edge01.Length();
+            float radius = (height / 2) + (width * width) / (height * 8);
+
+            edge01.Normalize();
+            Vector2 edge01t = new Vector2(-edge01.Y, edge01.X);
+            Vector2 center = p01mid + edge01t * (radius - height);
+
+            float startAngle = PointToAngle(center, p0);
+            float endAngle = PointToAngle(center, p1);
+
+            float arcAngle;
+            if (height >= 0) {
+                if (height < width / 2) {
+                    arcAngle = ((endAngle - startAngle) < Math.PI)
+                        ? endAngle - startAngle
+                        : endAngle - (float)Math.PI * 2 - startAngle;
+                }
+                else {
+                    arcAngle = ((endAngle - startAngle) > Math.PI)
+                        ? endAngle - startAngle
+                        : endAngle - (float)Math.PI * 2 - startAngle;
+                }
+            }
+            else {
+                if (-height < width / 2) {
+                    arcAngle = ((endAngle - startAngle) < Math.PI)
+                        ? endAngle - startAngle
+                        : endAngle + (float)Math.PI * 2 - startAngle;
+                }
+                else {
+                    arcAngle = ((endAngle - startAngle) > Math.PI)
+                        ? endAngle - startAngle
+                        : endAngle + (float)Math.PI * 2 - startAngle;
+                }
+            }
+
+            return BuildArcGeometryBuffer(center, Math.Abs(radius), subdivisions, startAngle, arcAngle);
+        }
+
+        private float PointToAngle (Vector2 center, Vector2 point)
+        {
+            double angle = Math.Atan2(center.Y - point.Y, point.X - center.X);
+            if (angle < 0)
+                angle += Math.PI * 2;
+
+            return (float)angle;
         }
 
         private int BuildArcGeometryBuffer (Vector2 center, float radius, int subdivisions, float startAngle, float arcAngle)

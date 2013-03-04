@@ -32,6 +32,22 @@ namespace LilyPath
         }
 
         /// <summary>
+        /// Gets the raw vertex buffer from the <see cref="PathBuilder"/>.
+        /// </summary>
+        public Vector2[] Buffer
+        {
+            get { return _geometryBuffer; }
+        }
+
+        /// <summary>
+        /// Gets the number of vertices currently in the path and buffer.
+        /// </summary>
+        public int Count
+        {
+            get { return _geometryIndex; }
+        }
+
+        /// <summary>
         /// Appends a point to the end of the path.
         /// </summary>
         /// <param name="point">A point.</param>
@@ -283,6 +299,14 @@ namespace LilyPath
                 buffer[i] = Vector2.Transform(_geometryBuffer[i], transform);
 
             return new GraphicsPath(pen, buffer, pathType, 0, _geometryIndex);
+        }
+
+        /// <summary>
+        /// Resets the <see cref="PathBuilder"/> to empty.
+        /// </summary>
+        public void Reset ()
+        {
+            _geometryIndex = 0;
         }
 
         private void CheckBufferFreeSpace (int vertexCount)

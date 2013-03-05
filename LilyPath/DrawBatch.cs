@@ -882,9 +882,9 @@ namespace LilyPath
             AddVertex(new Vector2(center.X, center.Y), brush);
 
             for (int i = 0; i < subdivisions - 1; i++)
-                AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex + i, baseVertexIndex + i + 1);
+                AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex + i + 1, baseVertexIndex + i);
 
-            AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex + subdivisions - 1, baseVertexIndex);
+            AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex, baseVertexIndex + subdivisions - 1);
         }
 
         /// <summary>

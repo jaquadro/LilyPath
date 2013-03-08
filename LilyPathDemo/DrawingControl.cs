@@ -430,6 +430,34 @@ namespace LilyPathDemo
             drawBatch.End();
         }
 
+        [TestSheet("Primitive Ellipses")]
+        public static void DrawPrimitiveEllipses (DrawBatch drawBatch)
+        {
+            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+
+            drawBatch.DrawPrimitiveEllipse(Pens.Blue, new Rectangle(50, 50, 50, 50));
+            drawBatch.DrawPrimitiveEllipse(Pens.Blue, new Rectangle(125, 50, 100, 50));
+            drawBatch.DrawPrimitiveEllipse(Pens.Blue, new Rectangle(250, 50, 150, 50));
+            drawBatch.DrawPrimitiveEllipse(Pens.Blue, new Rectangle(50, 125, 50, 100));
+            drawBatch.DrawPrimitiveEllipse(Pens.Blue, new Rectangle(125, 125, 100, 100));
+            drawBatch.DrawPrimitiveEllipse(Pens.Blue, new Rectangle(250, 125, 150, 100));
+            drawBatch.DrawPrimitiveEllipse(Pens.Blue, new Rectangle(50, 250, 50, 150));
+            drawBatch.DrawPrimitiveEllipse(Pens.Blue, new Rectangle(125, 250, 100, 150));
+            drawBatch.DrawPrimitiveEllipse(Pens.Blue, new Rectangle(250, 250, 150, 150));
+
+            drawBatch.DrawPrimitiveEllipse(Pens.Red, new Rectangle(425, 50, 100, 50), 0);
+            drawBatch.DrawPrimitiveEllipse(Pens.Red, new Rectangle(425, 150, 100, 50), (float)Math.PI / 8);
+            drawBatch.DrawPrimitiveEllipse(Pens.Red, new Rectangle(425, 250, 100, 50), (float)Math.PI / 4);
+            drawBatch.DrawPrimitiveEllipse(Pens.Red, new Rectangle(425, 350, 100, 50), (float)Math.PI / 8 * 3);
+
+            drawBatch.DrawPrimitiveEllipse(Pens.Red, new Rectangle(50, 425, 50, 100), 0);
+            drawBatch.DrawPrimitiveEllipse(Pens.Red, new Rectangle(150, 425, 50, 100), (float)-Math.PI / 8);
+            drawBatch.DrawPrimitiveEllipse(Pens.Red, new Rectangle(250, 425, 50, 100), (float)-Math.PI / 4);
+            drawBatch.DrawPrimitiveEllipse(Pens.Red, new Rectangle(350, 425, 50, 100), (float)-Math.PI / 8 * 3);
+
+            drawBatch.End();
+        }
+
         private static GraphicsPath _outerFlower;
         private static GraphicsPath _innerFlower;
         private static GraphicsPath[] _lillypads;

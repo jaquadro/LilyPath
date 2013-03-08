@@ -396,23 +396,36 @@ namespace LilyPathDemo
         }
 
         private static Texture2D _xor6;
-        private static Brush _xor6Brush;
 
-        [TestSheet("Pattern Fill")]
-        public static void DrawPatternFill (DrawBatch drawBatch)
+        [TestSheet("Texture Fill")]
+        public static void DrawTextureFill (DrawBatch drawBatch)
         {
             if (_xor6 == null)
                 _xor6 = BuildXorTexture(drawBatch.GraphicsDevice, 6);
 
-            if (_xor6Brush == null)
-                _xor6Brush = new TextureBrush(_xor6) {
-                    Transform = Matrix.CreateTranslation(.1f, .1f, 0)
-                };
+            TextureBrush brush1 = new TextureBrush(_xor6);
+            TextureBrush brush2 = new TextureBrush(_xor6) {
+                Transform = Matrix.CreateTranslation(-50f / _xor6.Width, -175f / _xor6.Height, 0)
+            };
+            TextureBrush brush3 = new TextureBrush(_xor6) {
+                Transform = Matrix.CreateScale(.25f, .5f, 1f)
+            };
+            TextureBrush brush4 = new TextureBrush(_xor6) {
+                Transform = Matrix.CreateRotationZ((float)Math.PI / 4)
+            };
+            TextureBrush brush5 = new TextureBrush(_xor6, .5f);
+            TextureBrush brush6 = new TextureBrush(_xor6) {
+                Color = Color.Purple
+            };
 
             drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
 
-            drawBatch.FillRectangle(_xor6Brush, new Rectangle(50, 50, 200, 100));
-            drawBatch.FillCircle(_xor6Brush, new Vector2(400, 100), 50);
+            drawBatch.FillRectangle(brush1, new Rectangle(50, 50, 200, 100));
+            drawBatch.FillRectangle(brush2, new Rectangle(50, 175, 200, 100));
+            drawBatch.FillRectangle(brush3, new Rectangle(50, 300, 200, 100));
+            drawBatch.FillRectangle(brush4, new Rectangle(50, 425, 200, 100));
+            drawBatch.FillCircle(brush5, new Vector2(350, 100), 50);
+            drawBatch.FillCircle(brush6, new Vector2(350, 225), 50);
 
             drawBatch.End();
         }

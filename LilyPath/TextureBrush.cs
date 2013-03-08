@@ -45,6 +45,15 @@ namespace LilyPath
         }
 
         /// <summary>
+        /// Gets or sets the color to blend with the texture.
+        /// </summary>
+        public new Color Color
+        {
+            get { return base.Color; }
+            set { base.Color = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the transformation to apply to brush.
         /// </summary>
         public new Matrix Transform

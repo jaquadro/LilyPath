@@ -52,7 +52,7 @@
     <Compile Include="Enums.cs" />
     <Compile Include="GraphicsPath.cs" />
     <Compile Include="PathBuilder.cs" />
-    <Compile Include="PatternBrush.cs" />
+    <Compile Include="TextureBrush.cs" />
     <Compile Include="Pen.cs" />
     <Compile Include="Pens.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

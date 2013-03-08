@@ -9,6 +9,7 @@ Capabilities include:
 * Drawing primitive lines, paths, and closed shapes (drawn as 1px line lists).
 * Drawing lines, paths, and shapes with customizable pens.
 * Filling paths and shapes with customizable brushes.
+* Basic shapes include rectangle, circle, ellipse, segment (arc), and sector (arc).
 * Color or pattern fill for brushes.
 * Varying width, alignment, end cap styles for pens.
 * Multisegment lines are mitered.

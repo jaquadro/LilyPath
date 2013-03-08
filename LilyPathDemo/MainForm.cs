@@ -28,7 +28,7 @@ namespace LilyPathDemo
                 listBox1.Items.Add(key);
 
             listBox1.SelectedValueChanged += ListBoxSelectedValueChanged;
-            listBox1.SelectedItem = "Primitive Shapes";
+            listBox1.SelectedItem = "Water Lily";
         }
 
         private void ListBoxSelectedValueChanged (object sender, EventArgs e)

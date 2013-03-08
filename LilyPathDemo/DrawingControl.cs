@@ -458,6 +458,37 @@ namespace LilyPathDemo
             drawBatch.End();
         }
 
+        [TestSheet("Ellipses")]
+        public static void DrawEllipses (DrawBatch drawBatch)
+        {
+            Pen bluePen = new Pen(Color.Blue, 10);
+            Pen redPen = new Pen(Color.Red, 10);
+
+            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+
+            drawBatch.DrawEllipse(bluePen, new Rectangle(50, 50, 50, 50));
+            drawBatch.DrawEllipse(bluePen, new Rectangle(125, 50, 100, 50));
+            drawBatch.DrawEllipse(bluePen, new Rectangle(250, 50, 150, 50));
+            drawBatch.DrawEllipse(bluePen, new Rectangle(50, 125, 50, 100));
+            drawBatch.DrawEllipse(bluePen, new Rectangle(125, 125, 100, 100));
+            drawBatch.DrawEllipse(bluePen, new Rectangle(250, 125, 150, 100));
+            drawBatch.DrawEllipse(bluePen, new Rectangle(50, 250, 50, 150));
+            drawBatch.DrawEllipse(bluePen, new Rectangle(125, 250, 100, 150));
+            drawBatch.DrawEllipse(bluePen, new Rectangle(250, 250, 150, 150));
+
+            drawBatch.DrawEllipse(redPen, new Rectangle(425, 50, 100, 50), 0);
+            drawBatch.DrawEllipse(redPen, new Rectangle(425, 150, 100, 50), (float)Math.PI / 8);
+            drawBatch.DrawEllipse(redPen, new Rectangle(425, 250, 100, 50), (float)Math.PI / 4);
+            drawBatch.DrawEllipse(redPen, new Rectangle(425, 350, 100, 50), (float)Math.PI / 8 * 3);
+
+            drawBatch.DrawEllipse(redPen, new Rectangle(50, 425, 50, 100), 0);
+            drawBatch.DrawEllipse(redPen, new Rectangle(150, 425, 50, 100), (float)-Math.PI / 8);
+            drawBatch.DrawEllipse(redPen, new Rectangle(250, 425, 50, 100), (float)-Math.PI / 4);
+            drawBatch.DrawEllipse(redPen, new Rectangle(350, 425, 50, 100), (float)-Math.PI / 8 * 3);
+
+            drawBatch.End();
+        }
+
         private static GraphicsPath _outerFlower;
         private static GraphicsPath _innerFlower;
         private static GraphicsPath[] _lillypads;

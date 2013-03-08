@@ -415,6 +415,92 @@ namespace LilyPath
         }
 
         /// <summary>
+        /// Computes and adds an ellipse path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="bound">The bounding rectangle of the ellipse.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
+        public void DrawEllipse (Pen pen, Rectangle bound)
+        {
+            DrawEllipse(pen, new Vector2(bound.Center.X, bound.Center.Y), bound.Width / 2f, bound.Height / 2f, 0);
+        }
+
+        /// <summary>
+        /// Computes and adds an ellipse path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="bound">The bounding rectangle of the ellipse.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
+        public void DrawEllipse (Pen pen, Rectangle bound, float angle)
+        {
+            DrawEllipse(pen, new Vector2(bound.Center.X, bound.Center.Y), bound.Width / 2f, bound.Height / 2f, angle);
+        }
+
+        /// <summary>
+        /// Computes and adds an ellipse path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="bound">The bounding rectangle of the ellipse.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="subdivisions">The number of subdivisions (sides) to render the ellipse with.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawEllipse (Pen pen, Rectangle bound, float angle, int subdivisions)
+        {
+            DrawEllipse(pen, new Vector2(bound.Center.X, bound.Center.Y), bound.Width / 2f, bound.Height / 2f, angle, subdivisions);
+        }
+
+        /// <summary>
+        /// Computes and adds an ellipse path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center of the ellipse.</param>
+        /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
+        /// <param name="yRadius">The radius of the ellipse along the y-acis.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
+        public void DrawEllipse (Pen pen, Vector2 center, float xRadius, float yRadius)
+        {
+            DrawEllipse(pen, center, xRadius, yRadius, 0);
+        }
+
+        /// <summary>
+        /// Computes and adds an ellipse path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center of the ellipse.</param>
+        /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
+        /// <param name="yRadius">The radius of the ellipse along the y-acis.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
+        public void DrawEllipse (Pen pen, Vector2 center, float xRadius, float yRadius, float angle)
+        {
+            DrawEllipse(pen, center, xRadius, yRadius, angle, (int)Math.Ceiling(Math.Max(xRadius, yRadius) / 1.5));
+        }
+
+        /// <summary>
+        /// Computes and adds an ellipse path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="center">The center of the ellipse.</param>
+        /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
+        /// <param name="yRadius">The radius of the ellipse along the y-acis.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="subdivisions">The number of subdivisions (sides) to render the ellipse with.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawEllipse (Pen pen, Vector2 center, float xRadius, float yRadius, float angle, int subdivisions)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            BuildEllipseGeometryBuffer(center, xRadius, yRadius, angle, subdivisions);
+            AddClosedPath(_geometryBuffer, 0, subdivisions, pen);
+        }
+
+        /// <summary>
         /// Adds a primitive circle path to the batch of figures to be rendered.
         /// </summary>
         /// <param name="pen">The pen supplying the color to render the path with.</param>
@@ -467,7 +553,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the ellipse is computed as max(width, height) / 3.0.</remarks>
         public void DrawPrimitiveEllipse (Pen pen, Rectangle bound)
         {
-            DrawPrimitiveEllipse(pen, new Vector2(bound.Center.X, bound.Center.Y), bound.Width, bound.Height, 0);
+            DrawPrimitiveEllipse(pen, new Vector2(bound.Center.X, bound.Center.Y), bound.Width / 2f, bound.Height / 2f, 0);
         }
 
         /// <summary>
@@ -480,7 +566,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the ellipse is computed as max(width, height) / 3.0.</remarks>
         public void DrawPrimitiveEllipse (Pen pen, Rectangle bound, float angle)
         {
-            DrawPrimitiveEllipse(pen, new Vector2(bound.Center.X, bound.Center.Y), bound.Width, bound.Height, angle);
+            DrawPrimitiveEllipse(pen, new Vector2(bound.Center.X, bound.Center.Y), bound.Width / 2f, bound.Height / 2f, angle);
         }
 
         /// <summary>
@@ -493,7 +579,7 @@ namespace LilyPath
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void DrawPrimitiveEllipse (Pen pen, Rectangle bound, float angle, int subdivisions)
         {
-            DrawPrimitiveEllipse(pen, new Vector2(bound.Center.X, bound.Center.Y), bound.Width, bound.Height, angle, subdivisions);
+            DrawPrimitiveEllipse(pen, new Vector2(bound.Center.X, bound.Center.Y), bound.Width / 2f, bound.Height / 2f, angle, subdivisions);
         }
 
         /// <summary>
@@ -501,13 +587,13 @@ namespace LilyPath
         /// </summary>
         /// <param name="pen">The pen supplying the color to render the path with.</param>
         /// <param name="center">The center of the ellipse.</param>
-        /// <param name="width">The width of the ellipse.</param>
-        /// <param name="height">The height of the ellipse.</param>
+        /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
+        /// <param name="yRadius">The radius of the ellipse along the y-acis.</param>
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
-        /// <remarks>The number of subdivisions in the ellipse is computed as max(width, height) / 3.0.</remarks>
-        public void DrawPrimitiveEllipse (Pen pen, Vector2 center, float width, float height)
+        /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
+        public void DrawPrimitiveEllipse (Pen pen, Vector2 center, float xRadius, float yRadius)
         {
-            DrawPrimitiveEllipse(pen, center, width, height, 0);
+            DrawPrimitiveEllipse(pen, center, xRadius, yRadius, 0);
         }
 
         /// <summary>
@@ -515,14 +601,14 @@ namespace LilyPath
         /// </summary>
         /// <param name="pen">The pen supplying the color to render the path with.</param>
         /// <param name="center">The center of the ellipse.</param>
-        /// <param name="width">The width of the ellipse.</param>
-        /// <param name="height">The height of the ellipse.</param>
+        /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
+        /// <param name="yRadius">The radius of the ellipse along the y-acis.</param>
         /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
-        /// <remarks>The number of subdivisions in the ellipse is computed as max(width, height) / 3.0.</remarks>
-        public void DrawPrimitiveEllipse (Pen pen, Vector2 center, float width, float height, float angle)
+        /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
+        public void DrawPrimitiveEllipse (Pen pen, Vector2 center, float xRadius, float yRadius, float angle)
         {
-            DrawPrimitiveEllipse(pen, center, width, height, angle, (int)Math.Ceiling(Math.Max(width, height) / 3.0));
+            DrawPrimitiveEllipse(pen, center, xRadius, yRadius, angle, (int)Math.Ceiling(Math.Max(xRadius, yRadius) / 1.5));
         }
 
         /// <summary>
@@ -530,27 +616,27 @@ namespace LilyPath
         /// </summary>
         /// <param name="pen">The pen supplying the color to render the path with.</param>
         /// <param name="center">The center of the ellipse.</param>
-        /// <param name="width">The width of the ellipse.</param>
-        /// <param name="height">The height of the ellipse.</param>
+        /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
+        /// <param name="yRadius">The radius of the ellipse along the y-acis.</param>
         /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
         /// <param name="subdivisions">The number of subdivisions (sides) to render the ellipse with.</param>
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
-        public void DrawPrimitiveEllipse (Pen pen, Vector2 center, float width, float height, float angle, int subdivisions)
+        public void DrawPrimitiveEllipse (Pen pen, Vector2 center, float xRadius, float yRadius, float angle, int subdivisions)
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
 
-            BuildEllipseGeometryBuffer(center, width, height, angle, subdivisions);
+            BuildEllipseGeometryBuffer(center, xRadius, yRadius, angle, subdivisions);
             DrawPrimitivePath(pen, _geometryBuffer, 0, subdivisions, PathType.Closed);
         }
 
-        private void BuildEllipseGeometryBuffer (Vector2 center, float width, float height, float angle, int subdivisions)
+        private void BuildEllipseGeometryBuffer (Vector2 center, float xRadius, float yRadius, float angle, int subdivisions)
         {
-            float radius = Math.Min(width, height) / 2f;
+            float radius = Math.Min(xRadius, yRadius);
 
             BuildCircleGeometryBuffer(Vector2.Zero, radius, subdivisions, false);
 
-            Matrix transform = Matrix.CreateScale(width / (radius * 2), height / (radius * 2), 1f);
+            Matrix transform = Matrix.CreateScale(xRadius / radius, yRadius / radius, 1f);
             transform *= Matrix.CreateRotationZ(-angle);
             transform.Translation = new Vector3(center, 0);
 

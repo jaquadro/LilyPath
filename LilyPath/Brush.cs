@@ -13,7 +13,10 @@ namespace LilyPath
         /// Initializes a new instance of a <see cref="Brush"/> class.
         /// </summary>
         protected Brush ()
-        { }
+        {
+            Color = Color.White;
+            Transform = Matrix.Identity;
+        }
 
         /// <summary>
         /// The alpha value of the brush.
@@ -21,9 +24,19 @@ namespace LilyPath
         public virtual float Alpha { get; protected set; }
 
         /// <summary>
+        /// The color of the brush.
+        /// </summary>
+        protected internal Color Color { get; protected set; }
+
+        /// <summary>
         /// The texture resource of the brush.
         /// </summary>
-        public virtual Texture2D Texture { get; protected set; }
+        protected internal Texture2D Texture { get; protected set; }
+
+        /// <summary>
+        /// Gets or sets the transformation to apply to brush.
+        /// </summary>
+        protected internal Matrix Transform { get; protected set; }
 
         #region IDisposable
 

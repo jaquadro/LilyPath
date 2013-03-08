@@ -166,11 +166,13 @@ namespace LilyPath
             _indexData = new short[indexCount];
             _positionData = new Vector2[vertexCount];
 
-            if (_pen.Color != null)
-                _colorData = new Color[vertexCount];
+            if (_pen.Brush != null) {
+                if (_pen.Brush.Color != null)
+                    _colorData = new Color[vertexCount];
 
-            if (_pen.Brush != null && _pen.Brush.Texture != null)
-                _textureData = new Vector2[vertexCount];
+                if (_pen.Brush.Texture != null)
+                    _textureData = new Vector2[vertexCount];
+            }
         }
 
         private void CompileOpenPath (IList<Vector2> points, int offset, int count)

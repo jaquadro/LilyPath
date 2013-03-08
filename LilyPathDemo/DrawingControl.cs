@@ -398,6 +398,28 @@ namespace LilyPathDemo
             drawBatch.End();
         }
 
+        private static Texture2D _xor6;
+        private static Brush _xor6Brush;
+
+        [TestSheet("Pattern Fill")]
+        public static void DrawPatternFill (DrawBatch drawBatch)
+        {
+            if (_xor6 == null)
+                _xor6 = BuildXorTexture(drawBatch.GraphicsDevice, 6);
+
+            if (_xor6Brush == null)
+                _xor6Brush = new PatternBrush(_xor6) {
+                    Transform = Matrix.CreateTranslation(.1f, .1f, 0)
+                };
+
+            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+
+            drawBatch.FillRectangle(_xor6Brush, new Rectangle(50, 50, 200, 100));
+            drawBatch.FillCircle(_xor6Brush, new Vector2(400, 100), 50);
+
+            drawBatch.End();
+        }
+
         private static GraphicsPath _outerFlower;
         private static GraphicsPath _innerFlower;
         private static GraphicsPath[] _lillypads;
@@ -490,6 +512,26 @@ namespace LilyPathDemo
             }
 
             return points;
+        }
+
+        private static Texture2D BuildXorTexture (GraphicsDevice device, int bits)
+        {
+            if (bits < 1 || bits > 8)
+                throw new ArgumentException("Xor texture must have between 1 and 8 bits", "bits");
+
+            Texture2D tex = new Texture2D(device, 1 << bits, 1 << bits);
+            Color[] data = new Color[tex.Width * tex.Height];
+
+            for (int y = 0; y < tex.Height; y++) {
+                for (int x = 0; x < tex.Width; x++) {
+                    float lum = ((x << (8 - bits)) ^ (y << (8 - bits))) / 255f;
+                    data[y * tex.Width + x] = new Color(lum, lum, lum);
+                }
+            }
+
+            tex.SetData(data);
+
+            return tex;
         }
     }
 }

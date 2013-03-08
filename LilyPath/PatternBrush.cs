@@ -15,38 +15,55 @@ namespace LilyPath
         /// <summary>
         /// Creates a new <see cref="PatternBrush"/> with the given <see cref="GraphicsDevice"/> and texture.
         /// </summary>
-        /// <param name="device">A valid <see cref="GraphicsDevice"/>.</param>
         /// <param name="pattern">A texture.</param>
-        public PatternBrush (GraphicsDevice device, Texture2D pattern)
-            : this(device, pattern, 1f)
-        {
-        }
+        public PatternBrush (Texture2D pattern)
+            : this(pattern, 1f)
+        { }
 
         /// <summary>
         /// Creates a new <see cref="PatternBrush"/> with the given <see cref="GraphicsDevice"/>, texture, and opacity.
         /// </summary>
-        /// <param name="device">A valid <see cref="GraphicsDevice"/>.</param>
         /// <param name="pattern">A texture.</param>
         /// <param name="opacity">The opacity to render the texture with.</param>
         /// <remarks>The <see cref="Brush.Alpha"/> property of the brush is intialized to the opacity value.
         /// When the brush is rendered, any opacity already present in the texture is blended with
         /// the opacity value.</remarks>
-        public PatternBrush (GraphicsDevice device, Texture2D pattern, float opacity)
+        public PatternBrush (Texture2D pattern, float opacity)
             : base()
         {
             Alpha = opacity;
-
-            byte[] data = new byte[pattern.Width * pattern.Height * 4];
-            pattern.GetData(data);
-
-            Texture = new Texture2D(device, pattern.Width, pattern.Height, false, SurfaceFormat.Color);
-            Texture.SetData(data);
+            Texture = pattern;
         }
+
+        /// <summary>
+        /// Gets or sets the texture resource of the brush.
+        /// </summary>
+        public new Texture2D Texture
+        {
+            get { return base.Texture; }
+            private set { base.Texture = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the transformation to apply to brush.
+        /// </summary>
+        public new Matrix Transform
+        {
+            get { return base.Transform; }
+            set { base.Transform = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether this brush "owns" the texture used to construct it, and should therefor dispose the texture
+        /// along with itself.
+        /// </summary>
+        public bool OwnsTexture { get; set; }
 
         /// <inherit />
         protected override void DisposeManaged ()
         {
-            Texture.Dispose();
+            if (OwnsTexture)
+                Texture.Dispose();
         }
     }
 

@@ -1067,11 +1067,7 @@ namespace LilyPath
 
         private void AddInfo (PrimitiveType primitiveType, int vertexCount, int indexCount, Brush brush)
         {
-            _infoBuffer[_infoBufferIndex].Primitive = primitiveType;
-            _infoBuffer[_infoBufferIndex].Texture = brush != null ? brush.Texture : _defaultTexture;
-            _infoBuffer[_infoBufferIndex].IndexCount = indexCount;
-            _infoBuffer[_infoBufferIndex].VertexCount = vertexCount;
-            _infoBufferIndex++;
+            AddInfo(primitiveType, vertexCount, indexCount, brush != null ? brush.Texture : _defaultTexture);
         }
 
         private void AddInfo (PrimitiveType primitiveType, int vertexCount, int indexCount, Texture2D texture)
@@ -1133,6 +1129,7 @@ namespace LilyPath
             if (pen.Brush != null && pen.Brush.Texture != null) {
                 Texture2D tex = pen.Brush.Texture;
                 vertex.TextureCoordinate = new Vector2(position.X / tex.Width, position.Y / tex.Height);
+                vertex.TextureCoordinate = Vector2.Transform(vertex.TextureCoordinate, pen.Brush.Transform);
                 vertex.Color *= pen.Brush.Alpha;
             }
             else {
@@ -1146,12 +1143,16 @@ namespace LilyPath
         {
             VertexPositionColorTexture vertex = new VertexPositionColorTexture();
             vertex.Position = new Vector3(position, 0);
-            vertex.Color = Color.White;
+            vertex.Color = brush.Color;
 
             if (brush != null && brush.Texture != null) {
                 Texture2D tex = brush.Texture;
                 vertex.TextureCoordinate = new Vector2(position.X / tex.Width, position.Y / tex.Height);
+                vertex.TextureCoordinate = Vector2.Transform(vertex.TextureCoordinate, brush.Transform);
                 vertex.Color *= brush.Alpha;
+            }
+            else {
+                vertex.TextureCoordinate = new Vector2(position.X, position.Y);
             }
 
             _vertexBuffer[_vertexBufferIndex++] = vertex;

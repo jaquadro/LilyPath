@@ -24,38 +24,41 @@ namespace LilyPath
     public class Pen : IDisposable
     {
         /// <summary>
-        /// The solid color of the pen if no <see cref="Brush"/> is defined.
+        /// Gets the solid color or blending color of the pen.
         /// </summary>
-        public Color Color { get; set; }
+        public Color Color
+        {
+            get { return Brush.Color; }
+        }
 
         /// <summary>
-        /// The <see cref="Brush"/> used to fill stroked paths.
+        /// Gets the <see cref="Brush"/> used to fill stroked paths.
         /// </summary>
-        public Brush Brush { get; set; }
+        public Brush Brush { get; private set; }
 
         /// <summary>
-        /// The width of the stroked path in graphical units (usually pixels).
+        /// Gets or sets the width of the stroked path in graphical units (usually pixels).
         /// </summary>
         public float Width { get; set; }
 
         /// <summary>
-        /// The alignment of the stroked path relative to the ideal path being stroked.
+        /// Gets or sets the alignment of the stroked path relative to the ideal path being stroked.
         /// </summary>
         public PenAlignment Alignment { get; set; }
 
         /// <summary>
-        /// How the start of a stroked path is terminated.
+        /// Gets or sets how the start of a stroked path is terminated.
         /// </summary>
         public LineCap StartCap { get; set; }
 
         /// <summary>
-        /// How the end of a stroked path is terminated.
+        /// Gets or sets how the end of a stroked path is terminated.
         /// </summary>
         public LineCap EndCap { get; set; }
 
         private Pen ()
         {
-            Color = Color.White;
+            //Color = Color.White;
             Alignment = PenAlignment.Center;
             StartCap = LineCap.Flat;
             EndCap = LineCap.Flat;
@@ -69,6 +72,9 @@ namespace LilyPath
         public Pen (Brush brush, float width)
             : this()
         {
+            if (brush == null)
+                throw new ArgumentNullException("brush");
+
             Brush = brush;
             Width = width;
         }
@@ -79,11 +85,8 @@ namespace LilyPath
         /// <param name="color"></param>
         /// <param name="width"></param>
         public Pen (Color color, float width)
-            : this()
-        {
-            Color = color;
-            Width = width;
-        }
+            : this(new SolidColorBrush(color), width)
+        { }
 
         /// <summary>
         /// Creates a new <see cref="Pen"/> with the given brush and a width of 1.

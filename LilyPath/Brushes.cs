@@ -54,18 +54,18 @@ namespace LilyPath
             if (!_init) {
                 _init = true;
 
-                Black = new SolidColorBrush(device, Color.Black);
-                Blue = new SolidColorBrush(device, Color.Blue);
-                Cyan = new SolidColorBrush(device, Color.Cyan);
-                Green = new SolidColorBrush(device, Color.Green);
-                Magenta = new SolidColorBrush(device, Color.Magenta);
-                Red = new SolidColorBrush(device, Color.Red);
-                White = new SolidColorBrush(device, Color.White);
-                Yellow = new SolidColorBrush(device, Color.Yellow);
+                Black = new SolidColorBrush(Color.Black);
+                Blue = new SolidColorBrush(Color.Blue);
+                Cyan = new SolidColorBrush(Color.Cyan);
+                Green = new SolidColorBrush(Color.Green);
+                Magenta = new SolidColorBrush(Color.Magenta);
+                Red = new SolidColorBrush(Color.Red);
+                White = new SolidColorBrush(Color.White);
+                Yellow = new SolidColorBrush(Color.Yellow);
 
-                Gray = new SolidColorBrush(device, Color.Gray);
-                LightGray = new SolidColorBrush(device, Color.LightGray);
-                DarkGray = new SolidColorBrush(device, Color.DarkGray);
+                Gray = new SolidColorBrush(Color.Gray);
+                LightGray = new SolidColorBrush(Color.LightGray);
+                DarkGray = new SolidColorBrush(Color.DarkGray);
             }
         }
     }

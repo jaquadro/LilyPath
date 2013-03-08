@@ -1074,6 +1074,106 @@ namespace LilyPath
         }
 
         /// <summary>
+        /// Adds a filled ellipse path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="bound">The bounding rectangle of the ellipse.</param>
+        /// <exception cref="InvalidOperationException"><c>FillEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the ellipse is computed as max(width, height) / 3.0.</remarks>
+        public void FillEllipse (Brush brush, Rectangle bound)
+        {
+            FillEllipse(brush, new Vector2(bound.Center.X, bound.Center.Y), bound.Width / 2f, bound.Height / 2f, 0);
+        }
+
+        /// <summary>
+        /// Adds a filled ellipse path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="bound">The bounding rectangle of the ellipse.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>FillEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the ellipse is computed as max(width, height) / 3.0.</remarks>
+        public void FillEllipse (Brush brush, Rectangle bound, float angle)
+        {
+            FillEllipse(brush, new Vector2(bound.Center.X, bound.Center.Y), bound.Width / 2f, bound.Height / 2f, angle);
+        }
+
+        /// <summary>
+        /// Adds a filled ellipse path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="bound">The bounding rectangle of the ellipse.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="subdivisions">The number of subdivisions (sides) to render the ellipse with.</param>
+        /// <exception cref="InvalidOperationException"><c>FillEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void FillEllipse (Brush brush, Rectangle bound, float angle, int subdivisions)
+        {
+            FillEllipse(brush, new Vector2(bound.Center.X, bound.Center.Y), bound.Width / 2f, bound.Height / 2f, angle, subdivisions);
+        }
+
+        /// <summary>
+        /// Adds a filled ellipse to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="center">The center coordinate of the ellipse.</param>
+        /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
+        /// <param name="yRadius">The radius of the llipse along the y-axis.</param>
+        /// <exception cref="InvalidOperationException"><c>FillEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
+        public void FillEllipse (Brush brush, Vector2 center, float xRadius, float yRadius)
+        {
+            FillEllipse(brush, center, xRadius, yRadius, 0);
+        }
+
+        /// <summary>
+        /// Adds a filled ellipse to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="center">The center coordinate of the ellipse.</param>
+        /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
+        /// <param name="yRadius">The radius of the llipse along the y-axis.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>FillEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
+        public void FillEllipse (Brush brush, Vector2 center, float xRadius, float yRadius, float angle)
+        {
+            FillEllipse(brush, center, xRadius, yRadius, angle, (int)(Math.Max(xRadius, yRadius) / 1.5));
+        }
+
+        /// <summary>
+        /// Adds a filled ellipse to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="center">The center coordinate of the ellipse.</param>
+        /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
+        /// <param name="yRadius">The radius of the llipse along the y-axis.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="subdivisions">The number of subdivisions to render the circle with.</param>
+        /// <exception cref="InvalidOperationException"><c>FillEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void FillEllipse (Brush brush, Vector2 center, float xRadius, float yRadius, float angle, int subdivisions)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            RequestBufferSpace(subdivisions + 1, subdivisions * 3);
+            AddInfo(PrimitiveType.TriangleList, subdivisions + 1, subdivisions * 3, brush);
+
+            BuildEllipseGeometryBuffer(center, xRadius, yRadius, angle, subdivisions);
+
+            int baseVertexIndex = _vertexBufferIndex;
+
+            for (int i = 0; i < subdivisions; i++)
+                AddVertex(_geometryBuffer[i], brush);
+
+            AddVertex(new Vector2(center.X, center.Y), brush);
+
+            for (int i = 0; i < subdivisions - 1; i++)
+                AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex + i + 1, baseVertexIndex + i);
+
+            AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex, baseVertexIndex + subdivisions - 1);
+        }
+
+        /// <summary>
         /// Adds a filled arc to the batch of figures to be rendered.
         /// </summary>
         /// <param name="brush">The brush to render the shape with.</param>

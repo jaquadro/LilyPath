@@ -21,9 +21,6 @@ namespace LilyPathDemo
         {
             ClearColor = Color.GhostWhite;
 
-            Brushes.Initialize(GraphicsDevice);
-            Pens.Initialize(GraphicsDevice);
-
             _drawBatch = new DrawBatch(GraphicsDevice);
 
             Application.Idle += delegate { Invalidate(); };

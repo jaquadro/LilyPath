@@ -8,8 +8,6 @@ namespace LilyPath
     /// </summary>
     public static class Pens
     {
-        private static bool _init;
-
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
         public static Pen Black { get; private set; }
 
@@ -43,30 +41,20 @@ namespace LilyPath
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
         public static Pen DarkGray { get; private set; }
 
-        /// <summary>
-        /// Creates the default set of pens with the given <see cref="GraphicsDevice"/>.
-        /// </summary>
-        /// <param name="device">A valid <see cref="GraphicsDevice"/>.</param>
-        public static void Initialize (GraphicsDevice device)
+        static Pens ()
         {
-            if (!_init) {
-                _init = true;
+            Black = new Pen(Brushes.Black);
+            Blue = new Pen(Brushes.Blue);
+            Cyan = new Pen(Brushes.Cyan);
+            Green = new Pen(Brushes.Green);
+            Magenta = new Pen(Brushes.Magenta);
+            Red = new Pen(Brushes.Red);
+            White = new Pen(Brushes.White);
+            Yellow = new Pen(Brushes.Yellow);
 
-                Brushes.Initialize(device);
-
-                Black = new Pen(Brushes.Black);
-                Blue = new Pen(Brushes.Blue);
-                Cyan = new Pen(Brushes.Cyan);
-                Green = new Pen(Brushes.Green);
-                Magenta = new Pen(Brushes.Magenta);
-                Red = new Pen(Brushes.Red);
-                White = new Pen(Brushes.White);
-                Yellow = new Pen(Brushes.Yellow);
-
-                LightGray = new Pen(Brushes.LightGray);
-                Gray = new Pen(Brushes.Gray);
-                DarkGray = new Pen(Brushes.DarkGray);
-            }
+            LightGray = new Pen(Brushes.LightGray);
+            Gray = new Pen(Brushes.Gray);
+            DarkGray = new Pen(Brushes.DarkGray);
         }
     }
 }

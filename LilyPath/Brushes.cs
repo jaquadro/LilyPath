@@ -10,8 +10,6 @@ namespace LilyPath
     /// </summary>
     public static class Brushes
     {
-        private static bool _init;
-
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
         public static Brush Black { get; private set; }
 
@@ -45,28 +43,20 @@ namespace LilyPath
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
         public static Brush DarkGray { get; private set; }
 
-        /// <summary>
-        /// Creates the default set of brushes with the given <see cref="GraphicsDevice"/>.
-        /// </summary>
-        /// <param name="device">A valid <see cref="GraphicsDevice"/>.</param>
-        public static void Initialize (GraphicsDevice device)
+        static Brushes ()
         {
-            if (!_init) {
-                _init = true;
+            Black = new SolidColorBrush(Color.Black);
+            Blue = new SolidColorBrush(Color.Blue);
+            Cyan = new SolidColorBrush(Color.Cyan);
+            Green = new SolidColorBrush(Color.Green);
+            Magenta = new SolidColorBrush(Color.Magenta);
+            Red = new SolidColorBrush(Color.Red);
+            White = new SolidColorBrush(Color.White);
+            Yellow = new SolidColorBrush(Color.Yellow);
 
-                Black = new SolidColorBrush(Color.Black);
-                Blue = new SolidColorBrush(Color.Blue);
-                Cyan = new SolidColorBrush(Color.Cyan);
-                Green = new SolidColorBrush(Color.Green);
-                Magenta = new SolidColorBrush(Color.Magenta);
-                Red = new SolidColorBrush(Color.Red);
-                White = new SolidColorBrush(Color.White);
-                Yellow = new SolidColorBrush(Color.Yellow);
-
-                Gray = new SolidColorBrush(Color.Gray);
-                LightGray = new SolidColorBrush(Color.LightGray);
-                DarkGray = new SolidColorBrush(Color.DarkGray);
-            }
+            Gray = new SolidColorBrush(Color.Gray);
+            LightGray = new SolidColorBrush(Color.LightGray);
+            DarkGray = new SolidColorBrush(Color.DarkGray);
         }
     }
 }

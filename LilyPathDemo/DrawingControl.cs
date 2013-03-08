@@ -405,7 +405,7 @@ namespace LilyPathDemo
                 _xor6 = BuildXorTexture(drawBatch.GraphicsDevice, 6);
 
             if (_xor6Brush == null)
-                _xor6Brush = new PatternBrush(_xor6) {
+                _xor6Brush = new TextureBrush(_xor6) {
                     Transform = Matrix.CreateTranslation(.1f, .1f, 0)
                 };
 

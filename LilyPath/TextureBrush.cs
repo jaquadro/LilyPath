@@ -10,29 +10,29 @@ namespace LilyPath
     /// <summary>
     /// A <see cref="Brush"/> that represents a texture.
     /// </summary>
-    public class PatternBrush : Brush
+    public class TextureBrush : Brush
     {
         /// <summary>
-        /// Creates a new <see cref="PatternBrush"/> with the given <see cref="GraphicsDevice"/> and texture.
+        /// Creates a new <see cref="TextureBrush"/> with the given <see cref="GraphicsDevice"/> and texture.
         /// </summary>
-        /// <param name="pattern">A texture.</param>
-        public PatternBrush (Texture2D pattern)
-            : this(pattern, 1f)
+        /// <param name="texture">A texture.</param>
+        public TextureBrush (Texture2D texture)
+            : this(texture, 1f)
         { }
 
         /// <summary>
-        /// Creates a new <see cref="PatternBrush"/> with the given <see cref="GraphicsDevice"/>, texture, and opacity.
+        /// Creates a new <see cref="TextureBrush"/> with the given <see cref="GraphicsDevice"/>, texture, and opacity.
         /// </summary>
-        /// <param name="pattern">A texture.</param>
+        /// <param name="texture">A texture.</param>
         /// <param name="opacity">The opacity to render the texture with.</param>
         /// <remarks>The <see cref="Brush.Alpha"/> property of the brush is intialized to the opacity value.
         /// When the brush is rendered, any opacity already present in the texture is blended with
         /// the opacity value.</remarks>
-        public PatternBrush (Texture2D pattern, float opacity)
+        public TextureBrush (Texture2D texture, float opacity)
             : base()
         {
             Alpha = opacity;
-            Texture = pattern;
+            Texture = texture;
         }
 
         /// <summary>

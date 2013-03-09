@@ -138,29 +138,29 @@ namespace LilyPathDemo
         {
             drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
 
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5));
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 125), 50, 0, (float)Math.PI);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5));
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 125), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5));
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 125), 50, 0, -(float)Math.PI);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 175), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5));
 
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5));
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 325), 50, 0, -(float)Math.PI);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5));
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 275), 50, -(float)(Math.PI * 0.25), (float)(Math.PI * 1.5));
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 325), 50, 0, (float)Math.PI);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 325), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5));
 
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 125), 50, 0, (float)Math.PI, 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 125), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 125), 50, 0, -(float)Math.PI, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 175), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), 16);
 
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5), 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 325), 50, 0, -(float)Math.PI, 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5), 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 275), 50, -(float)(Math.PI * 0.25), (float)(Math.PI * 1.5), 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 325), 50, 0, (float)Math.PI, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(250, 325), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 16);
 
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 4);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 125), 50, 0, (float)Math.PI, 4);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 4);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 125), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), 4);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 125), 50, 0, -(float)Math.PI, 4);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 175), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), 4);
 
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5), 4);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 325), 50, 0, -(float)Math.PI, 4);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5), 4);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 275), 50, -(float)(Math.PI * 0.25), (float)(Math.PI * 1.5), 4);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 325), 50, 0, (float)Math.PI, 4);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(400, 325), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 4);
 
             drawBatch.End();
         }
@@ -178,13 +178,13 @@ namespace LilyPathDemo
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(50, 300), new Vector2(150, 300), -50);
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(50, 350), new Vector2(150, 350), -25);
 
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(175, 75), new Vector2(275, 75), 25, 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(175, 125), new Vector2(275, 125), 50, 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(175, 200), new Vector2(275, 200), 75, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(275, 75), new Vector2(175, 75), -25, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(275, 125), new Vector2(175, 125), -50, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(275, 200), new Vector2(175, 200), -75, 16);
 
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(175, 225), new Vector2(275, 225), -75, 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(175, 300), new Vector2(275, 300), -50, 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(175, 350), new Vector2(275, 350), -25, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(275, 225), new Vector2(175, 225), 75, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(275, 300), new Vector2(175, 300), 50, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(275, 350), new Vector2(175, 350), 25, 16);
 
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(325, 50), new Vector2(325, 150), -25);
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(375, 50), new Vector2(375, 150), -50);
@@ -194,13 +194,13 @@ namespace LilyPathDemo
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(550, 50), new Vector2(550, 150), 50);
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(600, 50), new Vector2(600, 150), 25);
 
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(325, 175), new Vector2(325, 275), -25, 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(375, 175), new Vector2(375, 275), -50, 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(450, 175), new Vector2(450, 275), -75, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(325, 275), new Vector2(325, 175), 25, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(375, 275), new Vector2(375, 175), 50, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(450, 275), new Vector2(450, 175), 75, 16);
 
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(475, 175), new Vector2(475, 275), 75, 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(550, 175), new Vector2(550, 275), 50, 16);
-            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(600, 175), new Vector2(600, 275), 25, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(475, 275), new Vector2(475, 175), -75, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(550, 275), new Vector2(550, 175), -50, 16);
+            drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(600, 275), new Vector2(600, 175), -25, 16);
 
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(325, 300), new Vector2(325, 400), -25, 4);
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(375, 300), new Vector2(375, 400), -50, 4);
@@ -220,29 +220,29 @@ namespace LilyPathDemo
 
             drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
 
-            drawBatch.DrawArc(thickPen, new Vector2(100, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5));
-            drawBatch.DrawArc(thickPen, new Vector2(100, 125), 50, 0, (float)Math.PI);
-            drawBatch.DrawArc(thickPen, new Vector2(100, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5));
+            drawBatch.DrawArc(thickPen, new Vector2(100, 125), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5));
+            drawBatch.DrawArc(thickPen, new Vector2(100, 125), 50, 0, -(float)Math.PI);
+            drawBatch.DrawArc(thickPen, new Vector2(100, 175), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5));
 
-            drawBatch.DrawArc(thickPen, new Vector2(100, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5));
-            drawBatch.DrawArc(thickPen, new Vector2(100, 325), 50, 0, -(float)Math.PI);
-            drawBatch.DrawArc(thickPen, new Vector2(100, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5));
+            drawBatch.DrawArc(thickPen, new Vector2(100, 275), 50, -(float)(Math.PI * 0.25), (float)(Math.PI * 1.5));
+            drawBatch.DrawArc(thickPen, new Vector2(100, 325), 50, 0, (float)Math.PI);
+            drawBatch.DrawArc(thickPen, new Vector2(100, 325), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5));
 
-            drawBatch.DrawArc(thickPen, new Vector2(250, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 16);
-            drawBatch.DrawArc(thickPen, new Vector2(250, 125), 50, 0, (float)Math.PI, 16);
-            drawBatch.DrawArc(thickPen, new Vector2(250, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 16);
+            drawBatch.DrawArc(thickPen, new Vector2(250, 125), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), 16);
+            drawBatch.DrawArc(thickPen, new Vector2(250, 125), 50, 0, -(float)Math.PI, 16);
+            drawBatch.DrawArc(thickPen, new Vector2(250, 175), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), 16);
 
-            drawBatch.DrawArc(thickPen, new Vector2(250, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5), 16);
-            drawBatch.DrawArc(thickPen, new Vector2(250, 325), 50, 0, -(float)Math.PI, 16);
-            drawBatch.DrawArc(thickPen, new Vector2(250, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5), 16);
+            drawBatch.DrawArc(thickPen, new Vector2(250, 275), 50, -(float)(Math.PI * 0.25), (float)(Math.PI * 1.5), 16);
+            drawBatch.DrawArc(thickPen, new Vector2(250, 325), 50, 0, (float)Math.PI, 16);
+            drawBatch.DrawArc(thickPen, new Vector2(250, 325), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 16);
 
-            drawBatch.DrawArc(thickPen, new Vector2(400, 125), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 4);
-            drawBatch.DrawArc(thickPen, new Vector2(400, 125), 50, 0, (float)Math.PI, 4);
-            drawBatch.DrawArc(thickPen, new Vector2(400, 175), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), 4);
+            drawBatch.DrawArc(thickPen, new Vector2(400, 125), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), 4);
+            drawBatch.DrawArc(thickPen, new Vector2(400, 125), 50, 0, -(float)Math.PI, 4);
+            drawBatch.DrawArc(thickPen, new Vector2(400, 175), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), 4);
 
-            drawBatch.DrawArc(thickPen, new Vector2(400, 275), 50, (float)(Math.PI * 0.25), (float)(Math.PI * -1.5), 4);
-            drawBatch.DrawArc(thickPen, new Vector2(400, 325), 50, 0, -(float)Math.PI, 4);
-            drawBatch.DrawArc(thickPen, new Vector2(400, 325), 75, (float)(Math.PI * -0.25), (float)(Math.PI * -0.5), 4);
+            drawBatch.DrawArc(thickPen, new Vector2(400, 275), 50, -(float)(Math.PI * 0.25), (float)(Math.PI * 1.5), 4);
+            drawBatch.DrawArc(thickPen, new Vector2(400, 325), 50, 0, (float)Math.PI, 4);
+            drawBatch.DrawArc(thickPen, new Vector2(400, 325), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), 4);
 
             drawBatch.End();
         }
@@ -302,29 +302,29 @@ namespace LilyPathDemo
         {
             drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
 
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Segment);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 125), 50, 0, (float)Math.PI, ArcType.Segment);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Segment);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 125), 50, 0, -(float)Math.PI, ArcType.Segment);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 200), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Segment);
 
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Segment, 16);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 125), 50, 0, (float)Math.PI, ArcType.Segment, 16);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Segment, 16);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment, 16);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 125), 50, 0, -(float)Math.PI, ArcType.Segment, 16);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 200), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Segment, 16);
 
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Segment, 4);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 125), 50, 0, (float)Math.PI, ArcType.Segment, 4);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Segment, 4);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment, 4);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 125), 50, 0, -(float)Math.PI, ArcType.Segment, 4);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 200), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Segment, 4);
 
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Sector);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 410), 50, 0, (float)Math.PI, ArcType.Sector);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Sector);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 335), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Sector);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 410), 50, 0, -(float)Math.PI, ArcType.Sector);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 480), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Sector);
 
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Sector, 16);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 410), 50, 0, (float)Math.PI, ArcType.Sector, 16);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Sector, 16);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 335), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Sector, 16);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 410), 50, 0, -(float)Math.PI, ArcType.Sector, 16);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(250, 480), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Sector, 16);
 
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Sector, 4);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 410), 50, 0, (float)Math.PI, ArcType.Sector, 4);
-            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Sector, 4);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 335), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Sector, 4);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 410), 50, 0, -(float)Math.PI, ArcType.Sector, 4);
+            drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(400, 480), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Sector, 4);
 
             drawBatch.End();
         }
@@ -336,29 +336,29 @@ namespace LilyPathDemo
 
             drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
 
-            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Segment);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 125), 50, 0, (float)Math.PI, ArcType.Segment);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Segment);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 125), 50, 0, -(float)Math.PI, ArcType.Segment);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 200), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Segment);
 
-            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Segment, 16);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 125), 50, 0, (float)Math.PI, ArcType.Segment, 16);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Segment, 16);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment, 16);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 125), 50, 0, -(float)Math.PI, ArcType.Segment, 16);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 200), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Segment, 16);
 
-            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Segment, 4);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 125), 50, 0, (float)Math.PI, ArcType.Segment, 4);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Segment, 4);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment, 4);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 125), 50, 0, -(float)Math.PI, ArcType.Segment, 4);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 200), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Segment, 4);
 
-            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Sector);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 410), 50, 0, (float)Math.PI, ArcType.Sector);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Sector);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 335), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Sector);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 410), 50, 0, -(float)Math.PI, ArcType.Sector);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(100, 480), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Sector);
 
-            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Sector, 16);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 410), 50, 0, (float)Math.PI, ArcType.Sector, 16);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Sector, 16);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 335), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Sector, 16);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 410), 50, 0, -(float)Math.PI, ArcType.Sector, 16);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(250, 480), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Sector, 16);
 
-            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Sector, 4);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 410), 50, 0, (float)Math.PI, ArcType.Sector, 4);
-            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Sector, 4);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 335), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Sector, 4);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 410), 50, 0, -(float)Math.PI, ArcType.Sector, 4);
+            drawBatch.DrawClosedArc(thickPen, new Vector2(400, 480), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Sector, 4);
 
             drawBatch.End();
         }
@@ -368,29 +368,29 @@ namespace LilyPathDemo
         {
             drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
 
-            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Segment);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 125), 50, 0, (float)Math.PI, ArcType.Segment);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Segment);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 125), 50, 0, -(float)Math.PI, ArcType.Segment);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 200), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Segment);
 
-            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Segment, 16);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 125), 50, 0, (float)Math.PI, ArcType.Segment, 16);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Segment, 16);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment, 16);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 125), 50, 0, -(float)Math.PI, ArcType.Segment, 16);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 200), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Segment, 16);
 
-            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 100), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Segment, 4);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 125), 50, 0, (float)Math.PI, ArcType.Segment, 4);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 200), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Segment, 4);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment, 4);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 125), 50, 0, -(float)Math.PI, ArcType.Segment, 4);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 200), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Segment, 4);
 
-            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Sector);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 410), 50, 0, (float)Math.PI, ArcType.Sector);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Sector);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 335), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Sector);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 410), 50, 0, -(float)Math.PI, ArcType.Sector);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(100, 480), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Sector);
 
-            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Sector, 16);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 410), 50, 0, (float)Math.PI, ArcType.Sector, 16);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Sector, 16);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 335), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Sector, 16);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 410), 50, 0, -(float)Math.PI, ArcType.Sector, 16);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(250, 480), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Sector, 16);
 
-            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 335), 75, (float)(Math.PI * 0.25), (float)(Math.PI * 0.5), ArcType.Sector, 4);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 410), 50, 0, (float)Math.PI, ArcType.Sector, 4);
-            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 480), 50, (float)(Math.PI * -0.25), (float)(Math.PI * 1.5), ArcType.Sector, 4);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 335), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Sector, 4);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 410), 50, 0, -(float)Math.PI, ArcType.Sector, 4);
+            drawBatch.FillArc(Brushes.Blue, new Vector2(400, 480), 50, (float)(Math.PI * 0.25), -(float)(Math.PI * 1.5), ArcType.Sector, 4);
 
             drawBatch.End();
         }

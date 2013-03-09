@@ -431,7 +431,7 @@ namespace LilyPath
         /// </summary>
         /// <param name="pen">The pen to render the path with.</param>
         /// <param name="bound">The bounding rectangle of the ellipse.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <exception cref="InvalidOperationException"><c>DrawEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
         public void DrawEllipse (Pen pen, Rectangle bound, float angle)
@@ -444,7 +444,7 @@ namespace LilyPath
         /// </summary>
         /// <param name="pen">The pen to render the path with.</param>
         /// <param name="bound">The bounding rectangle of the ellipse.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <param name="subdivisions">The number of subdivisions (sides) to render the ellipse with.</param>
         /// <exception cref="InvalidOperationException"><c>DrawEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void DrawEllipse (Pen pen, Rectangle bound, float angle, int subdivisions)
@@ -473,7 +473,7 @@ namespace LilyPath
         /// <param name="center">The center of the ellipse.</param>
         /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
         /// <param name="yRadius">The radius of the ellipse along the y-acis.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <exception cref="InvalidOperationException"><c>DrawEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
         public void DrawEllipse (Pen pen, Vector2 center, float xRadius, float yRadius, float angle)
@@ -488,7 +488,7 @@ namespace LilyPath
         /// <param name="center">The center of the ellipse.</param>
         /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
         /// <param name="yRadius">The radius of the ellipse along the y-acis.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <param name="subdivisions">The number of subdivisions (sides) to render the ellipse with.</param>
         /// <exception cref="InvalidOperationException"><c>DrawEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void DrawEllipse (Pen pen, Vector2 center, float xRadius, float yRadius, float angle, int subdivisions)
@@ -538,10 +538,10 @@ namespace LilyPath
                 Array.Resize(ref _geometryBuffer, (subdivisions + 1) * 2);
 
             for (int i = 0; i < subdivisions; i++)
-                _geometryBuffer[i] = new Vector2(center.X + radius * unitCircle[i].X, center.Y - radius * unitCircle[i].Y);
+                _geometryBuffer[i] = new Vector2(center.X + radius * unitCircle[i].X, center.Y + radius * unitCircle[i].Y);
 
             if (connect)
-                _geometryBuffer[subdivisions] = new Vector2(center.X + radius * unitCircle[0].X, center.Y - radius * unitCircle[0].Y);
+                _geometryBuffer[subdivisions] = new Vector2(center.X + radius * unitCircle[0].X, center.Y + radius * unitCircle[0].Y);
         }
 
         /// <summary>
@@ -561,7 +561,7 @@ namespace LilyPath
         /// </summary>
         /// <param name="pen">The pen supplying the color to render the path with.</param>
         /// <param name="bound">The bounding rectangle of the ellipse.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the ellipse is computed as max(width, height) / 3.0.</remarks>
         public void DrawPrimitiveEllipse (Pen pen, Rectangle bound, float angle)
@@ -574,7 +574,7 @@ namespace LilyPath
         /// </summary>
         /// <param name="pen">The pen supplying the color to render the path with.</param>
         /// <param name="bound">The bounding rectangle of the ellipse.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <param name="subdivisions">The number of subdivisions (sides) to render the ellipse with.</param>
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void DrawPrimitiveEllipse (Pen pen, Rectangle bound, float angle, int subdivisions)
@@ -603,7 +603,7 @@ namespace LilyPath
         /// <param name="center">The center of the ellipse.</param>
         /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
         /// <param name="yRadius">The radius of the ellipse along the y-acis.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
         public void DrawPrimitiveEllipse (Pen pen, Vector2 center, float xRadius, float yRadius, float angle)
@@ -618,7 +618,7 @@ namespace LilyPath
         /// <param name="center">The center of the ellipse.</param>
         /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
         /// <param name="yRadius">The radius of the ellipse along the y-acis.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <param name="subdivisions">The number of subdivisions (sides) to render the ellipse with.</param>
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void DrawPrimitiveEllipse (Pen pen, Vector2 center, float xRadius, float yRadius, float angle, int subdivisions)
@@ -637,7 +637,7 @@ namespace LilyPath
             BuildCircleGeometryBuffer(Vector2.Zero, radius, subdivisions, false);
 
             Matrix transform = Matrix.CreateScale(xRadius / radius, yRadius / radius, 1f);
-            transform *= Matrix.CreateRotationZ(-angle);
+            transform *= Matrix.CreateRotationZ(angle);
             transform.Translation = new Vector3(center, 0);
 
             for (int i = 0; i < subdivisions; i++)
@@ -651,7 +651,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <exception cref="InvalidOperationException"><c>DrawArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle)
@@ -666,7 +666,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
         /// <exception cref="InvalidOperationException"><c>DrawArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the arc is computed as <c>subdivisions * (arcAngle / 2PI)</c>.</remarks>
@@ -723,7 +723,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawPrimitiveArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle)
@@ -738,7 +738,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
@@ -795,7 +795,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveClosedArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
@@ -811,7 +811,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
         /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveClosedArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
@@ -841,7 +841,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
         /// <exception cref="InvalidOperationException"><c>DrawClosedArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
@@ -857,7 +857,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
         /// <param name="subdivisions">The number of subdivisions in a circle of the same radius.</param>
         /// <exception cref="InvalidOperationException"><c>DrawClosedArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
@@ -908,26 +908,26 @@ namespace LilyPath
             float arcAngle;
             if (height >= 0) {
                 if (height < width / 2) {
-                    arcAngle = ((endAngle - startAngle) < Math.PI)
+                    arcAngle = (Math.Abs(endAngle - startAngle) < Math.PI)
                         ? endAngle - startAngle
-                        : endAngle - (float)Math.PI * 2 - startAngle;
+                        : endAngle + (float)Math.PI * 2 - startAngle;
                 }
                 else {
                     arcAngle = ((endAngle - startAngle) > Math.PI)
                         ? endAngle - startAngle
-                        : endAngle - (float)Math.PI * 2 - startAngle;
+                        : endAngle + (float)Math.PI * 2 - startAngle;
                 }
             }
             else {
                 if (-height < width / 2) {
-                    arcAngle = ((endAngle - startAngle) < Math.PI)
+                    arcAngle = (Math.Abs(endAngle - startAngle) < Math.PI)
                         ? endAngle - startAngle
-                        : endAngle + (float)Math.PI * 2 - startAngle;
+                        : endAngle - (float)Math.PI * 2 - startAngle;
                 }
                 else {
                     arcAngle = ((endAngle - startAngle) > Math.PI)
-                        ? endAngle - startAngle
-                        : endAngle + (float)Math.PI * 2 - startAngle;
+                        ? startAngle - endAngle
+                        : endAngle - (float)Math.PI * 2 - startAngle;
                 }
             }
 
@@ -936,7 +936,7 @@ namespace LilyPath
 
         private float PointToAngle (Vector2 center, Vector2 point)
         {
-            double angle = Math.Atan2(center.Y - point.Y, point.X - center.X);
+            double angle = Math.Atan2(point.Y - center.Y, point.X - center.X);
             if (angle < 0)
                 angle += Math.PI * 2;
 
@@ -954,8 +954,8 @@ namespace LilyPath
 
             float subLength = (float)(2 * Math.PI / subdivisions);
 
-            Vector2 unitStart = new Vector2((float)Math.Cos(startAngle), (float)Math.Sin(startAngle));
-            Vector2 unitStop = new Vector2((float)Math.Cos(stopAngle), (float)Math.Sin(stopAngle));
+            Vector2 unitStart = new Vector2((float)Math.Cos(-startAngle), (float)Math.Sin(-startAngle));
+            Vector2 unitStop = new Vector2((float)Math.Cos(-stopAngle), (float)Math.Sin(-stopAngle));
 
             int startIndex, stopIndex;
             int vertexCount = 0;
@@ -983,7 +983,7 @@ namespace LilyPath
 
             if (arcAngle >= 0) {
                 if ((startIndex * subLength) - startAngle > 0.005f) {
-                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(startAngle), center.Y - radius * (float)Math.Sin(startAngle));
+                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(-startAngle), center.Y - radius * (float)Math.Sin(-startAngle));
                     vertexCount++;
                 }
 
@@ -999,13 +999,13 @@ namespace LilyPath
                 }
 
                 if (stopAngle - (stopIndex * subLength) > 0.005f) {
-                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(stopAngle), center.Y - radius * (float)Math.Sin(stopAngle));
+                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(-stopAngle), center.Y - radius * (float)Math.Sin(-stopAngle));
                     vertexCount++;
                 }
             }
             else {
                 if (startAngle - (startIndex * subLength) > 0.005f) {
-                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(startAngle), center.Y - radius * (float)Math.Sin(startAngle));
+                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(-startAngle), center.Y - radius * (float)Math.Sin(-startAngle));
                     vertexCount++;
                 }
 
@@ -1021,7 +1021,7 @@ namespace LilyPath
                 }
 
                 if ((stopIndex * subLength) - stopAngle > 0.005f) {
-                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(stopAngle), center.Y - radius * (float)Math.Sin(stopAngle));
+                    _geometryBuffer[bufIndex++] = new Vector2(center.X + radius * (float)Math.Cos(-stopAngle), center.Y - radius * (float)Math.Sin(-stopAngle));
                     vertexCount++;
                 }
             }
@@ -1090,7 +1090,7 @@ namespace LilyPath
         /// </summary>
         /// <param name="brush">The brush to render the shape with.</param>
         /// <param name="bound">The bounding rectangle of the ellipse.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <exception cref="InvalidOperationException"><c>FillEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the ellipse is computed as max(width, height) / 3.0.</remarks>
         public void FillEllipse (Brush brush, Rectangle bound, float angle)
@@ -1103,7 +1103,7 @@ namespace LilyPath
         /// </summary>
         /// <param name="brush">The brush to render the shape with.</param>
         /// <param name="bound">The bounding rectangle of the ellipse.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <param name="subdivisions">The number of subdivisions (sides) to render the ellipse with.</param>
         /// <exception cref="InvalidOperationException"><c>FillEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void FillEllipse (Brush brush, Rectangle bound, float angle, int subdivisions)
@@ -1132,7 +1132,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the ellipse.</param>
         /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
         /// <param name="yRadius">The radius of the llipse along the y-axis.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <exception cref="InvalidOperationException"><c>FillEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
         public void FillEllipse (Brush brush, Vector2 center, float xRadius, float yRadius, float angle)
@@ -1147,7 +1147,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the ellipse.</param>
         /// <param name="xRadius">The radius of the ellipse along the x-axis.</param>
         /// <param name="yRadius">The radius of the llipse along the y-axis.</param>
-        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate counter-clockwise.</param>
+        /// <param name="angle">The angle to rotate the ellipse by in radians.  Positive values rotate clockwise.</param>
         /// <param name="subdivisions">The number of subdivisions to render the circle with.</param>
         /// <exception cref="InvalidOperationException"><c>FillEllipse</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void FillEllipse (Brush brush, Vector2 center, float xRadius, float yRadius, float angle, int subdivisions)
@@ -1180,7 +1180,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
         /// <exception cref="InvalidOperationException"><c>FillArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
@@ -1196,7 +1196,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <param name="arcType">Whether the arc is drawn as a segment or a sector.</param>
         /// <param name="subdivisions">The number of subdivisions in the circle with the same radius as the arc.</param>
         /// <exception cref="InvalidOperationException"><c>FillArc</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
@@ -1228,11 +1228,11 @@ namespace LilyPath
 
             if (arcAngle < 0) {
                 for (int i = 0; i < vertexCount - 1; i++)
-                    AddTriangle(baseVertexIndex + vertexCount, baseVertexIndex + i, baseVertexIndex + i + 1);
+                    AddTriangle(baseVertexIndex + vertexCount, baseVertexIndex + i + 1, baseVertexIndex + i);
             }
             else {
                 for (int i = vertexCount - 1; i > 0; i--)
-                    AddTriangle(baseVertexIndex + vertexCount, baseVertexIndex + i, baseVertexIndex + i - 1);
+                    AddTriangle(baseVertexIndex + vertexCount, baseVertexIndex + i - 1, baseVertexIndex + i);
             }
         }
 
@@ -1267,7 +1267,7 @@ namespace LilyPath
         /// <param name="brush">The brush to render the shape with.</param>
         /// <param name="points">The list of points that make up the multisegment path enclosing the region.</param>
         /// <exception cref="InvalidOperationException"><c>FillPath</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
-        /// <remarks>Paths should be created with a counter-clockwise winding order, or the resulting geometry will be backface-culled.</remarks>
+        /// <remarks>Paths should be created with a clockwise winding order, or the resulting geometry will be backface-culled.</remarks>
         public void FillPath (Brush brush, IList<Vector2> points)
         {
             FillPath(brush, points, 0, points.Count);
@@ -1281,7 +1281,7 @@ namespace LilyPath
         /// <param name="offset">The offset into the <paramref name="points"/> list to begin rendering.</param>
         /// <param name="count">The number of points that should be rendered, starting from <paramref name="offset"/>.</param>
         /// <exception cref="InvalidOperationException"><c>FillPath</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
-        /// <remarks>Paths should be created with a counter-clockwise winding order, or the resulting geometry will be backface-culled.</remarks>
+        /// <remarks>Paths should be created with a clockwise winding order, or the resulting geometry will be backface-culled.</remarks>
         public void FillPath (Brush brush, IList<Vector2> points, int offset, int count)
         {
             if (!_inDraw)
@@ -1568,7 +1568,7 @@ namespace LilyPath
             List<Vector2> unitCircle = new List<Vector2>();
 
             for (int i = 0; i < divisions; i++) {
-                double angle = slice * i;
+                double angle = -slice * i;
                 unitCircle.Add(new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)));
             }
 

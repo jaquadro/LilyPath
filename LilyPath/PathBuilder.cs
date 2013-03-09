@@ -101,7 +101,7 @@ namespace LilyPath
         /// Appends a point to the end of the path offset from the path's current endpoint by the given length and angle.
         /// </summary>
         /// <param name="length">The length of the line being added.</param>
-        /// <param name="angle">The angle of the line in radians.  Positive values are counter-clockwise.</param>
+        /// <param name="angle">The angle of the line in radians.  Positive values are clockwise.</param>
         /// <exception cref="InvalidOperationException">The path has no existing points.</exception>
         public void AddLine (float length, float angle)
         {
@@ -157,7 +157,7 @@ namespace LilyPath
         /// Appends an arc between the current endpoint and a point defined by a center and arc angle.
         /// </summary>
         /// <param name="center">The center of a circle containing the path's current endpoint and destination point.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <exception cref="InvalidOperationException">The path has no existing points.</exception>
         public void AddArcByAngle (Vector2 center, float arcAngle)
         {
@@ -172,7 +172,7 @@ namespace LilyPath
         /// Appends an arc between the current endpoint and a point defined by a center and arc angle.
         /// </summary>
         /// <param name="center">The center of a circle containing the path's current endpoint and destination point.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <param name="subdivisions">The number of subdivisions in a circle of the same arc radius.</param>
         /// <exception cref="InvalidOperationException">The path has no existing points.</exception>
         public void AddArcByAngle (Vector2 center, float arcAngle, int subdivisions)
@@ -195,7 +195,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         public void AddArc (Vector2 center, float radius, float startAngle, float arcAngle)
         {
             AddArc(center, radius, startAngle, arcAngle, DefaultSubdivisions(radius));
@@ -208,7 +208,7 @@ namespace LilyPath
         /// <param name="center">The center coordinate of the the arc.</param>
         /// <param name="radius">The radius of the arc.</param>
         /// <param name="startAngle">The starting angle of the arc in radians, where 0 is 3 O'Clock.</param>
-        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw counter-clockwise.</param>
+        /// <param name="arcAngle">The sweep of the arc in radians.  Positive values draw clockwise.</param>
         /// <param name="subdivisions">The number of subdivisions in a circle of the same arc radius.</param>
         public void AddArc (Vector2 center, float radius, float startAngle, float arcAngle, int subdivisions)
         {
@@ -327,32 +327,32 @@ namespace LilyPath
             Vector2 edge01t = new Vector2(-edge01.Y, edge01.X);
             Vector2 center = p01mid + edge01t * (radius - height);
 
-            float startAngle = PointToAngle(center, new Vector2(p0.X, 2 * center.Y - p0.Y));
-            float endAngle = PointToAngle(center, new Vector2(p1.X, 2 * center.Y - p1.Y));
+            float startAngle = PointToAngle(center, p0);
+            float endAngle = PointToAngle(center, p1);
 
             float arcAngle;
             if (height >= 0) {
                 if (height < width / 2) {
-                    arcAngle = ((endAngle - startAngle) < Math.PI)
+                    arcAngle = (Math.Abs(endAngle - startAngle) < Math.PI)
                         ? endAngle - startAngle
-                        : endAngle - (float)Math.PI * 2 - startAngle;
+                        : endAngle + (float)Math.PI * 2 - startAngle;
                 }
                 else {
                     arcAngle = ((endAngle - startAngle) > Math.PI)
                         ? endAngle - startAngle
-                        : endAngle - (float)Math.PI * 2 - startAngle;
+                        : endAngle + (float)Math.PI * 2 - startAngle;
                 }
             }
             else {
                 if (-height < width / 2) {
-                    arcAngle = ((endAngle - startAngle) < Math.PI)
+                    arcAngle = (Math.Abs(endAngle - startAngle) < Math.PI)
                         ? endAngle - startAngle
-                        : endAngle + (float)Math.PI * 2 - startAngle;
+                        : endAngle - (float)Math.PI * 2 - startAngle;
                 }
                 else {
                     arcAngle = ((endAngle - startAngle) > Math.PI)
-                        ? endAngle - startAngle
-                        : endAngle + (float)Math.PI * 2 - startAngle;
+                        ? startAngle - endAngle
+                        : endAngle - (float)Math.PI * 2 - startAngle;
                 }
             }
 
@@ -370,8 +370,8 @@ namespace LilyPath
 
             float subLength = (float)(2 * Math.PI / subdivisions);
 
-            Vector2 unitStart = new Vector2((float)Math.Cos(startAngle), (float)Math.Sin(startAngle));
-            Vector2 unitStop = new Vector2((float)Math.Cos(stopAngle), (float)Math.Sin(stopAngle));
+            Vector2 unitStart = new Vector2((float)Math.Cos(-startAngle), (float)Math.Sin(-startAngle));
+            Vector2 unitStop = new Vector2((float)Math.Cos(-stopAngle), (float)Math.Sin(-stopAngle));
 
             int startIndex, stopIndex;
             int vertexCount = 0;
@@ -397,7 +397,7 @@ namespace LilyPath
 
             if (arcAngle >= 0) {
                 if ((startIndex * subLength) - startAngle > 0.005f) {
-                    _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * (float)Math.Cos(startAngle), center.Y - radius * (float)Math.Sin(startAngle));
+                    _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * (float)Math.Cos(-startAngle), center.Y - radius * (float)Math.Sin(-startAngle));
                     vertexCount++;
                 }
 
@@ -413,13 +413,13 @@ namespace LilyPath
                 }
 
                 if (stopAngle - (stopIndex * subLength) > 0.005f) {
-                    _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * (float)Math.Cos(stopAngle), center.Y - radius * (float)Math.Sin(stopAngle));
+                    _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * (float)Math.Cos(-stopAngle), center.Y - radius * (float)Math.Sin(-stopAngle));
                     vertexCount++;
                 }
             }
             else {
                 if (startAngle - (startIndex * subLength) > 0.005f) {
-                    _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * (float)Math.Cos(startAngle), center.Y - radius * (float)Math.Sin(startAngle));
+                    _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * (float)Math.Cos(-startAngle), center.Y - radius * (float)Math.Sin(-startAngle));
                     vertexCount++;
                 }
 
@@ -435,7 +435,7 @@ namespace LilyPath
                 }
 
                 if ((stopIndex * subLength) - stopAngle > 0.005f) {
-                    _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * (float)Math.Cos(stopAngle), center.Y - radius * (float)Math.Sin(stopAngle));
+                    _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * (float)Math.Cos(-stopAngle), center.Y - radius * (float)Math.Sin(-stopAngle));
                     vertexCount++;
                 }
             }
@@ -450,10 +450,10 @@ namespace LilyPath
             CheckBufferFreeSpace(subdivisions + 1);
 
             for (int i = 0; i < subdivisions; i++)
-                _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * unitCircle[i].X, center.Y - radius * unitCircle[i].Y);
+                _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * unitCircle[i].X, center.Y + radius * unitCircle[i].Y);
 
             if (connect)
-                _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * unitCircle[0].X, center.Y - radius * unitCircle[0].Y);
+                _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * unitCircle[0].X, center.Y + radius * unitCircle[0].Y);
         }
 
         private static List<Vector2> CalculateCircleSubdivisions (int divisions)
@@ -471,7 +471,7 @@ namespace LilyPath
             List<Vector2> unitCircle = new List<Vector2>();
 
             for (int i = 0; i < divisions; i++) {
-                double angle = slice * i;
+                double angle = -slice * i;
                 unitCircle.Add(new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)));
             }
 

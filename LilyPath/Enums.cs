@@ -73,4 +73,22 @@ namespace LilyPath
         /// </summary>
         Outset
     }
+
+    /// <summary>
+    /// Defines figure sort-rendering options.
+    /// </summary>
+    public enum DrawSortMode
+    {
+        /// <summary>
+        /// Figures are not drawn until <see cref="DrawBatch.End"/> is called.  <see cref="DrawBatch.End"/> will apply graphics
+        /// device settings and draw all figures in one batch in the same order drawing calls were received.  <see cref="DrawBatch"/>
+        /// defaults to <c>Deferred</c> mode.
+        /// </summary>
+        Deferred = 0,
+
+        /// <summary>
+        /// <see cref="DrawBatch.Begin()"/> will apply new graphics device settings, and figures will be drawn within each drawing call.
+        /// </summary>
+        Immediate = 1,
+    }
 }

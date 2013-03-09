@@ -40,13 +40,15 @@ namespace LilyPath
 
         private Triangulator _triangulator;
 
+        private DrawSortMode _sortMode;
         private BlendState _blendState;
         private SamplerState _samplerState;
         private DepthStencilState _depthStencilState;
         private RasterizerState _rasterizerState;
+        private Effect _effect;
         private Matrix _transform;
 
-        private static BasicEffect _effect;
+        private BasicEffect _standardEffect;
 
         private Texture2D _defaultTexture;
 
@@ -67,9 +69,9 @@ namespace LilyPath
             _computeBuffer = new Vector2[64];
             _geometryBuffer = new Vector2[256];
 
-            _effect = new BasicEffect(device);
-            _effect.TextureEnabled = true;
-            _effect.VertexColorEnabled = true;
+            _standardEffect = new BasicEffect(device);
+            _standardEffect.TextureEnabled = true;
+            _standardEffect.VertexColorEnabled = true;
 
             _defaultTexture = new Texture2D(device, 1, 1);
             _defaultTexture.SetData<Color>(new Color[] { Color.White * .6f });
@@ -88,33 +90,86 @@ namespace LilyPath
         /// </summary>
         public void Begin ()
         {
-            Begin(null, null, null, null, Matrix.Identity);
+            Begin(DrawSortMode.Deferred, null, null, null, null, null, Matrix.Identity);
         }
 
         /// <summary>
-        /// Begins a draw batch operation using deferred sort and the given state objects and transformation matrix.
+        /// Begins a draw batch operation using the specified sort and default state objects.
         /// </summary>
+        /// <param name="sortMode">The drawing order.</param>
+        public void Begin (DrawSortMode sortMode)
+        {
+            Begin(sortMode, null, null, null, null, null, Matrix.Identity);
+        }
+
+        /// <summary>
+        /// Begins a draw batch operation using the specified sort and given state objects.
+        /// </summary>
+        /// <param name="sortMode">The drawing order.</param>
+        /// <param name="blendState">Blending options.</param>
+        public void Begin (DrawSortMode sortMode, BlendState blendState)
+        {
+            Begin(sortMode, blendState, null, null, null, null, Matrix.Identity);
+        }
+
+        /// <summary>
+        /// Begins a draw batch operation using the specified sort and given state objects.
+        /// </summary>
+        /// <param name="sortMode">The drawing order.</param>
         /// <param name="blendState">Blending options.</param>
         /// <param name="samplerState">Texture sampling options.</param>
         /// <param name="depthStencilState">Depth and stencil options.</param>
         /// <param name="rasterizerState">Rasterization options.</param>
+        public void Begin (DrawSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState)
+        {
+            Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, null, Matrix.Identity);
+        }
+
+        /// <summary>
+        /// Begins a draw batch operation using the specified sort and given state objects.
+        /// </summary>
+        /// <param name="sortMode">The drawing order.</param>
+        /// <param name="blendState">Blending options.</param>
+        /// <param name="samplerState">Texture sampling options.</param>
+        /// <param name="depthStencilState">Depth and stencil options.</param>
+        /// <param name="rasterizerState">Rasterization options.</param>
+        /// <param name="effect">Effect state options.</param>
+        public void Begin (DrawSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect)
+        {
+            Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, effect, Matrix.Identity);
+        }
+
+        /// <summary>
+        /// Begins a draw batch operation using the specified sort, given state objects, and transformation matrix.
+        /// </summary>
+        /// <param name="sortMode">The drawing order.</param>
+        /// <param name="blendState">Blending options.</param>
+        /// <param name="samplerState">Texture sampling options.</param>
+        /// <param name="depthStencilState">Depth and stencil options.</param>
+        /// <param name="rasterizerState">Rasterization options.</param>
+        /// <param name="effect">Effect state options.</param>
         /// <param name="transform">Transformation matrix for scale, rotate, translate options.</param>
-        public void Begin (BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Matrix transform)
+        public void Begin (DrawSortMode sortMode, BlendState blendState, SamplerState samplerState, DepthStencilState depthStencilState, RasterizerState rasterizerState, Effect effect, Matrix transform)
         {
             if (_inDraw)
                 throw new InvalidOperationException("DrawBatch already inside Begin/End pair");
 
-            _inDraw = true;
-
+            _sortMode = sortMode;
             _blendState = blendState;
             _samplerState = samplerState;
             _depthStencilState = depthStencilState;
             _rasterizerState = rasterizerState;
+            _effect = effect;
             _transform = transform;
 
             _infoBufferIndex = 0;
             _indexBufferIndex = 0;
             _vertexBufferIndex = 0;
+
+            if (sortMode == DrawSortMode.Immediate)
+                SetRenderState();
+
+            _inDraw = true;
         }
 
         /// <summary>
@@ -125,9 +180,12 @@ namespace LilyPath
             if (!_inDraw)
                 throw new InvalidOperationException();
 
-            FlushBuffer();
-
             _inDraw = false;
+
+            if (_sortMode != DrawSortMode.Immediate)
+                SetRenderState();
+
+            FlushBuffer();
         }
 
         /// <summary>
@@ -185,6 +243,9 @@ namespace LilyPath
             AddSegment(baseVertexIndex + 2, baseVertexIndex + 4);
             AddSegment(baseVertexIndex + 4, baseVertexIndex + 6);
             AddSegment(baseVertexIndex + 6, baseVertexIndex + 0);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -239,6 +300,9 @@ namespace LilyPath
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 3);
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 3);
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -265,6 +329,9 @@ namespace LilyPath
             AddVertex(new Vector2(point.X + w2, point.Y + w2), pen);
 
             AddSegment(baseVertexIndex + 0, baseVertexIndex + 2);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -289,6 +356,9 @@ namespace LilyPath
             AddEndPoint(p0, p1, pen);
 
             AddSegment(baseVertexIndex + 0, baseVertexIndex + 2);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -314,6 +384,9 @@ namespace LilyPath
 
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex);
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 1);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -389,6 +462,9 @@ namespace LilyPath
                 _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + count - 1);
                 _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex);
             }
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -428,6 +504,9 @@ namespace LilyPath
 
             _vertexBufferIndex += path.VertexCount;
             _indexBufferIndex += path.IndexCount;
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -458,6 +537,9 @@ namespace LilyPath
 
             BuildCircleGeometryBuffer(center, radius, subdivisions, false);
             AddClosedPath(_geometryBuffer, 0, subdivisions, pen);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -544,6 +626,9 @@ namespace LilyPath
 
             BuildEllipseGeometryBuffer(center, xRadius, yRadius, angle, subdivisions);
             AddClosedPath(_geometryBuffer, 0, subdivisions, pen);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -724,6 +809,9 @@ namespace LilyPath
             int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
             if (vertexCount > 1)
                 AddPath(_geometryBuffer, 0, vertexCount, pen);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -760,6 +848,9 @@ namespace LilyPath
             int vertexCount = BuildArcGeometryBuffer(p0, p1, height, subdivisions);
             if (vertexCount > 1)
                 AddPath(_geometryBuffer, 0, vertexCount, pen);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -924,6 +1015,9 @@ namespace LilyPath
 
                 AddClosedPath(_geometryBuffer, 0, vertexCount, pen);
             }
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         private float ClampAngle (float angle)
@@ -1117,6 +1211,9 @@ namespace LilyPath
                 AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex + i + 1, baseVertexIndex + i);
 
             AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex, baseVertexIndex + subdivisions - 1);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -1217,6 +1314,9 @@ namespace LilyPath
                 AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex + i + 1, baseVertexIndex + i);
 
             AddTriangle(baseVertexIndex + subdivisions, baseVertexIndex, baseVertexIndex + subdivisions - 1);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -1280,6 +1380,9 @@ namespace LilyPath
                 for (int i = vertexCount - 1; i > 0; i--)
                     AddTriangle(baseVertexIndex + vertexCount, baseVertexIndex + i - 1, baseVertexIndex + i);
             }
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -1332,6 +1435,9 @@ namespace LilyPath
 
             AddTriangle(baseVertexIndex + 0, baseVertexIndex + 1, baseVertexIndex + 2);
             AddTriangle(baseVertexIndex + 1, baseVertexIndex + 3, baseVertexIndex + 2);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         /// <summary>
@@ -1379,6 +1485,9 @@ namespace LilyPath
             }
 
             _indexBufferIndex += _triangulator.ComputedIndexCount;
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
         }
 
         private void SetRenderState ()
@@ -1395,9 +1504,12 @@ namespace LilyPath
             _device.SamplerStates[0] = (_samplerState != null)
                 ? _samplerState : SamplerState.PointWrap;
 
-            _effect.Projection = Matrix.CreateOrthographicOffCenter(0, _device.Viewport.Width, _device.Viewport.Height, 0, -1, 1);
-            _effect.World = _transform;
-            _effect.CurrentTechnique.Passes[0].Apply();
+            _standardEffect.Projection = Matrix.CreateOrthographicOffCenter(0, _device.Viewport.Width, _device.Viewport.Height, 0, -1, 1);
+            _standardEffect.World = _transform;
+            _standardEffect.CurrentTechnique.Passes[0].Apply();
+
+            if (_effect != null)
+                _effect.CurrentTechnique.Passes[0].Apply();
         }
 
         private void AddMiteredJoint (Vector2 a, Vector2 b, Vector2 c, Pen pen)
@@ -1542,8 +1654,6 @@ namespace LilyPath
 
         private void FlushBuffer ()
         {
-            SetRenderState();
-
             int vertexOffset = 0;
             int indexOffset = 0;
             int vertexCount = 0;
@@ -1607,9 +1717,12 @@ namespace LilyPath
                 _infoBuffer[i].Texture = null;
         }
 
+        // TODO: Manage buffer overflow without requiring flush.
         private void RequestBufferSpace (int newVertexCount, int newIndexCount)
         {
             if (_indexBufferIndex + newIndexCount > short.MaxValue) {
+                if (_sortMode != DrawSortMode.Immediate)
+                    SetRenderState();
                 FlushBuffer();
             }
 

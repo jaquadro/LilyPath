@@ -8,6 +8,11 @@ namespace LilyPathDemo
 {
     class TestSheets
     {
+        private static void SetupDrawBatch (DrawBatch drawBatch)
+        {
+            drawBatch.Begin(DrawSortMode.Deferred, null, null, null, GetCommonRasterizerState(), null, Matrix.Identity);
+        }
+
         [TestSheet("Primitive Shapes")]
         public static void DrawPrimitiveShapes (DrawBatch drawBatch)
         {
@@ -19,9 +24,7 @@ namespace LilyPathDemo
                     wavy.Add(new Vector2(50 + i * 10, 110));
             }
 
-
-
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.DrawPrimitiveLine(Pens.Blue, new Vector2(50, 50), new Vector2(250, 50));
             drawBatch.DrawPrimitivePath(Pens.Red, wavy);
@@ -56,7 +59,7 @@ namespace LilyPathDemo
 
             GraphicsPath wavyPath = new GraphicsPath(thickRed, wavy);
 
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.DrawLine(thickBlue, new Vector2(50, 50), new Vector2(250, 50));
             drawBatch.DrawPath(wavyPath);
@@ -85,7 +88,7 @@ namespace LilyPathDemo
             GraphicsPath centerPath = new GraphicsPath(centerPen, StarPoints(new Vector2(350, 275), 5, 100, 50, false), PathType.Closed);
             GraphicsPath outsetPath = new GraphicsPath(outsetPen, StarPoints(new Vector2(125, 400), 5, 100, 50, false), PathType.Closed);
 
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.DrawPath(insetPath);
             drawBatch.DrawPrimitivePath(new Pen(Color.OrangeRed), StarPoints(new Vector2(125, 150), 5, 100, 50, true));
@@ -100,7 +103,7 @@ namespace LilyPathDemo
         [TestSheet("Filled Shapes")]
         public static void DrawFilledShapes (DrawBatch drawBatch)
         {
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.FillRectangle(Brushes.Green, new Rectangle(50, 50, 200, 100));
             drawBatch.FillCircle(Brushes.Blue, new Vector2(350, 100), 50);
@@ -114,7 +117,7 @@ namespace LilyPathDemo
         [TestSheet("Primitive Arcs")]
         public static void DrawPrimitiveArcs (DrawBatch drawBatch)
         {
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 125), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5));
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(100, 125), 50, 0, -(float)Math.PI);
@@ -146,7 +149,7 @@ namespace LilyPathDemo
         [TestSheet("Primitive Arcs 2")]
         public static void DrawPrimitiveArcs2 (DrawBatch drawBatch)
         {
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(50, 75), new Vector2(150, 75), 25);
             drawBatch.DrawPrimitiveArc(Pens.Blue, new Vector2(50, 125), new Vector2(150, 125), 50);
@@ -196,7 +199,7 @@ namespace LilyPathDemo
         {
             Pen thickPen = new Pen(Color.Blue, 15);
 
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.DrawArc(thickPen, new Vector2(100, 125), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5));
             drawBatch.DrawArc(thickPen, new Vector2(100, 125), 50, 0, -(float)Math.PI);
@@ -230,7 +233,7 @@ namespace LilyPathDemo
         {
             Pen thickPen = new Pen(Color.Blue, 15);
 
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.DrawArc(thickPen, new Vector2(50, 75), new Vector2(150, 75), 25);
             drawBatch.DrawArc(thickPen, new Vector2(50, 125), new Vector2(150, 125), 50);
@@ -278,7 +281,7 @@ namespace LilyPathDemo
         [TestSheet("Primitive Closed Arcs")]
         public static void DrawPrimitiveClosedArcs (DrawBatch drawBatch)
         {
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment);
             drawBatch.DrawPrimitiveClosedArc(Pens.Blue, new Vector2(100, 125), 50, 0, -(float)Math.PI, ArcType.Segment);
@@ -312,7 +315,7 @@ namespace LilyPathDemo
         {
             Pen thickPen = new Pen(Color.Blue, 15);
 
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.DrawClosedArc(thickPen, new Vector2(100, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment);
             drawBatch.DrawClosedArc(thickPen, new Vector2(100, 125), 50, 0, -(float)Math.PI, ArcType.Segment);
@@ -344,7 +347,7 @@ namespace LilyPathDemo
         [TestSheet("Filled Arcs")]
         public static void DrawFilledArcs (DrawBatch drawBatch)
         {
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.FillArc(Brushes.Blue, new Vector2(100, 100), 75, -(float)(Math.PI * 0.25), -(float)(Math.PI * 0.5), ArcType.Segment);
             drawBatch.FillArc(Brushes.Blue, new Vector2(100, 125), 50, 0, -(float)Math.PI, ArcType.Segment);
@@ -396,7 +399,7 @@ namespace LilyPathDemo
                 Color = Color.Purple
             };
 
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.FillRectangle(brush1, new Rectangle(50, 50, 200, 100));
             drawBatch.FillRectangle(brush2, new Rectangle(50, 175, 200, 100));
@@ -411,7 +414,7 @@ namespace LilyPathDemo
         [TestSheet("Primitive Ellipses")]
         public static void DrawPrimitiveEllipses (DrawBatch drawBatch)
         {
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.DrawPrimitiveEllipse(Pens.Blue, new Rectangle(50, 50, 50, 50));
             drawBatch.DrawPrimitiveEllipse(Pens.Blue, new Rectangle(125, 50, 100, 50));
@@ -442,7 +445,7 @@ namespace LilyPathDemo
             Pen bluePen = new Pen(Color.Blue, 10);
             Pen redPen = new Pen(Color.Red, 10);
 
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.DrawEllipse(bluePen, new Rectangle(50, 50, 50, 50));
             drawBatch.DrawEllipse(bluePen, new Rectangle(125, 50, 100, 50));
@@ -470,7 +473,7 @@ namespace LilyPathDemo
         [TestSheet("Filled Ellipses")]
         public static void DrawFilledEllipses (DrawBatch drawBatch)
         {
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             drawBatch.FillEllipse(Brushes.Blue, new Rectangle(50, 50, 50, 50));
             drawBatch.FillEllipse(Brushes.Blue, new Rectangle(125, 50, 100, 50));
@@ -523,7 +526,7 @@ namespace LilyPathDemo
                 _lillypads[2] = CreateLillyPadGP(pen, new Vector2(450, 150), 100, 2);
             }
 
-            drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);
+            SetupDrawBatch(drawBatch);
 
             foreach (GraphicsPath path in _lillypads)
                 drawBatch.DrawPath(path);

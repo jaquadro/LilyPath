@@ -54,6 +54,7 @@ namespace LilyPathDemo
             drawBatch.DrawPrimitiveRectangle(Pens.Magenta, new Rectangle(50, 160, 200, 100));
             drawBatch.DrawPrimitiveCircle(Pens.Black, new Vector2(350, 100), 50);
             drawBatch.DrawPrimitiveCircle(Pens.DarkGray, new Vector2(350, 225), 50, 16);
+            drawBatch.DrawPrimitiveRectangle(Pens.Green, new Rectangle(50, 350, 200, 100), (float)Math.PI / 4f);
 
             drawBatch.End();
         }
@@ -77,6 +78,7 @@ namespace LilyPathDemo
             Pen thickMagenta = new Pen(Color.Magenta, 15);
             Pen thickBlack = new Pen(Color.Black, 15);
             Pen thickDarkGray = new Pen(Color.DarkGray, 15);
+            Pen thickGreen = new Pen(Color.Green, 15);
 
             GraphicsPath wavyPath = new GraphicsPath(thickRed, wavy);
 
@@ -87,6 +89,7 @@ namespace LilyPathDemo
             drawBatch.DrawRectangle(thickMagenta, new Rectangle(50, 160, 200, 100));
             drawBatch.DrawCircle(thickBlack, new Vector2(350, 100), 50);
             drawBatch.DrawCircle(thickDarkGray, new Vector2(350, 225), 50, 16);
+            drawBatch.DrawRectangle(thickGreen, new Rectangle(50, 350, 200, 100), (float)Math.PI / 4f);
 
             drawBatch.End();
         }
@@ -129,6 +132,7 @@ namespace LilyPathDemo
             drawBatch.FillCircle(Brushes.Blue, new Vector2(350, 100), 50);
             drawBatch.FillCircle(Brushes.Blue, new Vector2(500, 100), 50, 16);
             drawBatch.FillPath(Brushes.Gray, StarPoints(new Vector2(150, 300), 8, 100, 50, false));
+            drawBatch.FillRectangle(Brushes.Green, new Rectangle(300, 250, 200, 100), (float)Math.PI / 4f);
 
             drawBatch.End();
         }
@@ -541,8 +545,8 @@ namespace LilyPathDemo
                 Pen pen = new Pen(Color.Green, 15) { Alignment = PenAlignment.Center };
 
                 _lillypads[0] = CreateLillyPadGP(pen, new Vector2(400, 400), 125, 0);
-                _lillypads[1] = CreateLillyPadGP(pen, new Vector2(200, 250), 150, 2);
-                _lillypads[2] = CreateLillyPadGP(pen, new Vector2(450, 150), 100, 5);
+                _lillypads[1] = CreateLillyPadGP(pen, new Vector2(200, 250), 150, 3);
+                _lillypads[2] = CreateLillyPadGP(pen, new Vector2(450, 150), 100, 2);
             }
 
             drawBatch.Begin(null, null, null, GetCommonRasterizerState(), Matrix.Identity);

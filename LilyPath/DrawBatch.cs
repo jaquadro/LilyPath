@@ -138,6 +138,18 @@ namespace LilyPath
         /// <exception cref="InvalidOperationException"><c>DrawRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void DrawRectangle (Pen pen, Rectangle rect)
         {
+            DrawRectangle(pen, rect, 0);
+        }
+
+        /// <summary>
+        /// Computes and adds a rectangle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="rect">The rectangle to be rendered.</param>
+        /// <param name="angle">The angle to rotate the rectangle by around its center in radians.  Positive values rotate clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawRectangle (Pen pen, Rectangle rect, float angle)
+        {
             if (!_inDraw)
                 throw new InvalidOperationException();
 
@@ -145,17 +157,29 @@ namespace LilyPath
 
             AddInfo(PrimitiveType.TriangleList, 8, 24, pen.Brush);
 
-            Vector2 a = new Vector2(rect.Left, rect.Top);
-            Vector2 b = new Vector2(rect.Right, rect.Top);
-            Vector2 c = new Vector2(rect.Right, rect.Bottom);
-            Vector2 d = new Vector2(rect.Left, rect.Bottom);
+            Vector2[] v = new Vector2[] {
+                new Vector2(rect.Left, rect.Top),
+                new Vector2(rect.Right, rect.Top),
+                new Vector2(rect.Right, rect.Bottom),
+                new Vector2(rect.Left, rect.Bottom),
+            };
+
+            if (angle != 0) {
+                Vector2 center = new Vector2(rect.Center.X, rect.Center.Y);
+
+                Matrix transform = Matrix.CreateRotationZ(angle);
+                transform.Translation = new Vector3(center, 0);
+
+                for (int i = 0; i < v.Length; i++)
+                    v[i] = Vector2.Transform(v[i] - center, transform);
+            }
 
             int baseVertexIndex = _vertexBufferIndex;
 
-            AddMiteredJoint(a, b, c, pen);
-            AddMiteredJoint(b, c, d, pen);
-            AddMiteredJoint(c, d, a, pen);
-            AddMiteredJoint(d, a, b, pen);
+            AddMiteredJoint(v[0], v[1], v[2], pen);
+            AddMiteredJoint(v[1], v[2], v[3], pen);
+            AddMiteredJoint(v[2], v[3], v[0], pen);
+            AddMiteredJoint(v[3], v[0], v[1], pen);
 
             AddSegment(baseVertexIndex + 0, baseVertexIndex + 2);
             AddSegment(baseVertexIndex + 2, baseVertexIndex + 4);
@@ -171,6 +195,18 @@ namespace LilyPath
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void DrawPrimitiveRectangle (Pen pen, Rectangle rect)
         {
+            DrawPrimitiveRectangle(pen, rect, 0);
+        }
+
+        /// <summary>
+        /// Adds a primitive rectangle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying a color to render the path with.</param>
+        /// <param name="rect">The rectangle to be rendered.</param>
+        /// <param name="angle">The angle to rotate the rectangle by around its center in radians.  Positive values rotate clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawPrimitiveRectangle (Pen pen, Rectangle rect, float angle)
+        {
             if (!_inDraw)
                 throw new InvalidOperationException();
 
@@ -184,6 +220,16 @@ namespace LilyPath
             _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(rect.Right, rect.Y, 0), pen.Color, new Vector2(rect.Right, rect.Y));
             _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(rect.Right, rect.Bottom, 0), pen.Color, new Vector2(rect.Right, rect.Bottom));
             _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(rect.X, rect.Bottom, 0), pen.Color, new Vector2(rect.X, rect.Bottom));
+
+            if (angle != 0) {
+                Vector3 center = new Vector3(rect.Center.X, rect.Center.Y, 0);
+
+                Matrix transform = Matrix.CreateRotationZ(angle);
+                transform.Translation = center;
+
+                for (int i = _vertexBufferIndex - 4; i < _vertexBufferIndex; i++)
+                    _vertexBuffer[i].Position = Vector3.Transform(_vertexBuffer[i].Position - center, transform);
+            }
 
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex);
             _indexBuffer[_indexBufferIndex++] = (short)(baseVertexIndex + 1);
@@ -1244,6 +1290,18 @@ namespace LilyPath
         /// <exception cref="InvalidOperationException"><c>FillRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void FillRectangle (Brush brush, Rectangle rect)
         {
+            FillRectangle(brush, rect, 0);
+        }
+
+        /// <summary>
+        /// Adds a filled rectangle to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="rect">The rectangle to be rendered.</param>
+        /// <param name="angle">The angle to rotate the rectangle by around its center in radians.  Positive values rotate clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>FillRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void FillRectangle (Brush brush, Rectangle rect, float angle)
+        {
             if (!_inDraw)
                 throw new InvalidOperationException();
 
@@ -1252,10 +1310,25 @@ namespace LilyPath
 
             int baseVertexIndex = _vertexBufferIndex;
 
-            AddVertex(new Vector2(rect.Left, rect.Top), brush);
-            AddVertex(new Vector2(rect.Right, rect.Top), brush);
-            AddVertex(new Vector2(rect.Left, rect.Bottom), brush);
-            AddVertex(new Vector2(rect.Right, rect.Bottom), brush);
+            Vector2[] v = new Vector2[] {
+                new Vector2(rect.Left, rect.Top),
+                new Vector2(rect.Right, rect.Top),
+                new Vector2(rect.Left, rect.Bottom),
+                new Vector2(rect.Right, rect.Bottom),
+            };
+
+            if (angle != 0) {
+                Vector2 center = new Vector2(rect.Center.X, rect.Center.Y);
+
+                Matrix transform = Matrix.CreateRotationZ(angle);
+                transform.Translation = new Vector3(center, 0);
+
+                for (int i = 0; i < v.Length; i++)
+                    v[i] = Vector2.Transform(v[i] - center, transform);
+            }
+
+            for (int i = 0; i < v.Length; i++)
+                AddVertex(v[i], brush);
 
             AddTriangle(baseVertexIndex + 0, baseVertexIndex + 1, baseVertexIndex + 2);
             AddTriangle(baseVertexIndex + 1, baseVertexIndex + 3, baseVertexIndex + 2);

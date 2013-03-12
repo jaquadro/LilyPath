@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace LilyPath
 {
@@ -52,13 +53,15 @@ namespace LilyPath
         private Pen _pen;
 
         private int _pointCount;
-        private int _vertexCount;
-        private int _indexCount;
+        private int _vertexBufferIndex;
+        private int _indexBufferIndex;
 
         private Vector2[] _positionData;
         private Vector2[] _textureData;
         private Color[] _colorData;
         private short[] _indexData;
+
+        private bool[] _jointCCW;
 
         /// <summary>
         /// Create an empty path with a given <see cref="Pen"/>.
@@ -117,13 +120,13 @@ namespace LilyPath
         /// <inherit />
         public int IndexCount
         {
-            get { return _indexCount; }
+            get { return _indexBufferIndex; }
         }
 
         /// <inherit />
         public int VertexCount
         {
-            get { return _vertexCount; }
+            get { return _vertexBufferIndex; }
         }
 
         /// <inherit />
@@ -158,10 +161,12 @@ namespace LilyPath
 
         #endregion
 
-        private void InitializeBuffers (int vertexCount, int indexCount)
+        private void InitializeBuffers (int pointCount)
         {
-            _vertexCount = vertexCount;
-            _indexCount = indexCount;
+            _jointCCW = new bool[pointCount];
+
+            int vertexCount = Pen.MaximumVertexCount(pointCount);
+            int indexCount = Pen.MaximumIndexCount(pointCount);
 
             _indexData = new short[indexCount];
             _positionData = new Vector2[vertexCount];
@@ -175,119 +180,230 @@ namespace LilyPath
             }
         }
 
+        /*private void CheckBufferFreeSpace (int additionalPoints)
+        {
+            int maxAdditionalVertexCount = Pen.Ma
+            if (_geometryBuffer.Length < _geometryIndex + vertexCount)
+                Array.Resize(ref _geometryBuffer, (_geometryIndex + vertexCount) * 2);
+        }*/
+
         private void CompileOpenPath (IList<Vector2> points, int offset, int count)
         {
-            InitializeBuffers(count * 2, (count - 1) * 6);
+            InitializeBuffers(count);
 
-            AddStartPoint(0, points[offset + 0], points[offset + 1]);
+            int vPrevCount = 0;
+            int vNextCount = AddStartPoint(0, points[offset + 0], points[offset + 1]); ;
 
             for (int i = 0; i < count - 2; i++) {
-                AddMiteredJoint(i + 1, points[offset + i], points[offset + i + 1], points[offset + i + 2]);
-                AddSegment(i, i + 1);
+                vPrevCount = vNextCount;
+                vNextCount = AddJoint(i + 1, points[offset + i], points[offset + i + 1], points[offset + i + 2]);
+                AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[i], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[i + 1]);
             }
 
-            AddEndPoint(count - 1, points[offset + count - 2], points[offset + count - 1]);
-            AddSegment(count - 2, count - 1);
+            vPrevCount = vNextCount;
+            vNextCount = AddEndPoint(count - 1, points[offset + count - 2], points[offset + count - 1]);
+            AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[count - 2], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[count - 1]);
         }
 
         private void CompileClosedPath (IList<Vector2> points, int offset, int count)
         {
-            InitializeBuffers(count * 2, count * 6);
+            InitializeBuffers(count + 1);
 
-            AddMiteredJoint(0, points[offset + count - 1], points[offset + 0], points[offset + 1]);
+            if (IsClose(points[offset], points[offset + count - 1]))
+                count--;
+
+            int vBaseIndex = _vertexBufferIndex;
+            int vBaseCount = AddJoint(0, points[offset + count - 1], points[offset + 0], points[offset + 1]);
+
+            int vPrevCount = 0;
+            int vNextCount = vBaseCount;
 
             for (int i = 0; i < count - 2; i++) {
-                AddMiteredJoint(i + 1, points[offset + i], points[offset + i + 1], points[offset + i + 2]);
-                AddSegment(i, i + 1);
+                vPrevCount = vNextCount;
+                vNextCount = AddJoint(i + 1, points[offset + i], points[offset + i + 1], points[offset + i + 2]);
+                AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[i], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[i + 1]);
             }
 
-            AddMiteredJoint(count - 1, points[offset + count - 2], points[offset + count - 1], points[offset + 0]);
-            AddSegment(count - 2, count - 1);
+            vPrevCount = vNextCount;
+            vNextCount = AddJoint(count - 1, points[offset + count - 2], points[offset + count - 1], points[offset + 0]);
+            AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[count - 2], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[count - 1]);
 
-            AddSegment(count - 1, 0);
+            AddSegment(_vertexBufferIndex - vNextCount, vNextCount, _jointCCW[count - 1], vBaseIndex, vBaseCount, _jointCCW[0]);
         }
 
-        private void AddStartPoint (int pointIndex, Vector2 a, Vector2 b)
+        private bool IsClose (Vector2 a, Vector2 b)
         {
-            short vIndex = (short)(pointIndex * 2);
+            return Math.Abs(a.X - b.X) < 0.001 && Math.Abs(a.Y - b.Y) < 0.001;
+        }
 
-            _pen.ComputeStartPoint(_positionData, vIndex, a, b);
+        private int AddStartPoint (int pointIndex, Vector2 a, Vector2 b)
+        {
+            int vIndex = _vertexBufferIndex;
 
+            _vertexBufferIndex += _pen.ComputeStartPoint(_positionData, vIndex, a, b);
             if (_colorData != null) {
-                _colorData[vIndex + 0] = _pen.Color;
-                _colorData[vIndex + 1] = _pen.Color;
+                for (int i = vIndex; i < _vertexBufferIndex; i++)
+                    _colorData[i] = _pen.Color;
             }
 
             if (_textureData != null) {
                 int texWidth = _pen.Brush.Texture.Width;
                 int texHeight = _pen.Brush.Texture.Height;
 
-                Vector2 pos0 = _positionData[vIndex + 0];
-                Vector2 pos1 = _positionData[vIndex + 1];
-
-                _textureData[vIndex + 0] = new Vector2(pos0.X / texWidth, pos0.Y / texHeight);
-                _textureData[vIndex + 1] = new Vector2(pos1.X / texWidth, pos1.Y / texHeight);
+                for (int i = vIndex; i < _vertexBufferIndex; i++) {
+                    Vector2 pos = _positionData[i];
+                    _textureData[i] = new Vector2(pos.X / texWidth, pos.Y / texHeight);
+                }
             }
+
+            _jointCCW[pointIndex] = true;
+
+            return _vertexBufferIndex - vIndex;
         }
 
-        private void AddEndPoint (int pointIndex, Vector2 a, Vector2 b)
+        private int AddEndPoint (int pointIndex, Vector2 a, Vector2 b)
         {
-            short vIndex = (short)(pointIndex * 2);
+            int vIndex = _vertexBufferIndex;
 
-            _pen.ComputeEndPoint(_positionData, vIndex, a, b);
-
+            _vertexBufferIndex += _pen.ComputeEndPoint(_positionData, vIndex, a, b);
             if (_colorData != null) {
-                _colorData[vIndex + 0] = _pen.Color;
-                _colorData[vIndex + 1] = _pen.Color;
+                for (int i = vIndex; i < _vertexBufferIndex; i++)
+                    _colorData[i] = _pen.Color;
             }
 
             if (_textureData != null) {
                 int texWidth = _pen.Brush.Texture.Width;
                 int texHeight = _pen.Brush.Texture.Height;
 
-                Vector2 pos0 = _positionData[vIndex + 0];
-                Vector2 pos1 = _positionData[vIndex + 1];
+                for (int i = vIndex; i < _vertexBufferIndex; i++) {
+                    Vector2 pos = _positionData[i];
+                    _textureData[i] = new Vector2(pos.X / texWidth, pos.Y / texHeight);
+                }
+            }
 
-                _textureData[vIndex + 0] = new Vector2(pos0.X / texWidth, pos0.Y / texHeight);
-                _textureData[vIndex + 1] = new Vector2(pos1.X / texWidth, pos1.Y / texHeight);
+            _jointCCW[pointIndex] = true;
+
+            return _vertexBufferIndex - vIndex;
+        }
+
+        private int AddJoint (int pointIndex, Vector2 a, Vector2 b, Vector2 c)
+        {
+            switch (Pen.LineJoin) {
+                case LineJoin.Miter:
+                    return AddMiteredJoint(pointIndex, a, b, c);
+                case LineJoin.Bevel:
+                    return AddBeveledJoint(pointIndex, a, b, c);
+                default:
+                    return 0;
             }
         }
 
-        private void AddMiteredJoint (int pointIndex, Vector2 a, Vector2 b, Vector2 c)
+        private int AddMiteredJoint (int pointIndex, Vector2 a, Vector2 b, Vector2 c)
         {
-            short vIndex = (short)(pointIndex * 2);
+            int vIndex = _vertexBufferIndex;
 
-            _pen.ComputeMiter(_positionData, vIndex, a, b, c);
-
+            _vertexBufferIndex += _pen.ComputeMiter(_positionData, vIndex, a, b, c);
             if (_colorData != null) {
-                _colorData[vIndex + 0] = _pen.Color;
-                _colorData[vIndex + 1] = _pen.Color;
+                for (int i = vIndex; i < _vertexBufferIndex; i++)
+                    _colorData[i] = _pen.Color;
             }
 
             if (_textureData != null) {
                 int texWidth = _pen.Brush.Texture.Width;
                 int texHeight = _pen.Brush.Texture.Height;
 
-                Vector2 pos0 = _positionData[vIndex + 0];
-                Vector2 pos1 = _positionData[vIndex + 1];
-
-                _textureData[vIndex + 0] = new Vector2(pos0.X / texWidth, pos0.Y / texHeight);
-                _textureData[vIndex + 1] = new Vector2(pos1.X / texWidth, pos1.Y / texHeight);
+                for (int i = vIndex; i < _vertexBufferIndex; i++) {
+                    Vector2 pos = _positionData[i];
+                    _textureData[i] = new Vector2(pos.X / texWidth, pos.Y / texHeight);
+                }
             }
+
+            _jointCCW[pointIndex] = true;
+
+            return _vertexBufferIndex - vIndex;
         }
 
-        private void AddSegment (int startPoint, int endPoint)
+        private int AddBeveledJoint (int pointIndex, Vector2 a, Vector2 b, Vector2 c)
         {
-            short vIndexStart = (short)(startPoint * 2);
-            short vIndexEnd = (short)(endPoint * 2);
-            short iIndex = (short)(startPoint * 6);
+            int vIndex = _vertexBufferIndex;
 
-            _indexData[iIndex + 0] = (short)(vIndexStart + 0);
-            _indexData[iIndex + 1] = (short)(vIndexStart + 1);
-            _indexData[iIndex + 2] = (short)(vIndexEnd + 1);
-            _indexData[iIndex + 3] = (short)(vIndexStart + 0);
-            _indexData[iIndex + 4] = (short)(vIndexEnd + 1);
-            _indexData[iIndex + 5] = (short)(vIndexEnd + 0);
+            int vertexGen = _pen.ComputeBevel(_positionData, vIndex, a, b, c);
+
+            _vertexBufferIndex += Math.Abs(vertexGen);
+            if (_colorData != null) {
+                for (int i = vIndex; i < _vertexBufferIndex; i++)
+                    _colorData[i] = _pen.Color;
+            }
+
+            if (_textureData != null) {
+                int texWidth = _pen.Brush.Texture.Width;
+                int texHeight = _pen.Brush.Texture.Height;
+
+                for (int i = vIndex; i < _vertexBufferIndex; i++) {
+                    Vector2 pos = _positionData[i];
+                    _textureData[i] = new Vector2(pos.X / texWidth, pos.Y / texHeight);
+                }
+            }
+
+            if (vertexGen > 0) {
+                _jointCCW[pointIndex] = true;
+                for (int i = 0; i < vertexGen - 2; i++) {
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen);
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen + i + 1);
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen + i + 2);
+                }
+            }
+            else if (vertexGen < 0) {
+                _jointCCW[pointIndex] = false;
+                vertexGen *= -1;
+                for (int i = 0; i < vertexGen - 2; i++) {
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen);
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen + i + 2);
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen + i + 1);
+                }
+            }
+
+            return _vertexBufferIndex - vIndex;
+        }
+
+        private void AddSegment (int vIndexStart, int vStartCount, bool vStartCCW, int vIndexEnd, int vEndCount, bool vEndCCW)
+        {
+            if (vStartCCW) {
+                if (vEndCCW) {
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + 0);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + vStartCount - 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + 0);
+                }
+                else {
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + 0);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + vStartCount - 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + 0);
+                }
+            }
+            else {
+                if (vEndCCW) {
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + vStartCount - 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + 0);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + vStartCount - 1);
+                }
+                else {
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + vStartCount - 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + 0);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexStart + vStartCount - 1);
+                }
+            }
         }
     }
 }

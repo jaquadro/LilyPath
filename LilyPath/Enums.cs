@@ -38,6 +38,24 @@ namespace LilyPath
     }
 
     /// <summary>
+    /// Specifies how to join consecutive line segments in a path.
+    /// </summary>
+    public enum LineJoin
+    {
+        /// <summary>
+        /// Specifies a mitered join.
+        /// </summary>
+        Miter,
+
+        /// <summary>
+        /// Specifies a beveled join.
+        /// </summary>
+        Bevel,
+
+        //Round,
+    }
+
+    /// <summary>
     /// Whether a path is open or closed in draw operations.
     /// </summary>
     public enum PathType

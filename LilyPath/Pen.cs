@@ -56,6 +56,11 @@ namespace LilyPath
         /// </summary>
         public LineCap EndCap { get; set; }
 
+        /// <summary>
+        /// Gets or sets how the segments in the path are joined together.
+        /// </summary>
+        public LineJoin LineJoin { get; set; }
+
         private Pen ()
         {
             //Color = Color.White;
@@ -152,6 +157,109 @@ namespace LilyPath
 
         #endregion
 
+        internal int StartPointVertexBound (Vector2 a, Vector2 b)
+        {
+            switch (StartCap) {
+                case LineCap.Flat:
+                case LineCap.Square:
+                    return 2;
+            }
+
+            return 0;
+        }
+
+        internal int EndPointVertexBound (Vector2 a, Vector2 b)
+        {
+            switch (EndCap) {
+                case LineCap.Flat:
+                case LineCap.Square:
+                    return 2;
+            }
+
+            return 0;
+        }
+
+        internal int LineJoinVertexBound (Vector2 a, Vector2 b, Vector2 c)
+        {
+            switch (LineJoin) {
+                case LineJoin.Miter:
+                    return 2;
+                case LineJoin.Bevel:
+                    return 3;
+            }
+
+            return 0;
+        }
+
+        internal int MaximumVertexCount (int pointCount)
+        {
+            int expected = 0;
+
+            int joinCount = Math.Max(0, pointCount - 1);
+            switch (LineJoin) {
+                case LineJoin.Bevel:
+                    expected += joinCount * 3;
+                    break;
+
+                case LineJoin.Miter:
+                    expected += joinCount * 2;
+                    break;
+
+                //case LineJoin.Round:
+                //    expected += (int)Math.Ceiling(joinCount * (Width / 6f + 2));
+                //    break;
+            }
+
+            switch (StartCap) {
+                case LineCap.Flat:
+                case LineCap.Square:
+                    expected += 2;
+                    break;
+            }
+
+            switch (EndCap) {
+                case LineCap.Flat:
+                case LineCap.Square:
+                    expected += 2;
+                    break;
+            }
+
+            return expected;
+        }
+
+        internal int MaximumIndexCount (int pointCount)
+        {
+            int extra = 0;
+
+            int joinCount = Math.Max(0, pointCount - 1);
+            switch (LineJoin) {
+                case LineJoin.Bevel:
+                    extra += joinCount;
+                    break;
+
+                case LineJoin.Miter:
+                    break;
+
+                //case LineJoin.Round:
+                //    extra += (int)Math.Ceiling(joinCount * (Width / 6f));
+                //    break;
+            }
+
+            switch (StartCap) {
+                case LineCap.Flat:
+                case LineCap.Square:
+                    break;
+            }
+
+            switch (EndCap) {
+                case LineCap.Flat:
+                case LineCap.Square:
+                    break;
+            }
+
+            return extra * 3 + (pointCount - 1) * 6;
+        }
+
         internal int ComputeMiter (Vector2[] outputBuffer, int outputIndex, Vector2 a, Vector2 b, Vector2 c)
         {
             Vector2 edgeAB = new Vector2(b.X - a.X, b.Y - a.Y);
@@ -216,6 +324,105 @@ namespace LilyPath
             outputBuffer[outputIndex + 1] = point5;
 
             return 2;
+        }
+
+        internal int ComputeBevel (Vector2[] outputBuffer, int outputIndex, Vector2 a, Vector2 b, Vector2 c)
+        {
+            Vector2 edgeAB = new Vector2(b.X - a.X, b.Y - a.Y);
+            edgeAB.Normalize();
+            Vector2 edgeABt = new Vector2(-edgeAB.Y, edgeAB.X);
+
+            Vector2 edgeBC = new Vector2(c.X - b.X, c.Y - b.Y);
+            edgeBC.Normalize();
+            Vector2 edgeBCt = new Vector2(-edgeBC.Y, edgeBC.X);
+
+            Vector2 pointA = a;
+            Vector2 pointC = c;
+
+            int vertexCount = 0;
+
+            if (Cross2D(edgeAB, edgeBC) > 0) {
+                switch (Alignment) {
+                    case PenAlignment.Center:
+                        float w2 = Width / 2;
+                        pointA = new Vector2(a.X - w2 * edgeABt.X, a.Y - w2 * edgeABt.Y);
+                        pointC = new Vector2(c.X - w2 * edgeBCt.X, c.Y - w2 * edgeBCt.Y);
+
+                        outputBuffer[outputIndex + 1] = new Vector2(b.X + w2 * edgeABt.X, b.Y + w2 * edgeABt.Y);
+                        outputBuffer[outputIndex + 2] = new Vector2(b.X + w2 * edgeBCt.X, b.Y + w2 * edgeBCt.Y);
+                        vertexCount = -3;
+                        break;
+
+                    case PenAlignment.Inset:
+                        outputBuffer[outputIndex + 1] = new Vector2(b.X + Width * edgeABt.X, b.Y + Width * edgeABt.Y);
+                        outputBuffer[outputIndex + 2] = new Vector2(b.X + Width * edgeBCt.X, b.Y + Width * edgeBCt.Y);
+                        vertexCount = -3;
+                        break;
+
+                    case PenAlignment.Outset:
+                        pointA = new Vector2(a.X - Width * edgeABt.X, a.Y - Width * edgeABt.Y);
+                        pointC = new Vector2(c.X - Width * edgeBCt.X, c.Y - Width * edgeBCt.Y);
+
+                        outputBuffer[outputIndex + 1] = b;
+                        vertexCount = -2;
+                        break;
+                }
+
+                float offset35 = Vector2.Dot(edgeBCt, pointC);
+                float t5 = (offset35 - Vector2.Dot(edgeBCt, pointA)) / Vector2.Dot(edgeBCt, edgeAB);
+                Vector2 point5 = (!float.IsNaN(t5))
+                    ? new Vector2(pointA.X + t5 * edgeAB.X, pointA.Y + t5 * edgeAB.Y)
+                    : new Vector2((pointA.X + pointC.X) / 2, (pointA.Y + pointC.Y) / 2);
+
+                outputBuffer[outputIndex + 0] = point5;
+                return vertexCount;
+            }
+            else {
+                switch (Alignment) {
+                    case PenAlignment.Center:
+                        float w2 = Width / 2;
+                        pointA = new Vector2(a.X + w2 * edgeABt.X, a.Y + w2 * edgeABt.Y);
+                        pointC = new Vector2(c.X + w2 * edgeBCt.X, c.Y + w2 * edgeBCt.Y);
+
+                        outputBuffer[outputIndex + 1] = new Vector2(b.X - w2 * edgeABt.X, b.Y - w2 * edgeABt.Y);
+                        outputBuffer[outputIndex + 2] = new Vector2(b.X - w2 * edgeBCt.X, b.Y - w2 * edgeBCt.Y);
+                        vertexCount = 3;
+                        break;
+
+                    case PenAlignment.Inset:
+                        pointA = new Vector2(a.X + Width * edgeABt.X, a.Y + Width * edgeABt.Y);
+                        pointC = new Vector2(c.X + Width * edgeBCt.X, c.Y + Width * edgeBCt.Y);
+
+                        outputBuffer[outputIndex + 1] = b;
+                        vertexCount = 2;
+                        break;
+
+                    case PenAlignment.Outset:
+                        outputBuffer[outputIndex + 1] = new Vector2(b.X - Width * edgeABt.X, b.Y - Width * edgeABt.Y);
+                        outputBuffer[outputIndex + 2] = new Vector2(b.X - Width * edgeBCt.X, b.Y - Width * edgeBCt.Y);
+                        vertexCount = 3;
+                        break;
+                }
+
+                float offset01 = Vector2.Dot(edgeBCt, pointC);
+                float t0 = (offset01 - Vector2.Dot(edgeBCt, pointA)) / Vector2.Dot(edgeBCt, edgeAB);
+                Vector2 point0 = (!float.IsNaN(t0))
+                    ? new Vector2(pointA.X + t0 * edgeAB.X, pointA.Y + t0 * edgeAB.Y)
+                    : new Vector2((pointA.X + pointC.X) / 2, (pointA.Y + pointC.Y) / 2);
+
+                outputBuffer[outputIndex + 0] = point0;
+                return vertexCount;
+            }
+        }
+
+        private float Cross2D (Vector2 u, Vector2 v)
+        {
+            return (u.Y * v.X) - (u.X * v.Y);
+        }
+
+        private bool TriangleIsCCW (Vector2 a, Vector2 b, Vector2 c)
+        {
+            return Cross2D(b - a, c - b) < 0;
         }
 
         internal int ComputeStartPoint (Vector2[] outputBuffer, int outputIndex, Vector2 a, Vector2 b)

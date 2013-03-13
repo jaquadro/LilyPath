@@ -519,7 +519,7 @@ namespace LilyPathDemo
 
             if (_lillypads == null) {
                 _lillypads = new GraphicsPath[3];
-                Pen pen = new Pen(Color.Green, 15) { Alignment = PenAlignment.Center };
+                Pen pen = new Pen(Color.Green, 15) { Alignment = PenAlignment.Center, LineJoin = LineJoin.Bevel };
 
                 _lillypads[0] = CreateLillyPadGP(pen, new Vector2(400, 400), 125, 0);
                 _lillypads[1] = CreateLillyPadGP(pen, new Vector2(200, 250), 150, 3);

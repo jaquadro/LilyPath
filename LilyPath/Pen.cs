@@ -23,6 +23,9 @@ namespace LilyPath
     /// </summary>
     public class Pen : IDisposable
     {
+        private float _joinLimit;
+        private float _joinLimitCos2;
+
         /// <summary>
         /// Gets the solid color or blending color of the pen.
         /// </summary>
@@ -61,12 +64,28 @@ namespace LilyPath
         /// </summary>
         public LineJoin LineJoin { get; set; }
 
+        /// <summary>
+        /// Gets or sets the angle difference threshold in radians under which joins will be mitered instead of beveled or rounded.  
+        /// Defaults to PI / 8 (11.25 degrees).
+        /// </summary>
+        public float JoinLimit
+        {
+            get { return _joinLimit; }
+            set
+            {
+                _joinLimit = value;
+                _joinLimitCos2 = (float)Math.Cos(_joinLimit);
+                _joinLimitCos2 *= _joinLimitCos2;
+            }
+        }
+
         private Pen ()
         {
             //Color = Color.White;
             Alignment = PenAlignment.Center;
             StartCap = LineCap.Flat;
             EndCap = LineCap.Flat;
+            JoinLimit = (float)(Math.PI / 8);
         }
 
         /// <summary>
@@ -328,11 +347,19 @@ namespace LilyPath
 
         internal int ComputeBevel (Vector2[] outputBuffer, int outputIndex, Vector2 a, Vector2 b, Vector2 c)
         {
+            Vector2 edgeBA = new Vector2(a.X - b.X, a.Y - b.Y);
+            Vector2 edgeBC = new Vector2(c.X - b.X, c.Y - b.Y);
+            float dot = Vector2.Dot(edgeBA, edgeBC);
+            float den = edgeBA.LengthSquared() * edgeBC.LengthSquared();
+            float cos2 = (dot * dot) / den;
+
+            if (cos2 > _joinLimitCos2)
+                return ComputeMiter(outputBuffer, outputIndex, a, b, c);
+
             Vector2 edgeAB = new Vector2(b.X - a.X, b.Y - a.Y);
             edgeAB.Normalize();
             Vector2 edgeABt = new Vector2(-edgeAB.Y, edgeAB.X);
 
-            Vector2 edgeBC = new Vector2(c.X - b.X, c.Y - b.Y);
             edgeBC.Normalize();
             Vector2 edgeBCt = new Vector2(-edgeBC.Y, edgeBC.X);
 

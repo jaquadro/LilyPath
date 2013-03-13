@@ -302,7 +302,9 @@ namespace LilyPath
         {
             int vIndex = _vertexBufferIndex;
 
-            _vertexBufferIndex += _pen.ComputeMiter(_positionData, vIndex, a, b, c);
+            int vertexGen = _pen.ComputeMiter(_positionData, vIndex, a, b, c);
+
+            _vertexBufferIndex += Math.Abs(vertexGen);
             if (_colorData != null) {
                 for (int i = vIndex; i < _vertexBufferIndex; i++)
                     _colorData[i] = _pen.Color;
@@ -318,7 +320,26 @@ namespace LilyPath
                 }
             }
 
-            _jointCCW[pointIndex] = true;
+            if (vertexGen > 0) {
+                _jointCCW[pointIndex] = true;
+                for (int i = 0; i < vertexGen - 2; i++) {
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen);
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen + i + 1);
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen + i + 2);
+                }
+            }
+            else if (vertexGen < 0) {
+                _jointCCW[pointIndex] = false;
+                vertexGen *= -1;
+                for (int i = 0; i < vertexGen - 2; i++) {
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen);
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen + i + 2);
+                    _indexData[_indexBufferIndex++] = (short)(_vertexBufferIndex - vertexGen + i + 1);
+                }
+            }
+            else {
+                _jointCCW[pointIndex] = true;
+            }
 
             return _vertexBufferIndex - vIndex;
         }

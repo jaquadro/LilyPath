@@ -65,6 +65,13 @@ namespace LilyPath
         public LineJoin LineJoin { get; set; }
 
         /// <summary>
+        /// Gets or sets the limit of the thickness of the join on a mitered corner.
+        /// </summary>
+        /// <remarks><para>The miter length is the distance from the intersection of the line walls on the inside of the join to the intersection of the line walls outside of the join. The miter length can be large when the angle between two lines is small. The miter limit is the maximum allowed ratio of miter length to stroke width. The default value is 10.0f.</para>
+        /// <para>If the miter length of the join of the intersection exceeds the limit of the join, then the join will be beveled to keep it within the limit of the join of the intersection.</para></remarks>
+        public float MiterLimit { get; set; }
+
+        /// <summary>
         /// Gets or sets the angle difference threshold in radians under which joins will be mitered instead of beveled or rounded.  
         /// Defaults to PI / 8 (11.25 degrees).
         /// </summary>
@@ -85,6 +92,7 @@ namespace LilyPath
             Alignment = PenAlignment.Center;
             StartCap = LineCap.Flat;
             EndCap = LineCap.Flat;
+            MiterLimit = 10f;
             JoinLimit = (float)(Math.PI / 8);
         }
 
@@ -221,7 +229,7 @@ namespace LilyPath
                     break;
 
                 case LineJoin.Miter:
-                    expected += joinCount * 2;
+                    expected += joinCount * 3;
                     break;
 
                 //case LineJoin.Round:
@@ -257,6 +265,7 @@ namespace LilyPath
                     break;
 
                 case LineJoin.Miter:
+                    extra += joinCount;
                     break;
 
                 //case LineJoin.Round:
@@ -339,6 +348,10 @@ namespace LilyPath
                 ? new Vector2(point4.X + t5 * edgeAB.X, point4.Y + t5 * edgeAB.Y)
                 : new Vector2((point4.X + point3.X) / 2, (point4.Y + point3.Y) / 2);
 
+            float miterLimit = MiterLimit * Width;
+            if ((point0 - point5).LengthSquared() > miterLimit * miterLimit)
+                return ComputeBevel(outputBuffer, outputIndex, a, b, c);
+
             outputBuffer[outputIndex + 0] = point0;
             outputBuffer[outputIndex + 1] = point5;
 
@@ -350,11 +363,13 @@ namespace LilyPath
             Vector2 edgeBA = new Vector2(a.X - b.X, a.Y - b.Y);
             Vector2 edgeBC = new Vector2(c.X - b.X, c.Y - b.Y);
             float dot = Vector2.Dot(edgeBA, edgeBC);
-            float den = edgeBA.LengthSquared() * edgeBC.LengthSquared();
-            float cos2 = (dot * dot) / den;
+            if (dot < 0) {
+                float den = edgeBA.LengthSquared() * edgeBC.LengthSquared();
+                float cos2 = (dot * dot) / den;
 
-            if (cos2 > _joinLimitCos2)
-                return ComputeMiter(outputBuffer, outputIndex, a, b, c);
+                if (cos2 > _joinLimitCos2)
+                    return ComputeMiter(outputBuffer, outputIndex, a, b, c);
+            }
 
             Vector2 edgeAB = new Vector2(b.X - a.X, b.Y - a.Y);
             edgeAB.Normalize();

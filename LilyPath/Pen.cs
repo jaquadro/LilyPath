@@ -348,7 +348,7 @@ namespace LilyPath
                 ? new Vector2(point4.X + t5 * edgeAB.X, point4.Y + t5 * edgeAB.Y)
                 : new Vector2((point4.X + point3.X) / 2, (point4.Y + point3.Y) / 2);
 
-            float miterLimit = MiterLimit * Width;
+            double miterLimit = MiterLimit * Width;
             if ((point0 - point5).LengthSquared() > miterLimit * miterLimit)
                 return ComputeBevel(outputBuffer, outputIndex, a, b, c);
 
@@ -362,10 +362,10 @@ namespace LilyPath
         {
             Vector2 edgeBA = new Vector2(a.X - b.X, a.Y - b.Y);
             Vector2 edgeBC = new Vector2(c.X - b.X, c.Y - b.Y);
-            float dot = Vector2.Dot(edgeBA, edgeBC);
+            double dot = Vector2.Dot(edgeBA, edgeBC);
             if (dot < 0) {
-                float den = edgeBA.LengthSquared() * edgeBC.LengthSquared();
-                float cos2 = (dot * dot) / den;
+                double den = edgeBA.LengthSquared() * edgeBC.LengthSquared();
+                double cos2 = (dot * dot) / den;
 
                 if (cos2 > _joinLimitCos2)
                     return ComputeMiter(outputBuffer, outputIndex, a, b, c);

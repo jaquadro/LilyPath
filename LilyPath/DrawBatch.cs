@@ -531,7 +531,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the circle is computed as the radius / 1.5.</remarks>
         public void DrawCircle (Pen pen, Vector2 center, float radius)
         {
-            DrawCircle(pen, center, radius, (int)Math.Ceiling(radius / 1.5));
+            DrawCircle(pen, center, radius, DefaultSubdivisions(radius));
         }
 
         /// <summary>
@@ -620,7 +620,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
         public void DrawEllipse (Pen pen, Vector2 center, float xRadius, float yRadius, float angle)
         {
-            DrawEllipse(pen, center, xRadius, yRadius, angle, (int)Math.Ceiling(Math.Max(xRadius, yRadius) / 1.5));
+            DrawEllipse(pen, center, xRadius, yRadius, angle, DefaultSubdivisions(xRadius, yRadius));
         }
 
         /// <summary>
@@ -657,7 +657,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the circle is computed as the radius / 1.5.</remarks>
         public void DrawPrimitiveCircle (Pen pen, Vector2 center, float radius)
         {
-            DrawPrimitiveCircle(pen, center, radius, (int)Math.Ceiling(radius / 1.5));
+            DrawPrimitiveCircle(pen, center, radius, DefaultSubdivisions(radius));
         }
 
         /// <summary>
@@ -757,7 +757,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
         public void DrawPrimitiveEllipse (Pen pen, Vector2 center, float xRadius, float yRadius, float angle)
         {
-            DrawPrimitiveEllipse(pen, center, xRadius, yRadius, angle, (int)Math.Ceiling(Math.Max(xRadius, yRadius) / 1.5));
+            DrawPrimitiveEllipse(pen, center, xRadius, yRadius, angle, DefaultSubdivisions(xRadius, yRadius));
         }
 
         /// <summary>
@@ -807,7 +807,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle)
         {
-            DrawArc(pen, center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5));
+            DrawArc(pen, center, radius, startAngle, arcAngle, DefaultSubdivisions(radius));
         }
 
         /// <summary>
@@ -849,7 +849,7 @@ namespace LilyPath
         {
             float width = (p1 - p0).Length();
             float radius = (height / 2) + (width * width) / (height * 8);
-            DrawArc(pen, p0, p1, height, (int)Math.Ceiling(Math.Abs(radius) / 1.5));
+            DrawArc(pen, p0, p1, height, DefaultSubdivisions(radius));
         }
 
         /// <summary>
@@ -889,7 +889,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawPrimitiveArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle)
         {
-            DrawPrimitiveArc(pen, center, radius, startAngle, arcAngle, (int)Math.Ceiling(radius / 1.5));
+            DrawPrimitiveArc(pen, center, radius, startAngle, arcAngle, DefaultSubdivisions(radius));
         }
 
         /// <summary>
@@ -928,7 +928,7 @@ namespace LilyPath
         {
             float width = (p1 - p0).Length();
             float radius = (height / 2) + (width * width) / (height * 8);
-            DrawPrimitiveArc(pen, p0, p1, height, (int)Math.Ceiling(Math.Abs(radius) / 1.5));
+            DrawPrimitiveArc(pen, p0, p1, height, DefaultSubdivisions(radius));
         }
 
         /// <summary>
@@ -966,7 +966,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawPrimitiveClosedArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
-            DrawPrimitiveClosedArc(pen, center, radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
+            DrawPrimitiveClosedArc(pen, center, radius, startAngle, arcAngle, arcType, DefaultSubdivisions(radius));
         }
 
         /// <summary>
@@ -1014,7 +1014,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void DrawClosedArc (Pen pen, Vector2 center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
-            DrawClosedArc(pen, center, radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
+            DrawClosedArc(pen, center, radius, startAngle, arcAngle, arcType, DefaultSubdivisions(radius));
         }
 
         /// <summary>
@@ -1211,7 +1211,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the circle is computed as <c>(radius / 1.5)</c>.</remarks>
         public void FillCircle (Brush brush, Vector2 center, float radius)
         {
-            FillCircle(brush, center, radius, (int)Math.Ceiling(radius / 1.5));
+            FillCircle(brush, center, radius, DefaultSubdivisions(radius));
         }
 
         /// <summary>
@@ -1314,7 +1314,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the ellipse is computed as max(xRadius, yRadius) / 1.5.</remarks>
         public void FillEllipse (Brush brush, Vector2 center, float xRadius, float yRadius, float angle)
         {
-            FillEllipse(brush, center, xRadius, yRadius, angle, (int)(Math.Max(xRadius, yRadius) / 1.5));
+            FillEllipse(brush, center, xRadius, yRadius, angle, DefaultSubdivisions(xRadius, yRadius));
         }
 
         /// <summary>
@@ -1368,7 +1368,7 @@ namespace LilyPath
         /// <remarks>The number of subdivisions in the arc is computed as <c>(radius / 1.5) * (arcAngle / 2PI)</c>.</remarks>
         public void FillArc (Brush brush, Vector2 center, float radius, float startAngle, float arcAngle, ArcType arcType)
         {
-            FillArc(brush, center, radius, startAngle, arcAngle, arcType, (int)Math.Ceiling(radius / 1.5));
+            FillArc(brush, center, radius, startAngle, arcAngle, arcType, DefaultSubdivisions(radius));
         }
 
         /// <summary>
@@ -1802,6 +1802,16 @@ namespace LilyPath
 
             _circleCache.Add(divisions, unitCircle);
             return unitCircle;
+        }
+
+        private static int DefaultSubdivisions (float radius)
+        {
+            return Math.Max(8, (int)Math.Ceiling(radius / 1.5f));
+        }
+
+        private static int DefaultSubdivisions (float xRadius, float yRadius)
+        {
+            return Math.Max(8, (int)Math.Ceiling(Math.Max(xRadius, yRadius) / 1.5f));
         }
     }
 

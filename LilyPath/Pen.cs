@@ -86,6 +86,12 @@ namespace LilyPath
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether this pen "owns" the brush used to construct it, and should therefor dispose the brush
+        /// along with itself.
+        /// </summary>
+        public bool OwnsBrush { get; set; }
+
         private Pen ()
         {
             //Color = Color.White;
@@ -101,7 +107,8 @@ namespace LilyPath
         /// </summary>
         /// <param name="brush"></param>
         /// <param name="width"></param>
-        public Pen (Brush brush, float width)
+        /// <param name="ownsBrush"></param>
+        public Pen (Brush brush, float width, bool ownsBrush)
             : this()
         {
             if (brush == null)
@@ -109,7 +116,17 @@ namespace LilyPath
 
             Brush = brush;
             Width = width;
+            OwnsBrush = ownsBrush;
         }
+
+        /// <summary>
+        /// Creates a new <see cref="Pen"/> with the given brush and width.
+        /// </summary>
+        /// <param name="brush"></param>
+        /// <param name="width"></param>
+        public Pen (Brush brush, float width)
+            : this(brush, width, false)
+        { }
 
         /// <summary>
         /// Creates a new <see cref="Pen"/> with the given color and width.
@@ -117,15 +134,25 @@ namespace LilyPath
         /// <param name="color"></param>
         /// <param name="width"></param>
         public Pen (Color color, float width)
-            : this(new SolidColorBrush(color), width)
-        { }
+            : this(new SolidColorBrush(color), width, true)
+        {
+        }
 
         /// <summary>
         /// Creates a new <see cref="Pen"/> with the given brush and a width of 1.
         /// </summary>
         /// <param name="brush"></param>
         public Pen (Brush brush)
-            : this(brush, 1)
+            : this(brush, 1, false)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="Pen"/> with the given brush and a width of 1.
+        /// </summary>
+        /// <param name="brush"></param>
+        public Pen (Brush brush, bool ownsBrush)
+            : this(brush, 1, ownsBrush)
         {
         }
 
@@ -155,7 +182,7 @@ namespace LilyPath
         {
             if (!_disposed) {
                 if (disposing) {
-                    if (Brush != null)
+                    if (OwnsBrush && Brush != null)
                         Brush.Dispose();
                     DisposeManaged();
                 }

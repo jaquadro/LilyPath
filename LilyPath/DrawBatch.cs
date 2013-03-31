@@ -210,6 +210,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             RequestBufferSpace(8, 24);
 
@@ -270,6 +272,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             RequestBufferSpace(4, 8);
 
@@ -315,6 +319,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             RequestBufferSpace(4, 6);
 
@@ -345,6 +351,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             RequestBufferSpace(4, 6);
 
@@ -372,6 +380,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             RequestBufferSpace(2, 2);
 
@@ -438,6 +448,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             if (offset + count > points.Count)
                 throw new ArgumentOutOfRangeException("points", "The offset and count exceed the bounds of the list");
@@ -534,6 +546,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             BuildCircleGeometryBuffer(center, radius, subdivisions, false);
             AddClosedPath(_geometryBuffer, 0, subdivisions, pen);
@@ -623,6 +637,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             BuildEllipseGeometryBuffer(center, xRadius, yRadius, angle, subdivisions);
             AddClosedPath(_geometryBuffer, 0, subdivisions, pen);
@@ -656,6 +672,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             BuildCircleGeometryBuffer(center, radius, subdivisions, false);
             DrawPrimitivePath(pen, _geometryBuffer, 0, subdivisions, PathType.Closed);
@@ -756,6 +774,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             BuildEllipseGeometryBuffer(center, xRadius, yRadius, angle, subdivisions);
             DrawPrimitivePath(pen, _geometryBuffer, 0, subdivisions, PathType.Closed);
@@ -805,6 +825,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
             if (vertexCount > 1)
@@ -844,6 +866,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             int vertexCount = BuildArcGeometryBuffer(p0, p1, height, subdivisions);
             if (vertexCount > 1)
@@ -883,6 +907,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
             if (vertexCount > 1)
@@ -919,6 +945,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             int vertexCount = BuildArcGeometryBuffer(p0, p1, height, subdivisions);
             if (vertexCount > 1)
@@ -957,6 +985,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
             if (vertexCount > 1) {
@@ -1003,6 +1033,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
 
             int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
             if (vertexCount > 1) {
@@ -1194,6 +1226,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (brush == null)
+                throw new ArgumentNullException("brush");
 
             RequestBufferSpace(subdivisions + 1, subdivisions * 3);
             AddInfo(PrimitiveType.TriangleList, subdivisions + 1, subdivisions * 3, brush);
@@ -1297,6 +1331,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (brush == null)
+                throw new ArgumentNullException("brush");
 
             RequestBufferSpace(subdivisions + 1, subdivisions * 3);
             AddInfo(PrimitiveType.TriangleList, subdivisions + 1, subdivisions * 3, brush);
@@ -1351,6 +1387,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (brush == null)
+                throw new ArgumentNullException("brush");
 
             int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
 
@@ -1407,6 +1445,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (brush == null)
+                throw new ArgumentNullException("brush");
 
             RequestBufferSpace(4, 6);
             AddInfo(PrimitiveType.TriangleList, 4, 6, brush);
@@ -1465,6 +1505,8 @@ namespace LilyPath
         {
             if (!_inDraw)
                 throw new InvalidOperationException();
+            if (brush == null)
+                throw new ArgumentNullException("brush");
 
             if (_triangulator == null)
                 _triangulator = new Triangulator();

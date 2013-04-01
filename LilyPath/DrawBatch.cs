@@ -74,7 +74,7 @@ namespace LilyPath
             _standardEffect.VertexColorEnabled = true;
 
             _defaultTexture = new Texture2D(device, 1, 1);
-            _defaultTexture.SetData<Color>(new Color[] { Color.White * .6f });
+            _defaultTexture.SetData<Color>(new Color[] { Color.White });
         }
 
         /// <summary>

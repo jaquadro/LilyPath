@@ -23,6 +23,59 @@ namespace LilyPath
     /// </summary>
     public class Pen : IDisposable
     {
+        #region Default Pens
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Black { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Blue { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Cyan { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Green { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Magenta { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Red { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen White { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Yellow { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen LightGray { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Gray { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen DarkGray { get; private set; }
+
+        static Pen ()
+        {
+            Black = new Pen(Brush.Black);
+            Blue = new Pen(Brush.Blue);
+            Cyan = new Pen(Brush.Cyan);
+            Green = new Pen(Brush.Green);
+            Magenta = new Pen(Brush.Magenta);
+            Red = new Pen(Brush.Red);
+            White = new Pen(Brush.White);
+            Yellow = new Pen(Brush.Yellow);
+
+            LightGray = new Pen(Brush.LightGray);
+            Gray = new Pen(Brush.Gray);
+            DarkGray = new Pen(Brush.DarkGray);
+        }
+
+        #endregion
+
         private float _joinLimit;
         private float _joinLimitCos2;
 
@@ -105,9 +158,9 @@ namespace LilyPath
         /// <summary>
         /// Creates a new <see cref="Pen"/> with the given brush and width.
         /// </summary>
-        /// <param name="brush"></param>
-        /// <param name="width"></param>
-        /// <param name="ownsBrush"></param>
+        /// <param name="brush">The <see cref="Brush"/> used to stroke the pen.</param>
+        /// <param name="width">The width of the paths drawn by the pen.</param>
+        /// <param name="ownsBrush"><c>true</c> if the pen should be responsible for disposing the <see cref="Brush"/>, <c>false</c> otherwise.</param>
         public Pen (Brush brush, float width, bool ownsBrush)
             : this()
         {
@@ -122,8 +175,9 @@ namespace LilyPath
         /// <summary>
         /// Creates a new <see cref="Pen"/> with the given brush and width.
         /// </summary>
-        /// <param name="brush"></param>
-        /// <param name="width"></param>
+        /// <param name="brush">The <see cref="Brush"/> used to stroke the pen.</param>
+        /// <param name="width">The width of the paths drawn by the pen.</param>
+        /// <remarks>By default, the pen will not take resposibility for disposing the <see cref="Brush"/>.</remarks>
         public Pen (Brush brush, float width)
             : this(brush, width, false)
         { }
@@ -131,8 +185,8 @@ namespace LilyPath
         /// <summary>
         /// Creates a new <see cref="Pen"/> with the given color and width.
         /// </summary>
-        /// <param name="color"></param>
-        /// <param name="width"></param>
+        /// <param name="color">The color used to stroke the pen.</param>
+        /// <param name="width">The width of the paths drawn by the pen.</param>
         public Pen (Color color, float width)
             : this(new SolidColorBrush(color), width, true)
         {
@@ -141,7 +195,8 @@ namespace LilyPath
         /// <summary>
         /// Creates a new <see cref="Pen"/> with the given brush and a width of 1.
         /// </summary>
-        /// <param name="brush"></param>
+        /// <param name="brush">The <see cref="Brush"/> used to stroke the pen.</param>
+        /// <remarks>By default, the pen will not take resposibility for disposing the <see cref="Brush"/>.</remarks>
         public Pen (Brush brush)
             : this(brush, 1, false)
         {
@@ -150,7 +205,8 @@ namespace LilyPath
         /// <summary>
         /// Creates a new <see cref="Pen"/> with the given brush and a width of 1.
         /// </summary>
-        /// <param name="brush"></param>
+        /// <param name="brush">The <see cref="Brush"/> used to stroke the pen.</param>
+        /// <param name="ownsBrush"><c>true</c> if the pen should be responsible for disposing the <see cref="Brush"/>, <c>false</c> otherwise.</param>
         public Pen (Brush brush, bool ownsBrush)
             : this(brush, 1, ownsBrush)
         {
@@ -159,7 +215,7 @@ namespace LilyPath
         /// <summary>
         /// Creates a new <see cref="Pen"/> with the given color and a width of 1.
         /// </summary>
-        /// <param name="color"></param>
+        /// <param name="color">The color used to stroke the pen.</param>
         public Pen (Color color)
             : this(color, 1)
         {

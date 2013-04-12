@@ -47,14 +47,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Brush.cs" />
-    <Compile Include="Brushes.cs" />
+    <None Include="Brushes.cs" />
+    <Compile Include="Brushes\CheckerBrush.cs" />
     <Compile Include="DrawBatch.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="GraphicsPath.cs" />
     <Compile Include="PathBuilder.cs" />
     <Compile Include="TextureBrush.cs" />
     <Compile Include="Pen.cs" />
-    <Compile Include="Pens.cs" />
+    <None Include="Pens.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SolidColorBrush.cs" />
     <Compile Include="Triangulator.cs" />

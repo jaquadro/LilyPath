@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LilyPath", "LilyPath\LilyPa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LilyPathDemo", "LilyPathDemo\LilyPathDemo.csproj", "{858F90E5-7897-4FF0-95FA-5229C0D32B88}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LilyPath.MacOS", "LilyPath\LilyPath.MacOS.csproj", "{788B3CC4-4CC7-41D1-86C3-3439F3903C52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,24 @@ Global
 		{2921C80E-2B58-41C4-B834-B92A478C3631}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{2921C80E-2B58-41C4-B834-B92A478C3631}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{2921C80E-2B58-41C4-B834-B92A478C3631}.Release|x86.ActiveCfg = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Debug|x86.Build.0 = Debug|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release.Android|Any CPU.ActiveCfg = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release.Android|Any CPU.Build.0 = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release.Android|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release.Android|Mixed Platforms.Build.0 = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release.Android|x86.ActiveCfg = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release.Android|x86.Build.0 = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release|x86.ActiveCfg = Release|Any CPU
+		{788B3CC4-4CC7-41D1-86C3-3439F3903C52}.Release|x86.Build.0 = Release|Any CPU
 		{858F90E5-7897-4FF0-95FA-5229C0D32B88}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{858F90E5-7897-4FF0-95FA-5229C0D32B88}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{858F90E5-7897-4FF0-95FA-5229C0D32B88}.Debug|Mixed Platforms.Build.0 = Debug|x86
@@ -48,6 +68,9 @@ Global
 		{858F90E5-7897-4FF0-95FA-5229C0D32B88}.Release|Mixed Platforms.Build.0 = Release|x86
 		{858F90E5-7897-4FF0-95FA-5229C0D32B88}.Release|x86.ActiveCfg = Release|x86
 		{858F90E5-7897-4FF0-95FA-5229C0D32B88}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = LilyPath\LilyPath.csproj
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

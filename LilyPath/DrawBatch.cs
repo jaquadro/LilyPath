@@ -32,6 +32,7 @@ namespace LilyPath
         private VertexPositionColorTexture[] _vertexBuffer;
 
         private Vector2[] _computeBuffer;
+        private Color[] _colorBuffer;
         private Vector2[] _geometryBuffer;
 
         private int _infoBufferIndex;
@@ -67,6 +68,7 @@ namespace LilyPath
             _indexBuffer = new short[32768];
             _vertexBuffer = new VertexPositionColorTexture[8192];
             _computeBuffer = new Vector2[64];
+            _colorBuffer = new Color[64];
             _geometryBuffer = new Vector2[256];
 
             _standardEffect = new BasicEffect(device);
@@ -1556,26 +1558,26 @@ namespace LilyPath
 
         private void AddMiteredJoint (Vector2 a, Vector2 b, Vector2 c, Pen pen)
         {
-            pen.ComputeMiter(_computeBuffer, null, 0, a, b, c);
+            pen.ComputeMiter(_computeBuffer, _colorBuffer, 0, a, b, c);
 
-            AddVertex(_computeBuffer[0], pen);
-            AddVertex(_computeBuffer[1], pen);
+            AddVertex(_computeBuffer[0], _colorBuffer[0], pen);
+            AddVertex(_computeBuffer[1], _colorBuffer[1], pen);
         }
 
         private void AddStartPoint (Vector2 a, Vector2 b, Pen pen)
         {
-            pen.ComputeStartPoint(_computeBuffer, null, 0, a, b);
+            pen.ComputeStartPoint(_computeBuffer, _colorBuffer, 0, a, b);
 
-            AddVertex(_computeBuffer[0], pen);
-            AddVertex(_computeBuffer[1], pen);
+            AddVertex(_computeBuffer[0], _colorBuffer[0], pen);
+            AddVertex(_computeBuffer[1], _colorBuffer[1], pen);
         }
 
         private void AddEndPoint (Vector2 a, Vector2 b, Pen pen)
         {
-            pen.ComputeEndPoint(_computeBuffer, null, 0, a, b);
+            pen.ComputeEndPoint(_computeBuffer, _colorBuffer, 0, a, b);
 
-            AddVertex(_computeBuffer[0], pen);
-            AddVertex(_computeBuffer[1], pen);
+            AddVertex(_computeBuffer[0], _colorBuffer[0], pen);
+            AddVertex(_computeBuffer[1], _colorBuffer[1], pen);
         }
 
         private void AddInfo (PrimitiveType primitiveType, int vertexCount, int indexCount, Brush brush)
@@ -1635,9 +1637,14 @@ namespace LilyPath
 
         private void AddVertex (Vector2 position, Pen pen)
         {
+            AddVertex(position, pen.Color, pen);
+        }
+
+        private void AddVertex (Vector2 position, Color color, Pen pen)
+        {
             VertexPositionColorTexture vertex = new VertexPositionColorTexture();
             vertex.Position = new Vector3(position, 0);
-            vertex.Color = pen.Color;
+            vertex.Color = color;
 
             if (pen.Brush != null && pen.Brush.Texture != null) {
                 Texture2D tex = pen.Brush.Texture;

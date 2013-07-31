@@ -498,6 +498,22 @@ namespace LilyPathDemo
             drawBatch.End();
         }
 
+        [TestSheet("Gradient Pens")]
+        public static void DrawGradientPens (DrawBatch drawBatch)
+        {
+            SetupDrawBatch(drawBatch);
+
+            Pen gradWidth = new GradientPen(Color.Yellow, Color.Blue, 15);
+
+            GraphicsPath widthStar = new GraphicsPath(gradWidth, StarPoints(new Vector2(325, 75), 5, 50, 25, 0, false), PathType.Open);
+
+            drawBatch.DrawLine(gradWidth, new Vector2(25, 25), new Vector2(125, 125));
+            drawBatch.DrawCircle(gradWidth, new Vector2(200, 75), 50);
+            drawBatch.DrawPath(widthStar);
+
+            drawBatch.End();
+        }
+
         private static GraphicsPath _outerFlower;
         private static GraphicsPath _innerFlower;
         private static GraphicsPath[] _lillypads;

@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{788B3CC4-4CC7-41D1-86C3-3439F3903C52}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>LilyPath.MacOS</RootNamespace>
+    <AssemblyName>LilyPath.MacOS</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="LilyPath\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Brush.cs" />
+    <Compile Include="DrawBatch.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="GraphicsPath.cs" />
+    <Compile Include="PathBuilder.cs" />
+    <Compile Include="Pen.cs" />
+    <Compile Include="SolidColorBrush.cs" />
+    <Compile Include="TextureBrush.cs" />
+    <Compile Include="Triangulator.cs" />
+    <Compile Include="Brushes\CheckerBrush.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MonoGame.Framework, Version=3.0.1.0, Culture=neutral">
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

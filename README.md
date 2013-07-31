@@ -15,4 +15,4 @@ Capabilities include:
 * Multisegment lines are mitered.
 * Several ways to draw arcs, including by radius/angle or between points.
 
-The LilyPath project is configured to depend on MonoGame by default, but it should be possible to retarget to XNA as well.
+Separate projects are provided for binding LilyPath to MonoGame and XNA.

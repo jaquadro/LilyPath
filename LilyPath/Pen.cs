@@ -18,6 +18,28 @@ namespace LilyPath
         { }
     }
 
+    public class GradientPen : Pen
+    {
+        private Color _color1;
+        private Color _color2;
+
+        public GradientPen (Color color1, Color color2, float width)
+            : base(Color.White, width)
+        {
+            _color1 = color1;
+            _color2 = color2;
+        }
+
+        public GradientPen (Color color1, Color color2)
+            : this(color1, color2, 1)
+        { }
+
+        protected internal override Color ColorAt (float widthPosition, float lengthPosition)
+        {
+            return Color.Lerp(_color1, _color2, widthPosition);
+        }
+    }
+
     /// <summary>
     /// Objects used to draw paths.
     /// </summary>
@@ -58,6 +80,18 @@ namespace LilyPath
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
         public static Pen DarkGray { get; private set; }
 
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen LightBlue { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen LightCyan { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen LightGreen { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen LightYellow { get; private set; }
+
         static Pen ()
         {
             Black = new Pen(Brush.Black);
@@ -68,6 +102,11 @@ namespace LilyPath
             Red = new Pen(Brush.Red);
             White = new Pen(Brush.White);
             Yellow = new Pen(Brush.Yellow);
+
+            LightBlue = new Pen(Brush.LightBlue);
+            LightCyan = new Pen(Brush.LightCyan);
+            LightGreen = new Pen(Brush.LightGreen);
+            LightYellow = new Pen(Brush.LightYellow);
 
             LightGray = new Pen(Brush.LightGray);
             Gray = new Pen(Brush.Gray);
@@ -267,6 +306,11 @@ namespace LilyPath
 
         #endregion
 
+        protected internal virtual Color ColorAt (float widthPosition, float lengthPosition)
+        {
+            return Brush.Color;
+        }
+
         internal int StartPointVertexBound (Vector2 a, Vector2 b)
         {
             switch (StartCap) {
@@ -371,7 +415,7 @@ namespace LilyPath
             return extra * 3 + (pointCount - 1) * 6;
         }
 
-        internal int ComputeMiter (Vector2[] outputBuffer, int outputIndex, Vector2 a, Vector2 b, Vector2 c)
+        internal int ComputeMiter (Vector2[] outputBuffer, Color[] colorBuffer, int outputIndex, Vector2 a, Vector2 b, Vector2 c)
         {
             Vector2 edgeAB = new Vector2(b.X - a.X, b.Y - a.Y);
             edgeAB.Normalize();
@@ -433,15 +477,20 @@ namespace LilyPath
 
             double miterLimit = MiterLimit * Width;
             if ((point0 - point5).LengthSquared() > miterLimit * miterLimit)
-                return ComputeBevel(outputBuffer, outputIndex, a, b, c);
+                return ComputeBevel(outputBuffer, colorBuffer, outputIndex, a, b, c);
 
             outputBuffer[outputIndex + 0] = point0;
             outputBuffer[outputIndex + 1] = point5;
 
+            if (colorBuffer != null) {
+                colorBuffer[outputIndex + 0] = ColorAt(0, 0);
+                colorBuffer[outputIndex + 1] = ColorAt(1, 0);
+            }
+
             return 2;
         }
 
-        internal int ComputeBevel (Vector2[] outputBuffer, int outputIndex, Vector2 a, Vector2 b, Vector2 c)
+        internal int ComputeBevel (Vector2[] outputBuffer, Color[] colorBuffer, int outputIndex, Vector2 a, Vector2 b, Vector2 c)
         {
             Vector2 edgeBA = new Vector2(a.X - b.X, a.Y - b.Y);
             Vector2 edgeBC = new Vector2(c.X - b.X, c.Y - b.Y);
@@ -451,7 +500,7 @@ namespace LilyPath
                 double cos2 = (dot * dot) / den;
 
                 if (cos2 > _joinLimitCos2)
-                    return ComputeMiter(outputBuffer, outputIndex, a, b, c);
+                    return ComputeMiter(outputBuffer, colorBuffer, outputIndex, a, b, c);
             }
 
             Vector2 edgeAB = new Vector2(b.X - a.X, b.Y - a.Y);
@@ -475,12 +524,22 @@ namespace LilyPath
 
                         outputBuffer[outputIndex + 1] = new Vector2(b.X + w2 * edgeABt.X, b.Y + w2 * edgeABt.Y);
                         outputBuffer[outputIndex + 2] = new Vector2(b.X + w2 * edgeBCt.X, b.Y + w2 * edgeBCt.Y);
+
+                        if (colorBuffer != null) {
+                            colorBuffer[outputIndex + 1] = ColorAt(0, 0);
+                            colorBuffer[outputIndex + 2] = ColorAt(0, 0);
+                        }
                         vertexCount = -3;
                         break;
 
                     case PenAlignment.Inset:
                         outputBuffer[outputIndex + 1] = new Vector2(b.X + Width * edgeABt.X, b.Y + Width * edgeABt.Y);
                         outputBuffer[outputIndex + 2] = new Vector2(b.X + Width * edgeBCt.X, b.Y + Width * edgeBCt.Y);
+
+                        if (colorBuffer != null) {
+                            colorBuffer[outputIndex + 1] = ColorAt(0, 0);
+                            colorBuffer[outputIndex + 2] = ColorAt(1, 0);
+                        }
                         vertexCount = -3;
                         break;
 
@@ -488,6 +547,9 @@ namespace LilyPath
                         pointA = new Vector2(a.X - Width * edgeABt.X, a.Y - Width * edgeABt.Y);
                         pointC = new Vector2(c.X - Width * edgeBCt.X, c.Y - Width * edgeBCt.Y);
 
+                        if (colorBuffer != null) {
+                            colorBuffer[outputIndex + 1] = ColorAt(0, 0);
+                        }
                         outputBuffer[outputIndex + 1] = b;
                         vertexCount = -2;
                         break;
@@ -500,6 +562,10 @@ namespace LilyPath
                     : new Vector2((pointA.X + pointC.X) / 2, (pointA.Y + pointC.Y) / 2);
 
                 outputBuffer[outputIndex + 0] = point5;
+
+                if (colorBuffer != null) {
+                    colorBuffer[outputIndex + 0] = ColorAt(1, 0);
+                }
                 return vertexCount;
             }
             else {
@@ -511,6 +577,11 @@ namespace LilyPath
 
                         outputBuffer[outputIndex + 1] = new Vector2(b.X - w2 * edgeABt.X, b.Y - w2 * edgeABt.Y);
                         outputBuffer[outputIndex + 2] = new Vector2(b.X - w2 * edgeBCt.X, b.Y - w2 * edgeBCt.Y);
+
+                        if (colorBuffer != null) {
+                            colorBuffer[outputIndex + 1] = ColorAt(1, 0);
+                            colorBuffer[outputIndex + 2] = ColorAt(1, 0);
+                        }
                         vertexCount = 3;
                         break;
 
@@ -519,12 +590,21 @@ namespace LilyPath
                         pointC = new Vector2(c.X + Width * edgeBCt.X, c.Y + Width * edgeBCt.Y);
 
                         outputBuffer[outputIndex + 1] = b;
+
+                        if (colorBuffer != null) {
+                            colorBuffer[outputIndex + 1] = ColorAt(1, 0);
+                        }
                         vertexCount = 2;
                         break;
 
                     case PenAlignment.Outset:
                         outputBuffer[outputIndex + 1] = new Vector2(b.X - Width * edgeABt.X, b.Y - Width * edgeABt.Y);
                         outputBuffer[outputIndex + 2] = new Vector2(b.X - Width * edgeBCt.X, b.Y - Width * edgeBCt.Y);
+
+                        if (colorBuffer != null) {
+                            colorBuffer[outputIndex + 1] = ColorAt(1, 0);
+                            colorBuffer[outputIndex + 2] = ColorAt(1, 0);
+                        }
                         vertexCount = 3;
                         break;
                 }
@@ -536,6 +616,10 @@ namespace LilyPath
                     : new Vector2((pointA.X + pointC.X) / 2, (pointA.Y + pointC.Y) / 2);
 
                 outputBuffer[outputIndex + 0] = point0;
+
+                if (colorBuffer != null) {
+                    colorBuffer[outputIndex + 0] = ColorAt(0, 0);
+                }
                 return vertexCount;
             }
         }
@@ -550,7 +634,7 @@ namespace LilyPath
             return Cross2D(b - a, c - b) < 0;
         }
 
-        internal int ComputeStartPoint (Vector2[] outputBuffer, int outputIndex, Vector2 a, Vector2 b)
+        internal int ComputeStartPoint (Vector2[] outputBuffer, Color[] colorBuffer, int outputIndex, Vector2 a, Vector2 b)
         {
             float w2 = Width / 2;
 
@@ -565,6 +649,11 @@ namespace LilyPath
                 case LineCap.Square:
                     a = new Vector2(a.X - w2 * edgeAB.X, a.Y - w2 * edgeAB.Y);
                     break;
+            }
+
+            if (colorBuffer != null) {
+                colorBuffer[outputIndex + 0] = ColorAt(0, 0);
+                colorBuffer[outputIndex + 1] = ColorAt(1, 0);
             }
 
             switch (Alignment) {
@@ -588,7 +677,7 @@ namespace LilyPath
             }
         }
 
-        internal int ComputeEndPoint (Vector2[] outputBuffer, int outputIndex, Vector2 a, Vector2 b)
+        internal int ComputeEndPoint (Vector2[] outputBuffer, Color[] colorBuffer, int outputIndex, Vector2 a, Vector2 b)
         {
             float w2 = Width / 2;
 
@@ -603,6 +692,11 @@ namespace LilyPath
                 case LineCap.Square:
                     b = new Vector2(b.X + w2 * edgeAB.X, b.Y + w2 * edgeAB.Y);
                     break;
+            }
+
+            if (colorBuffer != null) {
+                colorBuffer[outputIndex + 0] = ColorAt(0, 0);
+                colorBuffer[outputIndex + 1] = ColorAt(1, 0);
             }
 
             switch (Alignment) {

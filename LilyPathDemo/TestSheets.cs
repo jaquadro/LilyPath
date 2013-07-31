@@ -84,18 +84,18 @@ namespace LilyPathDemo
                 Alignment = PenAlignment.Outset
             };
 
-            GraphicsPath insetPath = new GraphicsPath(insetPen, StarPoints(new Vector2(125, 150), 5, 100, 50, false), PathType.Closed);
-            GraphicsPath centerPath = new GraphicsPath(centerPen, StarPoints(new Vector2(350, 275), 5, 100, 50, false), PathType.Closed);
-            GraphicsPath outsetPath = new GraphicsPath(outsetPen, StarPoints(new Vector2(125, 400), 5, 100, 50, false), PathType.Closed);
+            GraphicsPath insetPath = new GraphicsPath(insetPen, StarPoints(new Vector2(125, 150), 5, 100, 50, 0, false), PathType.Closed);
+            GraphicsPath centerPath = new GraphicsPath(centerPen, StarPoints(new Vector2(350, 275), 5, 100, 50, 0, false), PathType.Closed);
+            GraphicsPath outsetPath = new GraphicsPath(outsetPen, StarPoints(new Vector2(125, 400), 5, 100, 50, 0, false), PathType.Closed);
 
             SetupDrawBatch(drawBatch);
 
             drawBatch.DrawPath(insetPath);
-            drawBatch.DrawPrimitivePath(new Pen(Color.OrangeRed), StarPoints(new Vector2(125, 150), 5, 100, 50, true));
+            drawBatch.DrawPrimitivePath(new Pen(Color.OrangeRed), StarPoints(new Vector2(125, 150), 5, 100, 50, 0, true));
             drawBatch.DrawPath(centerPath);
-            drawBatch.DrawPrimitivePath(new Pen(Color.OrangeRed), StarPoints(new Vector2(350, 275), 5, 100, 50, true));
+            drawBatch.DrawPrimitivePath(new Pen(Color.OrangeRed), StarPoints(new Vector2(350, 275), 5, 100, 50, 0, true));
             drawBatch.DrawPath(outsetPath);
-            drawBatch.DrawPrimitivePath(new Pen(Color.OrangeRed), StarPoints(new Vector2(125, 400), 5, 100, 50, true));
+            drawBatch.DrawPrimitivePath(new Pen(Color.OrangeRed), StarPoints(new Vector2(125, 400), 5, 100, 50, 0, true));
 
             drawBatch.End();
         }
@@ -108,7 +108,7 @@ namespace LilyPathDemo
             drawBatch.FillRectangle(Brush.Green, new Rectangle(50, 50, 200, 100));
             drawBatch.FillCircle(Brush.Blue, new Vector2(350, 100), 50);
             drawBatch.FillCircle(Brush.Blue, new Vector2(500, 100), 50, 16);
-            drawBatch.FillPath(Brush.Gray, StarPoints(new Vector2(150, 300), 8, 100, 50, false));
+            drawBatch.FillPath(Brush.Gray, StarPoints(new Vector2(150, 300), 8, 100, 50, 0, false));
             drawBatch.FillRectangle(Brush.Green, new Rectangle(300, 250, 200, 100), (float)Math.PI / 4f);
 
             drawBatch.End();
@@ -509,12 +509,12 @@ namespace LilyPathDemo
 
             if (_outerFlower == null) {
                 Pen pen = new Pen(Color.Pink, 15) { Alignment = PenAlignment.Outset };
-                _outerFlower = CreateFlowerGP(pen, center, 10, 150, 100);
+                _outerFlower = CreateFlowerGP(pen, center, 10, 150, 100, 0);
             }
 
             if (_innerFlower == null) {
                 Pen pen = new Pen(Color.HotPink, 10) { Alignment = PenAlignment.Outset };
-                _innerFlower = CreateFlowerGP(pen, center, 15, 100, 50);
+                _innerFlower = CreateFlowerGP(pen, center, 15, 100, 50, 0);
             }
 
             if (_lillypads == null) {
@@ -532,6 +532,43 @@ namespace LilyPathDemo
                 drawBatch.DrawPath(path);
             drawBatch.DrawPath(_outerFlower);
             drawBatch.DrawPath(_innerFlower);
+
+            drawBatch.End();
+        }
+
+        private static PathBuilder _lilly2_padBuilder;
+        private static GraphicsPath _lilly2_pad;
+        private static GraphicsPath _lilly2_outerFlower;
+        private static GraphicsPath _lilly2_innerFlower;
+
+        [TestSheet("Water Lily 2")]
+        public static void DrawWaterLily2 (DrawBatch drawBatch)
+        {
+            Vector2 center = new Vector2(200, 200);
+
+            if (_lilly2_pad == null) {
+                Pen pen = new Pen(Color.Green, 15) { Alignment = PenAlignment.Center };
+                _lilly2_padBuilder = BuildLillyPad(center, 150, 0);
+                _lilly2_pad = _lilly2_padBuilder.Stroke(pen, PathType.Closed);
+            }
+
+            if (_lilly2_outerFlower == null) {
+                Pen pen = new Pen(Color.White * 0.75f, 15) { Alignment = PenAlignment.Outset };
+                _lilly2_outerFlower = CreateFlowerGP(pen, center, 8, 120, 100, (float)(Math.PI / 8));
+            }
+
+            if (_lilly2_innerFlower == null) {
+                Pen pen = new Pen(Color.MediumPurple * 0.5f, 10) { Alignment = PenAlignment.Outset };
+                _lilly2_innerFlower = CreateFlowerGP(pen, center, 16, 105, 60, 0);
+            }
+
+            SetupDrawBatch(drawBatch);
+
+            drawBatch.FillCircle(new SolidColorBrush(Color.SkyBlue), center, 175);
+            drawBatch.FillPath(new SolidColorBrush(Color.LimeGreen), _lilly2_padBuilder.Buffer, 0, _lilly2_padBuilder.Count);
+            drawBatch.DrawPath(_lilly2_pad);
+            drawBatch.DrawPath(_lilly2_outerFlower);
+            drawBatch.DrawPath(_lilly2_innerFlower);
 
             drawBatch.End();
         }
@@ -582,9 +619,9 @@ namespace LilyPathDemo
             };
         }
 
-        private static GraphicsPath CreateFlowerGP (Pen pen, Vector2 center, int petalCount, float petalLength, float petalWidth)
+        private static GraphicsPath CreateFlowerGP (Pen pen, Vector2 center, int petalCount, float petalLength, float petalWidth, float rotation)
         {
-            List<Vector2> points = StarPoints(center, petalCount / 2, petalLength, petalLength, false);
+            List<Vector2> points = StarPoints(center, petalCount / 2, petalLength, petalLength, rotation, false);
 
             PathBuilder builder = new PathBuilder();
             builder.AddPoint(center);
@@ -597,6 +634,19 @@ namespace LilyPathDemo
             return builder.Stroke(pen, PathType.Closed);
         }
 
+        private static PathBuilder BuildLillyPad (Vector2 center, int radius, float rotation)
+        {
+            float segment = (float)(Math.PI * 2 / 32);
+
+            PathBuilder builder = new PathBuilder();
+
+            builder.AddPoint(center);
+            builder.AddLine(radius, segment * 25 + rotation);
+            builder.AddArcByAngle(center, segment * 30, radius / 2);
+
+            return builder;
+        }
+
         private static GraphicsPath CreateLillyPadGP (Pen pen, Vector2 center, int radius, float rotation)
         {
             float segment = (float)(Math.PI * 2 / 32);
@@ -604,13 +654,13 @@ namespace LilyPathDemo
             PathBuilder builder = new PathBuilder();
 
             builder.AddPoint(center);
-            builder.AddLine(radius, segment * 7 + rotation);
+            builder.AddLine(radius, segment * 25 + rotation);
             builder.AddArcByAngle(center, segment * 30, radius / 2);
 
             return builder.Stroke(pen, PathType.Closed);
         }
 
-        private static List<Vector2> StarPoints (Vector2 center, int pointCount, float outerRadius, float innerRadius, bool close)
+        private static List<Vector2> StarPoints (Vector2 center, int pointCount, float outerRadius, float innerRadius, float rotation, bool close)
         {
             List<Vector2> points = new List<Vector2>();
 
@@ -618,8 +668,8 @@ namespace LilyPathDemo
 
             float rot = (float)((Math.PI * 2) / (pointCount * 2));
             for (int i = 0; i < limit; i++) {
-                float si = (float)Math.Sin(-i * rot + Math.PI);
-                float ci = (float)Math.Cos(-i * rot + Math.PI);
+                float si = (float)Math.Sin(-i * rot + Math.PI + rotation);
+                float ci = (float)Math.Cos(-i * rot + Math.PI + rotation);
 
                 if (i % 2 == 0)
                     points.Add(center + new Vector2(si, ci) * outerRadius);

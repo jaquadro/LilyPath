@@ -44,6 +44,18 @@ namespace LilyPath
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
         public static Brush DarkGray { get; private set; }
 
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush LightBlue { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush LightCyan { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush LightGreen { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush LightYellow { get; private set; }
+
         static Brush ()
         {
             Black = new SolidColorBrush(Color.Black);
@@ -54,6 +66,11 @@ namespace LilyPath
             Red = new SolidColorBrush(Color.Red);
             White = new SolidColorBrush(Color.White);
             Yellow = new SolidColorBrush(Color.Yellow);
+
+            LightBlue = new SolidColorBrush(Color.LightBlue);
+            LightCyan = new SolidColorBrush(Color.LightCyan);
+            LightGreen = new SolidColorBrush(Color.LightGreen);
+            LightYellow = new SolidColorBrush(Color.LightYellow);
 
             Gray = new SolidColorBrush(Color.Gray);
             LightGray = new SolidColorBrush(Color.LightGray);

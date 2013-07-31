@@ -240,11 +240,11 @@ namespace LilyPath
         {
             int vIndex = _vertexBufferIndex;
 
-            _vertexBufferIndex += _pen.ComputeStartPoint(_positionData, vIndex, a, b);
-            if (_colorData != null) {
+            _vertexBufferIndex += _pen.ComputeStartPoint(_positionData, _colorData, vIndex, a, b);
+            /*if (_colorData != null) {
                 for (int i = vIndex; i < _vertexBufferIndex; i++)
                     _colorData[i] = _pen.Color;
-            }
+            }*/
 
             if (_textureData != null) {
                 int texWidth = _pen.Brush.Texture.Width;
@@ -265,11 +265,11 @@ namespace LilyPath
         {
             int vIndex = _vertexBufferIndex;
 
-            _vertexBufferIndex += _pen.ComputeEndPoint(_positionData, vIndex, a, b);
-            if (_colorData != null) {
+            _vertexBufferIndex += _pen.ComputeEndPoint(_positionData, _colorData, vIndex, a, b);
+            /*if (_colorData != null) {
                 for (int i = vIndex; i < _vertexBufferIndex; i++)
                     _colorData[i] = _pen.Color;
-            }
+            }*/
 
             if (_textureData != null) {
                 int texWidth = _pen.Brush.Texture.Width;
@@ -302,13 +302,13 @@ namespace LilyPath
         {
             int vIndex = _vertexBufferIndex;
 
-            int vertexGen = _pen.ComputeMiter(_positionData, vIndex, a, b, c);
+            int vertexGen = _pen.ComputeMiter(_positionData, _colorData, vIndex, a, b, c);
 
             _vertexBufferIndex += Math.Abs(vertexGen);
-            if (_colorData != null) {
+            /*if (_colorData != null) {
                 for (int i = vIndex; i < _vertexBufferIndex; i++)
                     _colorData[i] = _pen.Color;
-            }
+            }*/
 
             if (_textureData != null) {
                 int texWidth = _pen.Brush.Texture.Width;
@@ -348,13 +348,13 @@ namespace LilyPath
         {
             int vIndex = _vertexBufferIndex;
 
-            int vertexGen = _pen.ComputeBevel(_positionData, vIndex, a, b, c);
+            int vertexGen = _pen.ComputeBevel(_positionData, _colorData, vIndex, a, b, c);
 
             _vertexBufferIndex += Math.Abs(vertexGen);
-            if (_colorData != null) {
+            /*if (_colorData != null) {
                 for (int i = vIndex; i < _vertexBufferIndex; i++)
                     _colorData[i] = _pen.Color;
-            }
+            }*/
 
             if (_textureData != null) {
                 int texWidth = _pen.Brush.Texture.Width;

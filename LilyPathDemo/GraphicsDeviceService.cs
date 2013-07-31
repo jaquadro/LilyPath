@@ -68,10 +68,15 @@ namespace LilyPathDemo
 
         protected void CreateDevice (IntPtr windowHandle, int width, int height)
         {
-            _device = new GraphicsDevice();
-            _device.PresentationParameters.DeviceWindowHandle = windowHandle;
-            _device.PresentationParameters.BackBufferWidth = Math.Max(width, 1);
-            _device.PresentationParameters.BackBufferHeight = Math.Max(height, 1);
+            GraphicsAdapter adapter = GraphicsAdapter.DefaultAdapter;
+            GraphicsProfile profile = GraphicsProfile.Reach;
+            PresentationParameters pp = new PresentationParameters() {
+                DeviceWindowHandle = windowHandle,
+                BackBufferWidth = Math.Max(width, 1),
+                BackBufferHeight = Math.Max(height, 1),
+            };
+
+            _device = new GraphicsDevice(adapter, profile, pp);
 
             if (DeviceCreated != null) {
                 DeviceCreated(this, EventArgs.Empty);

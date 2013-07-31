@@ -132,7 +132,6 @@
             // drawingControl1
             // 
             this.drawingControl1.BackColor = System.Drawing.Color.Black;
-            this.drawingControl1.ClearColor = ((Microsoft.Xna.Framework.Color)(resources.GetObject("drawingControl1.ClearColor")));
             this.drawingControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.drawingControl1.DrawAction = null;
             this.drawingControl1.Location = new System.Drawing.Point(0, 0);

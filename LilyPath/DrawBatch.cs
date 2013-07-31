@@ -1556,7 +1556,7 @@ namespace LilyPath
 
         private void AddMiteredJoint (Vector2 a, Vector2 b, Vector2 c, Pen pen)
         {
-            pen.ComputeMiter(_computeBuffer, 0, a, b, c);
+            pen.ComputeMiter(_computeBuffer, null, 0, a, b, c);
 
             AddVertex(_computeBuffer[0], pen);
             AddVertex(_computeBuffer[1], pen);
@@ -1564,7 +1564,7 @@ namespace LilyPath
 
         private void AddStartPoint (Vector2 a, Vector2 b, Pen pen)
         {
-            pen.ComputeStartPoint(_computeBuffer, 0, a, b);
+            pen.ComputeStartPoint(_computeBuffer, null, 0, a, b);
 
             AddVertex(_computeBuffer[0], pen);
             AddVertex(_computeBuffer[1], pen);
@@ -1572,7 +1572,7 @@ namespace LilyPath
 
         private void AddEndPoint (Vector2 a, Vector2 b, Pen pen)
         {
-            pen.ComputeEndPoint(_computeBuffer, 0, a, b);
+            pen.ComputeEndPoint(_computeBuffer, null, 0, a, b);
 
             AddVertex(_computeBuffer[0], pen);
             AddVertex(_computeBuffer[1], pen);

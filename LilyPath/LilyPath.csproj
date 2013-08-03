@@ -53,6 +53,7 @@
     <Compile Include="Enums.cs" />
     <Compile Include="GraphicsPath.cs" />
     <Compile Include="PathBuilder.cs" />
+    <Compile Include="Pens\GradientPen.cs" />
     <Compile Include="TextureBrush.cs" />
     <Compile Include="Pen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

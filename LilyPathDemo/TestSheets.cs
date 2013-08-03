@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using LilyPath;
+using LilyPath.Pens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

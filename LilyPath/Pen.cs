@@ -18,28 +18,6 @@ namespace LilyPath
         { }
     }
 
-    public class GradientPen : Pen
-    {
-        private Color _color1;
-        private Color _color2;
-
-        public GradientPen (Color color1, Color color2, float width)
-            : base(Color.White, width)
-        {
-            _color1 = color1;
-            _color2 = color2;
-        }
-
-        public GradientPen (Color color1, Color color2)
-            : this(color1, color2, 1)
-        { }
-
-        protected internal override Color ColorAt (float widthPosition, float lengthPosition)
-        {
-            return Color.Lerp(_color1, _color2, widthPosition);
-        }
-    }
-
     /// <summary>
     /// Objects used to draw paths.
     /// </summary>
@@ -306,6 +284,12 @@ namespace LilyPath
 
         #endregion
 
+        /// <summary>
+        /// Queries the <see cref="Pen"/> for its color at a coordinate relative to the stroke width of the pen and length of the path.
+        /// </summary>
+        /// <param name="widthPosition">A value between 0 and 1 interpolated across the stroke width.</param>
+        /// <param name="lengthPosition">A value between 0 and 1 interpolated between the start and end points of a path.</param>
+        /// <returns>A color value.</returns>
         protected internal virtual Color ColorAt (float widthPosition, float lengthPosition)
         {
             return Brush.Color;

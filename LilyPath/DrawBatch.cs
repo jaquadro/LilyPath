@@ -210,38 +210,102 @@ namespace LilyPath
         /// <exception cref="InvalidOperationException"><c>DrawRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void DrawRectangle (Pen pen, Rectangle rect, float angle)
         {
+            _geometryBuffer[0] = new Vector2(rect.Left, rect.Top);
+            _geometryBuffer[1] = new Vector2(rect.Right, rect.Top);
+            _geometryBuffer[2] = new Vector2(rect.Right, rect.Bottom);
+            _geometryBuffer[3] = new Vector2(rect.Left, rect.Bottom);
+
+            DrawQuad(pen, _geometryBuffer, 0, angle);
+        }
+
+        /// <summary>
+        /// Computes and adds a rectangle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="location">The top-left corner of the rectangle.</param>
+        /// <param name="width">The width of the rectangle.</param>
+        /// <param name="height">The height of the rectangle.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawRectangle (Pen pen, Vector2 location, float width, float height)
+        {
+            DrawRectangle(pen, location, width, height);
+        }
+
+        /// <summary>
+        /// Computes and adds a rectangle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="location">The top-left corner of the rectangle.</param>
+        /// <param name="width">The width of the rectangle.</param>
+        /// <param name="height">The height of the rectangle.</param>
+        /// <param name="angle">The angle to rotate the rectangle by around its center in radians.  Positive values rotate clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawRectangle (Pen pen, Vector2 location, float width, float height, float angle)
+        {
+            _geometryBuffer[0] = location;
+            _geometryBuffer[1] = new Vector2(location.X + width, location.Y);
+            _geometryBuffer[2] = new Vector2(location.X + width, location.Y + height);
+            _geometryBuffer[3] = new Vector2(location.X, location.Y + height);
+
+            DrawQuad(pen, _geometryBuffer, 0, angle);
+        }
+
+        /// <summary>
+        /// Computes and adds a quadrilateral path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="points">An array containing the coordinates of the quad.</param>
+        /// <param name="offset">The offset into the points array.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawQuad</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawQuad (Pen pen, Vector2[] points, int offset)
+        {
+            DrawQuad(pen, points, offset, 0);
+        }
+        
+        /// <summary>
+        /// Computes and adds a quadrilateral path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="points">An array containing the coordinates of the quad.</param>
+        /// <param name="offset">The offset into the points array.</param>
+        /// <param name="angle">The angle to rotate the quad by around its weighted center in radians.  Positive values rotate clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawQuad</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawQuad (Pen pen, Vector2[] points, int offset, float angle)
+        {
             if (!_inDraw)
                 throw new InvalidOperationException();
             if (pen == null)
                 throw new ArgumentNullException("pen");
+            if (points == null)
+                throw new ArgumentNullException("points");
+            if (points.Length < offset + 4)
+                throw new ArgumentException("Points array is too small for the given offset.");
 
             RequestBufferSpace(8, 24);
 
             AddInfo(PrimitiveType.TriangleList, 8, 24, pen.Brush);
 
-            Vector2[] v = new Vector2[] {
-                new Vector2(rect.Left, rect.Top),
-                new Vector2(rect.Right, rect.Top),
-                new Vector2(rect.Right, rect.Bottom),
-                new Vector2(rect.Left, rect.Bottom),
-            };
+            if (points != _geometryBuffer)
+                Array.Copy(points, _geometryBuffer, 4);
 
             if (angle != 0) {
-                Vector2 center = new Vector2(rect.Center.X, rect.Center.Y);
+                float centerX = (_geometryBuffer[0].X + _geometryBuffer[1].X + _geometryBuffer[2].X + _geometryBuffer[3].X) / 4;
+                float centerY = (_geometryBuffer[0].Y + _geometryBuffer[1].Y + _geometryBuffer[2].Y + _geometryBuffer[3].Y) / 4;
+                Vector2 center = new Vector2(centerX, centerY);
 
                 Matrix transform = Matrix.CreateRotationZ(angle);
                 transform.Translation = new Vector3(center, 0);
 
-                for (int i = 0; i < v.Length; i++)
-                    v[i] = Vector2.Transform(v[i] - center, transform);
+                for (int i = 0; i < 4; i++)
+                    _geometryBuffer[i] = Vector2.Transform(_geometryBuffer[i] - center, transform);
             }
 
             int baseVertexIndex = _vertexBufferIndex;
 
-            AddMiteredJoint(v[0], v[1], v[2], pen);
-            AddMiteredJoint(v[1], v[2], v[3], pen);
-            AddMiteredJoint(v[2], v[3], v[0], pen);
-            AddMiteredJoint(v[3], v[0], v[1], pen);
+            AddMiteredJoint(_geometryBuffer[0], _geometryBuffer[1], _geometryBuffer[2], pen);
+            AddMiteredJoint(_geometryBuffer[1], _geometryBuffer[2], _geometryBuffer[3], pen);
+            AddMiteredJoint(_geometryBuffer[2], _geometryBuffer[3], _geometryBuffer[0], pen);
+            AddMiteredJoint(_geometryBuffer[3], _geometryBuffer[0], _geometryBuffer[1], pen);
 
             AddSegment(baseVertexIndex + 0, baseVertexIndex + 2);
             AddSegment(baseVertexIndex + 2, baseVertexIndex + 4);
@@ -272,10 +336,76 @@ namespace LilyPath
         /// <exception cref="InvalidOperationException"><c>DrawPrimitiveRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void DrawPrimitiveRectangle (Pen pen, Rectangle rect, float angle)
         {
+            _geometryBuffer[0] = new Vector2(rect.Left, rect.Top);
+            _geometryBuffer[1] = new Vector2(rect.Right, rect.Top);
+            _geometryBuffer[2] = new Vector2(rect.Right, rect.Bottom);
+            _geometryBuffer[3] = new Vector2(rect.Left, rect.Bottom);
+
+            DrawPrimitiveQuad(pen, _geometryBuffer, 0, angle);
+        }
+
+        /// <summary>
+        /// Adds a primitive rectangle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="location">The top-left corner of the rectangle.</param>
+        /// <param name="width">The width of the rectangle.</param>
+        /// <param name="height">The height of the rectangle.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawPrimitiveRectangle (Pen pen, Vector2 location, float width, float height)
+        {
+            DrawPrimitiveRectangle(pen, location, width, height, 0);
+        }
+
+        /// <summary>
+        /// Adds a primitive rectangle path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="location">The top-left corner of the rectangle.</param>
+        /// <param name="width">The width of the rectangle.</param>
+        /// <param name="height">The height of the rectangle.</param>
+        /// <param name="angle">The angle to rotate the rectangle by around its center in radians.  Positive values rotate clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawPrimitiveRectangle (Pen pen, Vector2 location, float width, float height, float angle)
+        {
+            _geometryBuffer[0] = location;
+            _geometryBuffer[1] = new Vector2(location.X + width, location.Y);
+            _geometryBuffer[2] = new Vector2(location.X + width, location.Y + height);
+            _geometryBuffer[3] = new Vector2(location.X, location.Y + height);
+
+            DrawPrimitiveQuad(pen, _geometryBuffer, 0, angle);
+        }
+
+        /// <summary>
+        /// Adds a primitive quadrilateral to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying a color to render the path with.</param>
+        /// <param name="points">An array containing the coordinates of the quad.</param>
+        /// <param name="offset">The offset into the points array.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveQuad</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawPrimitiveQuad (Pen pen, Vector2[] points, int offset)
+        {
+            DrawPrimitiveQuad(pen, points, offset, 0);
+        }
+
+        /// <summary>
+        /// Adds a primitive quadrilateral to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying a color to render the path with.</param>
+        /// <param name="points">An array containing the coordinates of the quad.</param>
+        /// <param name="offset">The offset into the points array.</param>
+        /// <param name="angle">The angle to rotate the quad by around its weighted center in radians.  Positive values rotate clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveQuad</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawPrimitiveQuad (Pen pen, Vector2[] points, int offset, float angle)
+        {
             if (!_inDraw)
                 throw new InvalidOperationException();
             if (pen == null)
                 throw new ArgumentNullException("pen");
+            if (points == null)
+                throw new ArgumentNullException("points");
+            if (points.Length < offset + 4)
+                throw new ArgumentException("Points array is too small for the given offset.");
 
             RequestBufferSpace(4, 8);
 
@@ -283,13 +413,15 @@ namespace LilyPath
 
             int baseVertexIndex = _vertexBufferIndex;
 
-            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(rect.X, rect.Y, 0), pen.Color, new Vector2(rect.X, rect.Y));
-            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(rect.Right, rect.Y, 0), pen.Color, new Vector2(rect.Right, rect.Y));
-            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(rect.Right, rect.Bottom, 0), pen.Color, new Vector2(rect.Right, rect.Bottom));
-            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(rect.X, rect.Bottom, 0), pen.Color, new Vector2(rect.X, rect.Bottom));
+            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(points[offset + 0], 0), pen.Color, points[offset + 0]);
+            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(points[offset + 1], 0), pen.Color, points[offset + 1]);
+            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(points[offset + 2], 0), pen.Color, points[offset + 2]);
+            _vertexBuffer[_vertexBufferIndex++] = new VertexPositionColorTexture(new Vector3(points[offset + 3], 0), pen.Color, points[offset + 3]);
 
             if (angle != 0) {
-                Vector3 center = new Vector3(rect.Center.X, rect.Center.Y, 0);
+                float centerX = (points[offset + 0].X + points[offset + 1].X + points[offset + 2].X + points[offset + 3].X) / 4;
+                float centerY = (points[offset + 0].Y + points[offset + 1].Y + points[offset + 2].Y + points[offset + 3].Y) / 4;
+                Vector3 center = new Vector3(centerX, centerY, 0);
 
                 Matrix transform = Matrix.CreateRotationZ(angle);
                 transform.Translation = center;
@@ -1426,7 +1558,7 @@ namespace LilyPath
         }
 
         /// <summary>
-        /// Adds a filled rectangle to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// Adds a filled rectangle to the batch of figures to be rendered.
         /// </summary>
         /// <param name="brush">The brush to render the shape with.</param>
         /// <param name="rect">The rectangle to be rendered.</param>
@@ -1437,7 +1569,7 @@ namespace LilyPath
         }
 
         /// <summary>
-        /// Adds a filled rectangle to the batch of figures to be rendered using up to the given number of subdivisions.
+        /// Adds a filled rectangle to the batch of figures to be rendered.
         /// </summary>
         /// <param name="brush">The brush to render the shape with.</param>
         /// <param name="rect">The rectangle to be rendered.</param>
@@ -1445,38 +1577,102 @@ namespace LilyPath
         /// <exception cref="InvalidOperationException"><c>FillRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void FillRectangle (Brush brush, Rectangle rect, float angle)
         {
+            _geometryBuffer[0] = new Vector2(rect.Left, rect.Top);
+            _geometryBuffer[1] = new Vector2(rect.Right, rect.Top);
+            _geometryBuffer[2] = new Vector2(rect.Right, rect.Bottom);
+            _geometryBuffer[3] = new Vector2(rect.Left, rect.Bottom);
+
+            FillQuad(brush, _geometryBuffer, 0, angle);
+        }
+
+        /// <summary>
+        /// Adds a filled rectangle to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="location">The top-left corner of the rectangle.</param>
+        /// <param name="width">The width of the rectangle.</param>
+        /// <param name="height">The height of the rectangle.</param>
+        /// <exception cref="InvalidOperationException"><c>FillRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void FillRectangle (Brush brush, Vector2 location, float width, float height)
+        {
+            FillRectangle(brush, location, width, height, 0);
+        }
+
+        /// <summary>
+        /// Adds a filled rectangle to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="location">The top-left corner of the rectangle.</param>
+        /// <param name="width">The width of the rectangle.</param>
+        /// <param name="height">The height of the rectangle.</param>
+        /// <param name="angle">The angle to rotate the rectangle by around its center in radians.  Positive values rotate clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>FillRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void FillRectangle (Brush brush, Vector2 location, float width, float height, float angle)
+        {
+            _geometryBuffer[0] = location;
+            _geometryBuffer[1] = new Vector2(location.X + width, location.Y);
+            _geometryBuffer[2] = new Vector2(location.X + width, location.Y + height);
+            _geometryBuffer[3] = new Vector2(location.X, location.Y + height);
+
+            FillQuad(brush, _geometryBuffer, 0, angle);
+        }
+
+        /// <summary>
+        /// Adds a filled quadrilateral to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="points">An array containing the coordinates of the quad.</param>
+        /// <param name="offset">The offset into the points array.</param>
+        /// <exception cref="InvalidOperationException"><c>FillQuad</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void FillQuad (Brush brush, Vector2[] points, int offset)
+        {
+            FillQuad(brush, points, offset, 0);
+        }
+
+        /// <summary>
+        /// Adds a filled quadrilateral to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="brush">The brush to render the shape with.</param>
+        /// <param name="points">An array containing the coordinates of the quad.</param>
+        /// <param name="offset">The offset into the points array.</param>
+        /// <param name="angle">The angle to rotate the quad around its weighted center in radians.  Positive values rotate clockwise.</param>
+        /// <exception cref="InvalidOperationException"><c>FillQuad</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void FillQuad (Brush brush, Vector2[] points, int offset, float angle)
+        {
             if (!_inDraw)
                 throw new InvalidOperationException();
             if (brush == null)
                 throw new ArgumentNullException("brush");
+            if (points == null)
+                throw new ArgumentNullException("points");
+            if (points.Length < offset + 4)
+                throw new ArgumentException("Points array is too small for the given offset.");
 
             RequestBufferSpace(4, 6);
             AddInfo(PrimitiveType.TriangleList, 4, 6, brush);
 
             int baseVertexIndex = _vertexBufferIndex;
 
-            Vector2[] v = new Vector2[] {
-                new Vector2(rect.Left, rect.Top),
-                new Vector2(rect.Right, rect.Top),
-                new Vector2(rect.Left, rect.Bottom),
-                new Vector2(rect.Right, rect.Bottom),
-            };
+            if (points != _geometryBuffer)
+                Array.Copy(points, _geometryBuffer, 4);
 
             if (angle != 0) {
-                Vector2 center = new Vector2(rect.Center.X, rect.Center.Y);
+                float centerX = (_geometryBuffer[0].X + _geometryBuffer[1].X + _geometryBuffer[2].X + _geometryBuffer[3].X) / 4;
+                float centerY = (_geometryBuffer[0].Y + _geometryBuffer[1].Y + _geometryBuffer[2].Y + _geometryBuffer[3].Y) / 4;
+                Vector2 center = new Vector2(centerX, centerY);
 
                 Matrix transform = Matrix.CreateRotationZ(angle);
                 transform.Translation = new Vector3(center, 0);
 
-                for (int i = 0; i < v.Length; i++)
-                    v[i] = Vector2.Transform(v[i] - center, transform);
+                for (int i = 0; i < 4; i++)
+                    _geometryBuffer[i] = Vector2.Transform(_geometryBuffer[i] - center, transform);
             }
 
-            for (int i = 0; i < v.Length; i++)
-                AddVertex(v[i], brush);
+            for (int i = 0; i < 4; i++)
+                AddVertex(_geometryBuffer[i], brush);
 
-            AddTriangle(baseVertexIndex + 0, baseVertexIndex + 1, baseVertexIndex + 2);
-            AddTriangle(baseVertexIndex + 1, baseVertexIndex + 3, baseVertexIndex + 2);
+            AddTriangle(baseVertexIndex + 0, baseVertexIndex + 1, baseVertexIndex + 3);
+            AddTriangle(baseVertexIndex + 1, baseVertexIndex + 2, baseVertexIndex + 3);
 
             if (_sortMode == DrawSortMode.Immediate)
                 FlushBuffer();

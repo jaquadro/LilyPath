@@ -447,17 +447,24 @@ namespace LilyPath
                     break;
             }
 
-            float offset01 = Vector2.Dot(edgeBCt, point1);
-            float t0 = (offset01 - Vector2.Dot(edgeBCt, point2)) / Vector2.Dot(edgeBCt, edgeAB);
-            Vector2 point0 = (!float.IsNaN(t0))
-                ? new Vector2(point2.X + t0 * edgeAB.X, point2.Y + t0 * edgeAB.Y)
-                : new Vector2((point2.X + point1.X) / 2, (point2.Y + point1.Y) / 2);
+            Vector2 point0, point5;
 
-            float offset35 = Vector2.Dot(edgeBCt, point3);
-            float t5 = (offset35 - Vector2.Dot(edgeBCt, point4)) / Vector2.Dot(edgeBCt, edgeAB);
-            Vector2 point5 = (!float.IsNaN(t5))
-                ? new Vector2(point4.X + t5 * edgeAB.X, point4.Y + t5 * edgeAB.Y)
-                : new Vector2((point4.X + point3.X) / 2, (point4.Y + point3.Y) / 2);
+            float tdiv = Vector2.Dot(edgeBCt, edgeAB);
+
+            if (Math.Abs(tdiv) < .0005f) {
+                point0 = new Vector2((point2.X + point1.X) / 2, (point2.Y + point1.Y) / 2);
+                point5 = new Vector2((point4.X + point3.X) / 2, (point4.Y + point3.Y) / 2);
+            }
+            else {
+                float offset01 = Vector2.Dot(edgeBCt, point1);
+                float t0 = (offset01 - Vector2.Dot(edgeBCt, point2)) / tdiv;
+
+                float offset35 = Vector2.Dot(edgeBCt, point3);
+                float t5 = (offset35 - Vector2.Dot(edgeBCt, point4)) / tdiv;
+
+                point0 = new Vector2(point2.X + t0 * edgeAB.X, point2.Y + t0 * edgeAB.Y);
+                point5 = new Vector2(point4.X + t5 * edgeAB.X, point4.Y + t5 * edgeAB.Y);
+            }
 
             double miterLimit = MiterLimit * Width;
             if ((point0 - point5).LengthSquared() > miterLimit * miterLimit)
@@ -539,11 +546,18 @@ namespace LilyPath
                         break;
                 }
 
-                float offset35 = Vector2.Dot(edgeBCt, pointC);
-                float t5 = (offset35 - Vector2.Dot(edgeBCt, pointA)) / Vector2.Dot(edgeBCt, edgeAB);
-                Vector2 point5 = (!float.IsNaN(t5))
-                    ? new Vector2(pointA.X + t5 * edgeAB.X, pointA.Y + t5 * edgeAB.Y)
-                    : new Vector2((pointA.X + pointC.X) / 2, (pointA.Y + pointC.Y) / 2);
+                Vector2 point5;
+
+                float tdiv = Vector2.Dot(edgeBCt, edgeAB);
+                if (Math.Abs(tdiv) < 0.0005f) {
+                    point5 = new Vector2((pointA.X + pointC.X) / 2, (pointA.Y + pointC.Y) / 2);
+                }
+                else {
+                    float offset35 = Vector2.Dot(edgeBCt, pointC);
+                    float t5 = (offset35 - Vector2.Dot(edgeBCt, pointA)) / tdiv;
+
+                    point5 = new Vector2(pointA.X + t5 * edgeAB.X, pointA.Y + t5 * edgeAB.Y);
+                }
 
                 outputBuffer[outputIndex + 0] = point5;
 
@@ -593,11 +607,18 @@ namespace LilyPath
                         break;
                 }
 
-                float offset01 = Vector2.Dot(edgeBCt, pointC);
-                float t0 = (offset01 - Vector2.Dot(edgeBCt, pointA)) / Vector2.Dot(edgeBCt, edgeAB);
-                Vector2 point0 = (!float.IsNaN(t0))
-                    ? new Vector2(pointA.X + t0 * edgeAB.X, pointA.Y + t0 * edgeAB.Y)
-                    : new Vector2((pointA.X + pointC.X) / 2, (pointA.Y + pointC.Y) / 2);
+                Vector2 point0;
+
+                float tdiv = Vector2.Dot(edgeBCt, edgeAB);
+                if (Math.Abs(tdiv) < 0.0005f) {
+                    point0 = new Vector2((pointA.X + pointC.X) / 2, (pointA.Y + pointC.Y) / 2);
+                }
+                else {
+                    float offset01 = Vector2.Dot(edgeBCt, pointC);
+                    float t0 = (offset01 - Vector2.Dot(edgeBCt, pointA)) / tdiv;
+
+                    point0 = new Vector2(pointA.X + t0 * edgeAB.X, pointA.Y + t0 * edgeAB.Y);
+                }
 
                 outputBuffer[outputIndex + 0] = point0;
 

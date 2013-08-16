@@ -1,18 +1,43 @@
 LilyPath
 ========
+<img src="https://raw.github.com/wiki/jaquadro/LilyPath/images/lilypath.png" align="right" title="Rendered with MSAA on XNA with LilyPath" />
 
-LilyPath is a 2D path and shape drawing library for MonoGame and XNA.  All drawing is rendered to polygons, not rasterized to a texture.  The main API is presented as a DrawBatch, which is directly analogous to a SpriteBatch, and allows drawing operations to be batched together.  Other supporting classes allow for better caching or building up of complex geometry.  Several aspects of the API are analogous to .NET's System.Drawing and System.Drawing.Drawing2D namespaces, although more limited.
+LilyPath is a 2D drawing library for MonoGame and XNA.  LilyPath provides some of the functionality found in `System.Drawing`, such as drawing paths and shapes with configurable pens and brushes.
 
-![](https://raw.github.com/wiki/jaquadro/LilyPath/images/lilypath.png)
+Instead of creating raster images, LilyPath renders everything directly to your scene or render target.  Complex paths and filled shapes are rendered as polygons, while primitives are rendered as GL or DX lines.
 
-Capabilities include:
-* Drawing primitive lines, paths, and closed shapes (drawn as 1px line lists).
-* Drawing lines, paths, and shapes with customizable pens.
-* Filling paths and shapes with customizable brushes.
-* Basic shapes include rectangle, circle, ellipse, segment (arc), and sector (arc).
-* Color or pattern fill for brushes.
-* Varying width, alignment, end cap styles for pens.
-* Multisegment lines are mitered.
-* Several ways to draw arcs, including by radius/angle or between points.
+Drawing is handled through a `DrawBatch` object to reduce the number of draw calls needed.  This mirrors the role of `SpriteBatch` for rendering textured quads.  More complex geometry can be compiled ahead of time into `GraphicsPath` objects, which contain the polygon data after arcs, joins, and other calculations have been completed.
 
-Separate projects are provided for binding LilyPath to MonoGame and XNA.
+Features
+--------
+* Draw primitive lines, paths, and closed shapes.
+* Draw complex lines, paths, and shapes with pens.
+* Fill paths and shapes with brushes.
+* Basic paths and shapes supported:
+  * Arc, Circle, Ellipse, Line, Path, Point, Rectangle, Quad
+* Pen features supported:
+  * Alignment, Color, End Styles, Gradient, Join Styles (Mitering), Width
+* Brush features supported:
+  * Color, Texture, Transform
+
+Example
+-------
+Here’s a short code sample for drawing the lily pad in the picture above (without the flower):
+
+```csharp
+drawBatch.Begin(DrawSortMode.Deferred);
+
+Vector2 origin = new Vector2(200, 200);
+float startAngle = (float)(Math.PI / 16) * 25; // 11:20
+float arcLength = (float)(Math.PI / 16) * 30;
+
+drawBatch.FillCircle(new SolidColorBrush(Color.SkyBlue), origin, 175);
+drawBatch.FillArc(new SolidColorBrush(Color.LimeGreen), origin, 150, 
+    startAngle, arcLength, ArcType.Sector);
+drawBatch.DrawClosedArc(new Pen(Color.Green, 15), origin, 150, 
+    startAngle, arcLength, ArcType.Sector);
+
+drawBatch.End();
+```
+
+Source code for the full image and other examples can be found in the included test project, [LilyPathDemo](https://github.com/jaquadro/LilyPath/tree/master/LilyPathDemo).

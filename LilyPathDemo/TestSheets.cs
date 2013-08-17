@@ -503,20 +503,45 @@ namespace LilyPathDemo
         public static void DrawQuadBeziers (DrawBatch drawBatch)
         {
             Pen bluePen = new Pen(Color.Blue, 15);
+            Pen pointPen = new Pen(Color.Gray, 4);
 
             SetupDrawBatch(drawBatch);
 
-            PathBuilder builder = new PathBuilder();
-            builder.AddBezier(new Vector2(50, 50), new Vector2(100, 100), new Vector2(150, 50));
-            builder.AddBezier(new Vector2(150, 50), new Vector2(200, 0), new Vector2(250, 50));
+            drawBatch.DrawBezier(bluePen, new Vector2(50, 100), new Vector2(50, 50), new Vector2(100, 50));
+            drawBatch.DrawBezier(bluePen, new Vector2(50, 250), new Vector2(50, 150), new Vector2(100, 150));
 
-            drawBatch.DrawPath(builder.Stroke(bluePen));
+            Vector2[] wavePoints1 = new Vector2[] {
+                new Vector2(150, 100), new Vector2(200, 150), new Vector2(250, 100), new Vector2(300, 50), new Vector2(350, 100),
+                new Vector2(400, 150), new Vector2(450, 100), new Vector2(500, 50), new Vector2(550, 100),
+            };
 
-            builder.Reset();
-            builder.AddBezier(new Vector2(50, 200), new Vector2(100, 300), new Vector2(150, 200));
-            builder.AddBezier(new Vector2(150, 200), new Vector2(200, 100), new Vector2(250, 200));
+            drawBatch.DrawBeziers(bluePen, wavePoints1, BezierType.Quadratic);
+            drawBatch.DrawPrimitivePath(Pen.Gray, wavePoints1);
 
-            drawBatch.DrawPath(builder.Stroke(bluePen));
+            for (int i = 0; i < wavePoints1.Length; i++)
+                drawBatch.DrawPoint(pointPen, wavePoints1[i]);
+
+            Vector2[] wavePoints2 = new Vector2[] {
+                new Vector2(150, 200), new Vector2(200, 300), new Vector2(250, 200), new Vector2(300, 100), new Vector2(350, 200),
+                new Vector2(400, 300), new Vector2(450, 200), new Vector2(500, 100), new Vector2(550, 200),
+            };
+
+            drawBatch.DrawBeziers(bluePen, wavePoints2, BezierType.Quadratic);
+            drawBatch.DrawPrimitivePath(Pen.Gray, wavePoints2);
+
+            for (int i = 0; i < wavePoints2.Length; i++)
+                drawBatch.DrawPoint(pointPen, wavePoints2[i]);
+
+            Vector2[] loopPoints = new Vector2[] {
+                new Vector2(250, 300), new Vector2(350, 300), new Vector2(350, 400), new Vector2(350, 500),
+                new Vector2(250, 500), new Vector2(150, 500), new Vector2(150, 400), new Vector2(150, 300),
+            };
+
+            drawBatch.DrawBeziers(bluePen, loopPoints, BezierType.Quadratic, PathType.Closed);
+            drawBatch.DrawPrimitivePath(Pen.Gray, loopPoints, PathType.Closed);
+
+            for (int i = 0; i < loopPoints.Length; i++)
+                drawBatch.DrawPoint(pointPen, loopPoints[i]);
 
             drawBatch.End();
         }
@@ -525,20 +550,36 @@ namespace LilyPathDemo
         public static void DrawCubicBeziers (DrawBatch drawBatch)
         {
             Pen bluePen = new Pen(Color.Blue, 15);
+            Pen pointPen = new Pen(Color.Gray, 4);
 
             SetupDrawBatch(drawBatch);
 
-            PathBuilder builder = new PathBuilder();
-            builder.AddBezier(new Vector2(50, 50), new Vector2(50, 100), new Vector2(150, 100), new Vector2(150, 50));
-            builder.AddBezier(new Vector2(150, 50), new Vector2(150, 0), new Vector2(250, 0), new Vector2(250, 50));
+            drawBatch.DrawBezier(bluePen, new Vector2(50, 100), new Vector2(50, 50), new Vector2(150, 50), new Vector2(150, 100));
+            drawBatch.DrawBezier(bluePen, new Vector2(50, 250), new Vector2(50, 150), new Vector2(150, 150), new Vector2(150, 250));
 
-            drawBatch.DrawPath(builder.Stroke(bluePen));
+            Vector2[] wavePoints = new Vector2[] {
+                new Vector2(50, 350), new Vector2(50, 400), new Vector2(150, 400), new Vector2(150, 350), new Vector2(150, 300),
+                new Vector2(250, 300), new Vector2(250, 350), new Vector2(250, 400), new Vector2(350, 400), new Vector2(350, 350),
+                new Vector2(350, 300), new Vector2(450, 300), new Vector2(450, 350),
+            };
 
-            builder.Reset();
-            builder.AddBezier(new Vector2(50, 200), new Vector2(50, 300), new Vector2(150, 300), new Vector2(150, 200));
-            builder.AddBezier(new Vector2(150, 200), new Vector2(150, 100), new Vector2(250, 100), new Vector2(250, 200));
+            drawBatch.DrawBeziers(bluePen, wavePoints, BezierType.Cubic);
+            drawBatch.DrawPrimitivePath(Pen.Gray, wavePoints);
 
-            drawBatch.DrawPath(builder.Stroke(bluePen));
+            for (int i = 0; i < wavePoints.Length; i++)
+                drawBatch.DrawPoint(pointPen, wavePoints[i]);
+
+            Vector2[] loopPoints = new Vector2[] {
+                new Vector2(225, 75), new Vector2(250, 50), new Vector2(275, 50), new Vector2(300, 75),
+                new Vector2(325, 100), new Vector2(325, 125), new Vector2(300, 150), new Vector2(275, 175),
+                new Vector2(250, 175), new Vector2(225, 150), new Vector2(200, 125), new Vector2(200, 100),
+            };
+
+            drawBatch.DrawBeziers(bluePen, loopPoints, BezierType.Cubic, PathType.Closed);
+            drawBatch.DrawPrimitivePath(Pen.Gray, loopPoints, PathType.Closed);
+
+            for (int i = 0; i < loopPoints.Length; i++)
+                drawBatch.DrawPoint(pointPen, loopPoints[i]);
 
             drawBatch.End();
         }

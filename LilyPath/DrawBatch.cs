@@ -27,13 +27,18 @@ namespace LilyPath
         private GraphicsDevice _device;
         private bool _inDraw;
 
+        // Render data
         private DrawingInfo[] _infoBuffer;
         private short[] _indexBuffer;
         private VertexPositionColorTexture[] _vertexBuffer;
 
+        // Temporary compute buffers
         private Vector2[] _computeBuffer;
         private Color[] _colorBuffer;
+
+        // Temporary geometry building
         private Vector2[] _geometryBuffer;
+        private PathBuilder _pathBuilder;
 
         private int _infoBufferIndex;
         private int _indexBufferIndex;
@@ -70,6 +75,7 @@ namespace LilyPath
             _computeBuffer = new Vector2[64];
             _colorBuffer = new Color[64];
             _geometryBuffer = new Vector2[256];
+            _pathBuilder = new PathBuilder();
 
             _standardEffect = new BasicEffect(device);
             _standardEffect.TextureEnabled = true;
@@ -1180,6 +1186,322 @@ namespace LilyPath
                 }
 
                 AddClosedPath(_geometryBuffer, 0, vertexCount, pen);
+            }
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
+        }
+
+        /// <summary>
+        /// Computes and adds a quadratic Bezier path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="p0">The start point of the curve.</param>
+        /// <param name="p1">The first control point.</param>
+        /// <param name="p2">The end point of the curve.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawBezier</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawBezier (Pen pen, Vector2 p0, Vector2 p1, Vector2 p2)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
+
+            _pathBuilder.Reset();
+            _pathBuilder.AddBezier(p0, p1, p2);
+
+            AddPath(_pathBuilder.Buffer, 0, _pathBuilder.Count, pen);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
+        }
+
+        /// <summary>
+        /// Computes and adds a cubic Bezier path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="p0">The start point of the curve.</param>
+        /// <param name="p1">The first control point.</param>
+        /// <param name="p2">The second control point.</param>
+        /// <param name="p3">The end point of the curve.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawBezier</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawBezier (Pen pen, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
+
+            _pathBuilder.Reset();
+            _pathBuilder.AddBezier(p0, p1, p2, p3);
+
+            AddPath(_pathBuilder.Buffer, 0, _pathBuilder.Count, pen);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
+        }
+
+        /// <summary>
+        /// Computes and adds a series of Bezier paths to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="points">A list of Bezier points.</param>
+        /// <param name="bezierType">The type of Bezier curves to draw.</param>
+        /// <remarks><para>For quadratic Bezier curves, the number of points defined by the parameters should be a multiple of 2 plus 1
+        /// for open curves or 2 for closed curves.  For cubic Bezier curves, the number of points defined by the parameters should be 
+        /// a multiple of 3 plus 1 for open curves or 3 for closed curves.  For each curve drawn after the first, the ending point of 
+        /// the previous curve is used as the starting point.  For closed curves, the end point of the last curve is the start point
+        /// of the first curve.</para></remarks>
+        /// <exception cref="InvalidOperationException"><c>DrawBeziers</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawBeziers (Pen pen, IList<Vector2> points, BezierType bezierType)
+        {
+            DrawBeziers(pen, points, 0, points.Count, bezierType, PathType.Open);
+        }
+
+        /// <summary>
+        /// Computes and adds a series of Bezier paths to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="points">A list of Bezier points.</param>
+        /// <param name="bezierType">The type of Bezier curves to draw.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <remarks><para>For quadratic Bezier curves, the number of points defined by the parameters should be a multiple of 2 plus 1
+        /// for open curves or 2 for closed curves.  For cubic Bezier curves, the number of points defined by the parameters should be 
+        /// a multiple of 3 plus 1 for open curves or 3 for closed curves.  For each curve drawn after the first, the ending point of 
+        /// the previous curve is used as the starting point.  For closed curves, the end point of the last curve is the start point
+        /// of the first curve.</para></remarks>
+        /// <exception cref="InvalidOperationException"><c>DrawBeziers</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawBeziers (Pen pen, IList<Vector2> points, BezierType bezierType, PathType pathType)
+        {
+            DrawBeziers(pen, points, 0, points.Count, bezierType, pathType);
+        }
+
+        /// <summary>
+        /// Computes and adds a series of Bezier paths to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="points">A list of Bezier points.</param>
+        /// <param name="offset">The index of the first start point in the list.</param>
+        /// <param name="count">The number of points to use.</param>
+        /// <param name="bezierType">The type of Bezier curves to draw.</param>
+        /// <remarks><para>For quadratic Bezier curves, the number of points defined by the parameters should be a multiple of 2 plus 1
+        /// for open curves or 2 for closed curves.  For cubic Bezier curves, the number of points defined by the parameters should be 
+        /// a multiple of 3 plus 1 for open curves or 3 for closed curves.  For each curve drawn after the first, the ending point of 
+        /// the previous curve is used as the starting point.  For closed curves, the end point of the last curve is the start point
+        /// of the first curve.</para></remarks>
+        /// <exception cref="InvalidOperationException"><c>DrawBeziers</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawBeziers (Pen pen, IList<Vector2> points, int offset, int count, BezierType bezierType)
+        {
+            DrawBeziers(pen, points, offset, count, bezierType, PathType.Open);
+        }
+
+        /// <summary>
+        /// Computes and adds a series of Bezier paths to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen to render the path with.</param>
+        /// <param name="points">A list of Bezier points.</param>
+        /// <param name="offset">The index of the first start point in the list.</param>
+        /// <param name="count">The number of points to use.</param>
+        /// <param name="bezierType">The type of Bezier curves to draw.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <remarks><para>For quadratic Bezier curves, the number of points defined by the parameters should be a multiple of 2 plus 1
+        /// for open curves or 2 for closed curves.  For cubic Bezier curves, the number of points defined by the parameters should be 
+        /// a multiple of 3 plus 1 for open curves or 3 for closed curves.  For each curve drawn after the first, the ending point of 
+        /// the previous curve is used as the starting point.  For closed curves, the end point of the last curve is the start point
+        /// of the first curve.</para></remarks>
+        /// <exception cref="InvalidOperationException"><c>DrawBeziers</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawBeziers (Pen pen, IList<Vector2> points, int offset, int count, BezierType bezierType, PathType pathType)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
+            if (points.Count < offset + count)
+                throw new ArgumentOutOfRangeException("The offset and count are out of range for the given points argument.");
+
+            _pathBuilder.Reset();
+            switch (bezierType) {
+                case BezierType.Quadratic:
+                    for (int i = offset + 2; i < offset + count; i += 2)
+                        _pathBuilder.AddBezier(points[i - 2], points[i - 1], points[i]);
+                    if (pathType == PathType.Closed)
+                        _pathBuilder.AddBezier(points[offset + count - 2], points[offset + count - 1], points[offset]);
+                    break;
+
+                case BezierType.Cubic:
+                    for (int i = offset + 3; i < offset + count; i += 3)
+                        _pathBuilder.AddBezier(points[i - 3], points[i - 2], points[i - 1], points[i]);
+                    if (pathType == PathType.Closed)
+                        _pathBuilder.AddBezier(points[offset + count - 3], points[offset + count - 2], points[offset + count - 1], points[offset]);
+                    break;
+            }
+
+            switch (pathType) {
+                case PathType.Open:
+                    AddPath(_pathBuilder.Buffer, 0, _pathBuilder.Count, pen);
+                    break;
+
+                case PathType.Closed:
+                    AddClosedPath(_pathBuilder.Buffer, 0, _pathBuilder.Count - 1, pen);
+                    break;
+            }
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
+        }
+
+        /// <summary>
+        /// Adds a primitive quadratic Bezier path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="p0">The start point of the curve.</param>
+        /// <param name="p1">The first control point.</param>
+        /// <param name="p2">The end point of the curve.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveBezier</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawPrimitiveBezier (Pen pen, Vector2 p0, Vector2 p1, Vector2 p2)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
+
+            _pathBuilder.Reset();
+            _pathBuilder.AddBezier(p0, p1, p2);
+
+            DrawPrimitivePath(pen, _pathBuilder.Buffer, 0, _pathBuilder.Count);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
+        }
+
+        /// <summary>
+        /// Adds a primitive cubic Bezier path to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="p0">The start point of the curve.</param>
+        /// <param name="p1">The first control point.</param>
+        /// <param name="p2">The second control point.</param>
+        /// <param name="p3">The end point of the curve.</param>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveBezier</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawPrimitiveBezier (Pen pen, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
+
+            _pathBuilder.Reset();
+            _pathBuilder.AddBezier(p0, p1, p2, p3);
+
+            DrawPrimitivePath(pen, _pathBuilder.Buffer, 0, _pathBuilder.Count);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
+        }
+
+        /// <summary>
+        /// Adds a series of primitive Bezier paths to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="points">A list of Bezier points.</param>
+        /// <param name="bezierType">The type of Bezier curves to draw.</param>
+        /// <remarks><para>For quadratic Bezier curves, the number of points defined by the parameters should be a multiple of 2 plus 1
+        /// for open curves or 2 for closed curves.  For cubic Bezier curves, the number of points defined by the parameters should be 
+        /// a multiple of 3 plus 1 for open curves or 3 for closed curves.  For each curve drawn after the first, the ending point of 
+        /// the previous curve is used as the starting point.  For closed curves, the end point of the last curve is the start point
+        /// of the first curve.</para></remarks>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveBeziers</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawPrimitiveBeziers (Pen pen, IList<Vector2> points, BezierType bezierType)
+        {
+            DrawPrimitiveBeziers(pen, points, 0, points.Count, bezierType, PathType.Open);
+        }
+
+        /// <summary>
+        /// Adds a series of primitive Bezier paths to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="points">A list of Bezier points.</param>
+        /// <param name="bezierType">The type of Bezier curves to draw.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <remarks><para>For quadratic Bezier curves, the number of points defined by the parameters should be a multiple of 2 plus 1
+        /// for open curves or 2 for closed curves.  For cubic Bezier curves, the number of points defined by the parameters should be 
+        /// a multiple of 3 plus 1 for open curves or 3 for closed curves.  For each curve drawn after the first, the ending point of 
+        /// the previous curve is used as the starting point.  For closed curves, the end point of the last curve is the start point
+        /// of the first curve.</para></remarks>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveBeziers</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawPrimitiveBeziers (Pen pen, IList<Vector2> points, BezierType bezierType, PathType pathType)
+        {
+            DrawPrimitiveBeziers(pen, points, 0, points.Count, bezierType, pathType);
+        }
+
+        /// <summary>
+        /// Adds a series of primitive Bezier paths to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="points">A list of Bezier points.</param>
+        /// <param name="offset">The index of the first start point in the list.</param>
+        /// <param name="count">The number of points to use.</param>
+        /// <param name="bezierType">The type of Bezier curves to draw.</param>
+        /// <remarks><para>For quadratic Bezier curves, the number of points defined by the parameters should be a multiple of 2 plus 1
+        /// for open curves or 2 for closed curves.  For cubic Bezier curves, the number of points defined by the parameters should be 
+        /// a multiple of 3 plus 1 for open curves or 3 for closed curves.  For each curve drawn after the first, the ending point of 
+        /// the previous curve is used as the starting point.  For closed curves, the end point of the last curve is the start point
+        /// of the first curve.</para></remarks>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveBeziers</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawPrimitiveBeziers (Pen pen, IList<Vector2> points, int offset, int count, BezierType bezierType)
+        {
+            DrawPrimitiveBeziers(pen, points, offset, count, bezierType, PathType.Open);
+        }
+
+        /// <summary>
+        /// Adds a series of primitive Bezier paths to the batch of figures to be rendered.
+        /// </summary>
+        /// <param name="pen">The pen supplying the color to render the path with.</param>
+        /// <param name="points">A list of Bezier points.</param>
+        /// <param name="offset">The index of the first start point in the list.</param>
+        /// <param name="count">The number of points to use.</param>
+        /// <param name="bezierType">The type of Bezier curves to draw.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <remarks><para>For quadratic Bezier curves, the number of points defined by the parameters should be a multiple of 2 plus 1
+        /// for open curves or 2 for closed curves.  For cubic Bezier curves, the number of points defined by the parameters should be 
+        /// a multiple of 3 plus 1 for open curves or 3 for closed curves.  For each curve drawn after the first, the ending point of 
+        /// the previous curve is used as the starting point.  For closed curves, the end point of the last curve is the start point
+        /// of the first curve.</para></remarks>
+        /// <exception cref="InvalidOperationException"><c>DrawPrimitiveBeziers</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
+        public void DrawPrimitiveBeziers (Pen pen, IList<Vector2> points, int offset, int count, BezierType bezierType, PathType pathType)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+            if (pen == null)
+                throw new ArgumentNullException("pen");
+            if (points.Count < offset + count)
+                throw new ArgumentOutOfRangeException("The offset and count are out of range for the given points argument.");
+
+            _pathBuilder.Reset();
+            switch (bezierType) {
+                case BezierType.Quadratic:
+                    for (int i = offset + 2; i < offset + count; i += 2)
+                        _pathBuilder.AddBezier(points[i - 2], points[i - 1], points[i]);
+                    if (pathType == PathType.Closed)
+                        _pathBuilder.AddBezier(points[offset + count - 2], points[offset + count - 1], points[offset]);
+                    break;
+
+                case BezierType.Cubic:
+                    for (int i = offset + 3; i < offset + count; i += 3)
+                        _pathBuilder.AddBezier(points[i - 3], points[i - 2], points[i - 1], points[i]);
+                    if (pathType == PathType.Closed)
+                        _pathBuilder.AddBezier(points[offset + count - 3], points[offset + count - 2], points[offset + count - 1], points[offset]);
+                    break;
+            }
+
+            switch (pathType) {
+                case PathType.Open:
+                    DrawPrimitivePath(pen, _pathBuilder.Buffer, 0, _pathBuilder.Count, PathType.Open);
+                    break;
+
+                case PathType.Closed:
+                    DrawPrimitivePath(pen, _pathBuilder.Buffer, 0, _pathBuilder.Count - 1, PathType.Closed);
+                    break;
             }
 
             if (_sortMode == DrawSortMode.Immediate)

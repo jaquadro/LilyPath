@@ -352,10 +352,24 @@ namespace LilyPath
         /// does not begin at the path's current endpoint.
         /// </summary>
         /// <param name="points">A list of points.</param>
+        /// <param name="bezierType">The type of Bezier</param>
+        /// <remarks><para>For quadratic Bezier curves, the number of points defined by the parameters should be a multiple of 2 plus 1.
+        /// For cubic Bezier curves, the number of points defined by the parameters should be a multiple of 3 plus 1.  For each curve
+        /// drawn after the first, the ending point of the previous curve is used as the starting point.</para></remarks>
+        public void AddBeziers (IList<Vector2> points, BezierType bezierType)
+        {
+            AddBeziers(points, 0, points.Count, bezierType);
+        }
+
+        /// <summary>
+        /// Appends a series of Bezier curves to the end of the path, connected by an additional line segment if the first curve
+        /// does not begin at the path's current endpoint.
+        /// </summary>
+        /// <param name="points">A list of points.</param>
         /// <param name="offset">The index of the first point to use from the list.</param>
         /// <param name="length">The number of points to use from the list.</param>
         /// <param name="bezierType">The type of Bezier</param>
-        /// <remarks><para>For quadratic Bezier cruves, the number of points defined by the parameters should be a multiple of 2 plus 1.
+        /// <remarks><para>For quadratic Bezier curves, the number of points defined by the parameters should be a multiple of 2 plus 1.
         /// For cubic Bezier curves, the number of points defined by the parameters should be a multiple of 3 plus 1.  For each curve
         /// drawn after the first, the ending point of the previous curve is used as the starting point.</para></remarks>
         public void AddBeziers (IList<Vector2> points, int offset, int length, BezierType bezierType)
@@ -367,14 +381,14 @@ namespace LilyPath
                 case BezierType.Quadratic:
                     if (length < 3)
                         throw new ArgumentOutOfRangeException("A quadratic bezier needs at least 3 points");
-                    for (int i = offset + 2; i < length; i += 2)
+                    for (int i = offset + 2; i < offset + length; i += 2)
                         AddBezier(points[i - 2], points[i - 1], points[i]);
                     break;
 
                 case BezierType.Cubic:
                     if (length < 4)
                         throw new ArgumentOutOfRangeException("A cubic bezier needs at least 4 points");
-                    for (int i = offset + 3; i < length; i += 3)
+                    for (int i = offset + 3; i < offset + length; i += 3)
                         AddBezier(points[i - 3], points[i - 2], points[i - 1], points[i]);
                     break;
             }

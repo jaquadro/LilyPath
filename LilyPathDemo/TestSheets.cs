@@ -499,6 +499,50 @@ namespace LilyPathDemo
             drawBatch.End();
         }
 
+        [TestSheet("Quadratic Bezier Curves")]
+        public static void DrawQuadBeziers (DrawBatch drawBatch)
+        {
+            Pen bluePen = new Pen(Color.Blue, 15);
+
+            SetupDrawBatch(drawBatch);
+
+            PathBuilder builder = new PathBuilder();
+            builder.AddBezier(new Vector2(50, 50), new Vector2(100, 100), new Vector2(150, 50));
+            builder.AddBezier(new Vector2(150, 50), new Vector2(200, 0), new Vector2(250, 50));
+
+            drawBatch.DrawPath(builder.Stroke(bluePen));
+
+            builder.Reset();
+            builder.AddBezier(new Vector2(50, 200), new Vector2(100, 300), new Vector2(150, 200));
+            builder.AddBezier(new Vector2(150, 200), new Vector2(200, 100), new Vector2(250, 200));
+
+            drawBatch.DrawPath(builder.Stroke(bluePen));
+
+            drawBatch.End();
+        }
+
+        [TestSheet("Cubic Bezier Curves")]
+        public static void DrawCubicBeziers (DrawBatch drawBatch)
+        {
+            Pen bluePen = new Pen(Color.Blue, 15);
+
+            SetupDrawBatch(drawBatch);
+
+            PathBuilder builder = new PathBuilder();
+            builder.AddBezier(new Vector2(50, 50), new Vector2(50, 100), new Vector2(150, 100), new Vector2(150, 50));
+            builder.AddBezier(new Vector2(150, 50), new Vector2(150, 0), new Vector2(250, 0), new Vector2(250, 50));
+
+            drawBatch.DrawPath(builder.Stroke(bluePen));
+
+            builder.Reset();
+            builder.AddBezier(new Vector2(50, 200), new Vector2(50, 300), new Vector2(150, 300), new Vector2(150, 200));
+            builder.AddBezier(new Vector2(150, 200), new Vector2(150, 100), new Vector2(250, 100), new Vector2(250, 200));
+
+            drawBatch.DrawPath(builder.Stroke(bluePen));
+
+            drawBatch.End();
+        }
+
         [TestSheet("Gradient Pens")]
         public static void DrawGradientPens (DrawBatch drawBatch)
         {
@@ -581,9 +625,13 @@ namespace LilyPathDemo
 
             SetupDrawBatch(drawBatch);
 
-            drawBatch.FillCircle(new SolidColorBrush(Color.SkyBlue), center, 175);
-            drawBatch.FillPath(new SolidColorBrush(Color.LimeGreen), _lilly2_padBuilder.Buffer, 0, _lilly2_padBuilder.Count);
-            drawBatch.DrawPath(_lilly2_pad);
+            Vector2 origin = new Vector2(200, 200);
+            float startAngle = (float)(Math.PI / 16) * 25; // 11:20
+            float arcLength = (float)(Math.PI / 16) * 30;
+
+            drawBatch.FillCircle(new SolidColorBrush(Color.SkyBlue), origin, 175);
+            drawBatch.FillArc(new SolidColorBrush(Color.LimeGreen), origin, 150, startAngle, arcLength, ArcType.Sector);
+            drawBatch.DrawClosedArc(new Pen(Color.Green, 15), origin, 150, startAngle, arcLength, ArcType.Sector);
             drawBatch.DrawPath(_lilly2_outerFlower);
             drawBatch.DrawPath(_lilly2_innerFlower);
 

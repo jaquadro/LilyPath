@@ -18,7 +18,23 @@ namespace LilyPath
         /// <summary>
         /// Causes the endpoints of the arc to be connected to the arc center, as in a pie wedge.
         /// </summary>
-        Sector
+        Sector,
+    }
+
+    /// <summary>
+    /// The type of Bezier curve specified in draw operations.
+    /// </summary>
+    public enum BezierType
+    {
+        /// <summary>
+        /// Specifies a quadratic Bezier curve (1 control point).
+        /// </summary>
+        Quadratic,
+
+        /// <summary>
+        /// Specifies a cubic Bezier curve (2 control points).
+        /// </summary>
+        Cubic,
     }
 
     /// <summary>
@@ -89,7 +105,7 @@ namespace LilyPath
         /// <summary>
         /// The stroked path should run along the outside edge of the ideal path.
         /// </summary>
-        Outset
+        Outset,
     }
 
     /// <summary>

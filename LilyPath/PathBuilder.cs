@@ -11,6 +11,42 @@ namespace LilyPath
     {
         private static Dictionary<int, List<Vector2>> _circleCache = new Dictionary<int, List<Vector2>>();
 
+        private static readonly double[] _factorials = new double[] {
+            1.0,
+            1.0,
+            2.0,
+            6.0,
+            24.0,
+            120.0,
+            720.0,
+            5040.0,
+            40320.0,
+            362880.0,
+            3628800.0,
+            39916800.0,
+            479001600.0,
+            6227020800.0,
+            87178291200.0,
+            1307674368000.0,
+            20922789888000.0,
+            355687428096000.0,
+            6402373705728000.0,
+            121645100408832000.0,
+            2432902008176640000.0,
+            51090942171709440000.0,
+            1124000727777607680000.0,
+            25852016738884976640000.0,
+            620448401733239439360000.0,
+            15511210043330985984000000.0,
+            403291461126605635584000000.0,
+            10888869450418352160768000000.0,
+            304888344611713860501504000000.0,
+            8841761993739701954543616000000.0,
+            265252859812191058636308480000000.0,
+            8222838654177922817725562880000000.0,
+            263130836933693530167218012160000000.0,
+        };
+
         private Vector2[] _geometryBuffer;
         private int _geometryIndex;
 
@@ -254,6 +290,97 @@ namespace LilyPath
         }
 
         /// <summary>
+        /// Appends a quadratic bezier curve to the end of the path, connected by an additional line segment if the curve does not
+        /// begin at the path's current endpoint.
+        /// </summary>
+        /// <param name="p0">The starting point of the curve.</param>
+        /// <param name="p1">The first control point of the curve.</param>
+        /// <param name="p2">The ending point of the curve.</param>
+        public void AddBezier (Vector2 p0, Vector2 p1, Vector2 p2)
+        {
+            AddBezier(p0, p1, p2, DefaultBezierSubdivisions(p0, p1, p2));
+        }
+
+        /// <summary>
+        /// Appends a quadratic Bezier curve to the end of the path, connected by an additional line segment if the curve does not
+        /// begin at the path's current endpoint.
+        /// </summary>
+        /// <param name="p0">The starting point of the curve.</param>
+        /// <param name="p1">The first control point of the curve.</param>
+        /// <param name="p2">The ending point of the curve.</param>
+        /// <param name="subdivisions">The number of subdivisions in the curve.</param>
+        public void AddBezier (Vector2 p0, Vector2 p1, Vector2 p2, int subdivisions)
+        {
+            if (LastPointClose(p0))
+                _geometryIndex--;
+
+            BuildQuadraticBezierGeometryBuffer(p0, p1, p2, subdivisions);
+        }
+
+        /// <summary>
+        /// Appends a cubic Bezier curve to the end of the path, connected by an additional line segment if the curve does not
+        /// begin at the path's current endpoint.
+        /// </summary>
+        /// <param name="p0">The starting point of the curve.</param>
+        /// <param name="p1">The first control point.</param>
+        /// <param name="p2">The second control point.</param>
+        /// <param name="p3">The ending point of the curve.</param>
+        public void AddBezier (Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
+        {
+            AddBezier(p0, p1, p2, p3, DefaultBezierSubdivisions(p0, p1, p2, p3));
+        }
+
+        /// <summary>
+        /// Appends a cubic Bezier curve to the end of the path, connected by an additional line segment if the curve does not
+        /// begin at the path's current endpoint.
+        /// </summary>
+        /// <param name="p0">The starting point of the curve.</param>
+        /// <param name="p1">The first control point.</param>
+        /// <param name="p2">The second control point.</param>
+        /// <param name="p3">The ending point of the curve.</param>
+        /// <param name="subdivisions">The number of subdivisions in the curve.</param>
+        public void AddBezier (Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, int subdivisions)
+        {
+            if (LastPointClose(p0))
+                _geometryIndex--;
+
+            BuildCubicBezierGeometryBuffer(p0, p1, p2, p3, subdivisions);
+        }
+
+        /// <summary>
+        /// Appends a series of Bezier curves to the end of the path, connected by an additional line segment if the first curve
+        /// does not begin at the path's current endpoint.
+        /// </summary>
+        /// <param name="points">A list of points.</param>
+        /// <param name="offset">The index of the first point to use from the list.</param>
+        /// <param name="length">The number of points to use from the list.</param>
+        /// <param name="bezierType">The type of Bezier</param>
+        /// <remarks><para>For quadratic Bezier cruves, the number of points defined by the parameters should be a multiple of 2 plus 1.
+        /// For cubic Bezier curves, the number of points defined by the parameters should be a multiple of 3 plus 1.  For each curve
+        /// drawn after the first, the ending point of the previous curve is used as the starting point.</para></remarks>
+        public void AddBeziers (IList<Vector2> points, int offset, int length, BezierType bezierType)
+        {
+            if (offset < 0 || points.Count < offset + length)
+                throw new ArgumentOutOfRangeException("The offset and length are out of range for the given points argument.");
+
+            switch (bezierType) {
+                case BezierType.Quadratic:
+                    if (length < 3)
+                        throw new ArgumentOutOfRangeException("A quadratic bezier needs at least 3 points");
+                    for (int i = offset + 2; i < length; i += 2)
+                        AddBezier(points[i - 2], points[i - 1], points[i]);
+                    break;
+
+                case BezierType.Cubic:
+                    if (length < 4)
+                        throw new ArgumentOutOfRangeException("A cubic bezier needs at least 4 points");
+                    for (int i = offset + 3; i < length; i += 3)
+                        AddBezier(points[i - 3], points[i - 2], points[i - 1], points[i]);
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Creates an open <see cref="GraphicsPath"/> from the path with a given <see cref="Pen"/>.
         /// </summary>
         /// <param name="pen">The pen to stroke the path with.</param>
@@ -478,6 +605,115 @@ namespace LilyPath
             lock (_circleCache) {
                 _circleCache.Add(divisions, unitCircle);
                 return unitCircle;
+            }
+        }
+
+        private void BuildQuadraticBezierGeometryBuffer (Vector2 v0, Vector2 v1, Vector2 v2, int subdivisions)
+        {
+            CheckBufferFreeSpace(subdivisions + 1);
+
+            float step = 1f / (subdivisions - 1);
+            float t = 0;
+
+            for (int i = 0; i < subdivisions; i++, t += step) {
+                if (1 - t < 5e-6)
+                    t = 1;
+
+                float p0 = Bernstein(2, 0, t);
+                float p1 = Bernstein(2, 1, t);
+                float p2 = Bernstein(2, 2, t);
+
+                float vx = p0 * v0.X + p1 * v1.X + p2 * v2.X;
+                float vy = p0 * v0.Y + p1 * v1.Y + p2 * v2.Y;
+
+                _geometryBuffer[_geometryIndex++] = new Vector2(vx, vy);
+            }
+        }
+
+        private void BuildCubicBezierGeometryBuffer (Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, int subdivisions)
+        {
+            CheckBufferFreeSpace(subdivisions + 1);
+
+            float step = 1f / (subdivisions - 1);
+            float t = 0;
+
+            for (int i = 0; i < subdivisions; i++, t += step) {
+                if (1 - t < 5e-6)
+                    t = 1;
+
+                float p0 = Bernstein(3, 0, t);
+                float p1 = Bernstein(3, 1, t);
+                float p2 = Bernstein(3, 2, t);
+                float p3 = Bernstein(3, 3, t);
+
+                float vx = p0 * v0.X + p1 * v1.X + p2 * v2.X + p3 * v3.X;
+                float vy = p0 * v0.Y + p1 * v1.Y + p2 * v2.Y + p3 * v3.Y;
+
+                _geometryBuffer[_geometryIndex++] = new Vector2(vx, vy);
+            }
+        }
+
+        private static double Factorial (int n)
+        {
+            if (n < 0 || n > 32)
+                throw new ArgumentOutOfRangeException("n", "n must be between 0 and 32.");
+
+            return _factorials[n];
+        }
+
+        private static float Ni (int n, int i)
+        {
+            double a1 = Factorial(n);
+            double a2 = Factorial(i);
+            double a3 = Factorial(n - i);
+
+            return (float)(a1 / (a2 * a3));
+        }
+
+        private static float Bernstein (int n, int i, float t)
+        {
+            float ti = (t == 0 && i == 0) ? 1f : (float)Math.Pow(t, i);
+            float tni = (n == i && t == 1) ? 1f : (float)Math.Pow((1 - t), (n - i));
+
+            return Ni(n, i) * ti * tni;
+        }
+
+        private static int DefaultBezierSubdivisions (Vector2 p0, Vector2 p1, Vector2 p2)
+        {
+            Vector2 p01 = Vector2.Lerp(p0, p1, .5f);
+            Vector2 p12 = Vector2.Lerp(p1, p2, .5f);
+
+            float dist = ApproxDistance(p0, p01) + ApproxDistance(p01, p12) + ApproxDistance(p12, p2);
+            return (int)(dist * 0.10f);
+        }
+
+        private static int DefaultBezierSubdivisions (Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
+        {
+            Vector2 p01 = Vector2.Lerp(p0, p1, .5f);
+            Vector2 p12 = Vector2.Lerp(p1, p2, .5f);
+            Vector2 p23 = Vector2.Lerp(p2, p3, .5f);
+
+            float dist = ApproxDistance(p0, p01) + ApproxDistance(p01, p12) + ApproxDistance(p12, p23) + ApproxDistance(p23, p3);
+            return (int)(dist * 0.10f);
+        }
+
+        private static float ApproxDistance (Vector2 p0, Vector2 p1)
+        {
+            float dx = Math.Abs(p1.X - p0.X);
+            float dy = Math.Abs(p1.Y - p0.Y);
+
+            return ApproxDistance(dx, dy);
+        }
+
+        private static float ApproxDistance (float dx, float dy)
+        {
+            if (dy < dx) {
+                float w = dy * 0.25f;
+                return dx + w + w * 0.5f;
+            }
+            else {
+                float w = dx * 0.25f;
+                return dy + w + w * 0.5f;
             }
         }
 

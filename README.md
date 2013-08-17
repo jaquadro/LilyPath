@@ -14,7 +14,7 @@ Features
 * Draw complex lines, paths, and shapes with pens.
 * Fill paths and shapes with brushes.
 * Basic paths and shapes supported:
-  * Arc, Circle, Ellipse, Line, Path, Point, Rectangle, Quad
+  * Arc, Bezier, Circle, Ellipse, Line, Path, Point, Rectangle, Quad
 * Pen features supported:
   * Alignment, Color, End Styles, Gradient, Join Styles (Mitering), Width
 * Brush features supported:

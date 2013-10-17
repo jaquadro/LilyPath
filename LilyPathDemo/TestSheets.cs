@@ -717,6 +717,45 @@ namespace LilyPathDemo
             drawBatch.End();
         }
 
+        [TestSheet("Graphics Path Outline")]
+        public static void DrawGraphicsPathOutline (DrawBatch drawBatch)
+        {
+            Pen thickPen = new Pen(Color.Green, 15);
+            Pen outlinePen = new Pen(Color.Cyan, 5);
+
+            List<Vector2> path1 = new List<Vector2>() {
+                new Vector2(50, 50), new Vector2(100, 50), new Vector2(100, 100), new Vector2(50, 100),
+            };
+
+            GraphicsPath gpathf = new GraphicsPath(thickPen, outlinePen, path1, PathType.Closed);
+
+            path1.Reverse();
+            for (int i = 0; i < path1.Count; i++)
+                path1[i] = new Vector2(path1[i].X + 100, path1[i].Y);
+
+            GraphicsPath gpathr = new GraphicsPath(thickPen, outlinePen, path1, PathType.Closed);
+
+            for (int i = 0; i < path1.Count; i++)
+                path1[i] = new Vector2(path1[i].X, path1[i].Y + 100);
+
+            GraphicsPath gpath2r = new GraphicsPath(thickPen, outlinePen, path1);
+
+            path1.Reverse();
+            for (int i = 0; i < path1.Count; i++)
+                path1[i] = new Vector2(path1[i].X - 100, path1[i].Y);
+
+            GraphicsPath gpath2f = new GraphicsPath(thickPen, outlinePen, path1);
+
+            SetupDrawBatch(drawBatch);
+
+            drawBatch.DrawPath(gpathf);
+            drawBatch.DrawPath(gpathr);
+            drawBatch.DrawPath(gpath2f);
+            drawBatch.DrawPath(gpath2r);
+
+            drawBatch.End();
+        }
+
         private static RasterizerState GetCommonRasterizerState ()
         {
             return new RasterizerState() {

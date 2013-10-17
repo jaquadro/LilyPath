@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using LilyPath.Utility;
 
 namespace LilyPath
 {
@@ -58,6 +59,8 @@ namespace LilyPath
 
         private Texture2D _defaultTexture;
 
+        private PenWorkspace _ws;
+
         /// <summary>
         /// Enables a group of figures to be drawn using the same settings.
         /// </summary>
@@ -83,6 +86,8 @@ namespace LilyPath
 
             _defaultTexture = new Texture2D(device, 1, 1);
             _defaultTexture.SetData<Color>(new Color[] { Color.White });
+
+            _ws = new PenWorkspace();
         }
 
         /// <summary>
@@ -495,13 +500,14 @@ namespace LilyPath
                 throw new ArgumentNullException("pen");
 
             RequestBufferSpace(4, 6);
+            _ws.ResetWorkspace(pen);
 
             AddInfo(PrimitiveType.TriangleList, 4, 6, pen.Brush);
 
             int baseVertexIndex = _vertexBufferIndex;
 
-            AddStartPoint(p0, p1, pen);
-            AddEndPoint(p0, p1, pen);
+            AddStartPoint(p0, p1, pen, _ws);
+            AddEndPoint(p0, p1, pen, _ws);
 
             AddSegment(baseVertexIndex + 0, baseVertexIndex + 2);
 
@@ -629,6 +635,14 @@ namespace LilyPath
             if (!_inDraw)
                 throw new InvalidOperationException();
 
+            DrawPathInner(path);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
+        }
+
+        private void DrawPathInner (GraphicsPath path)
+        {
             RequestBufferSpace(path.VertexCount, path.IndexCount);
 
             AddInfo(PrimitiveType.TriangleList, path.VertexCount, path.IndexCount, path.Pen.Brush);
@@ -657,8 +671,8 @@ namespace LilyPath
             _vertexBufferIndex += path.VertexCount;
             _indexBufferIndex += path.IndexCount;
 
-            if (_sortMode == DrawSortMode.Immediate)
-                FlushBuffer();
+            foreach (GraphicsPath outlinePath in path.OutlinePaths)
+                DrawPathInner(outlinePath);
         }
 
         /// <summary>
@@ -2076,26 +2090,29 @@ namespace LilyPath
 
         private void AddMiteredJoint (Vector2 a, Vector2 b, Vector2 c, Pen pen)
         {
-            pen.ComputeMiter(_computeBuffer, _colorBuffer, 0, a, b, c);
+            //pen.ComputeMiter(_computeBuffer, _colorBuffer, 0, a, b, c);
+            InsetOutsetCount vioCount = pen.ComputeMiter(a, b, c);
 
-            AddVertex(_computeBuffer[0], _colorBuffer[0], pen);
-            AddVertex(_computeBuffer[1], _colorBuffer[1], pen);
+            AddVertex(pen.InsetResultBuffer[0], pen.ColorAt(0, 0), pen);
+            AddVertex(pen.OutsetResultBuffer[0], pen.ColorAt(1, 0), pen);
         }
 
-        private void AddStartPoint (Vector2 a, Vector2 b, Pen pen)
+        private void AddStartPoint (Vector2 a, Vector2 b, Pen pen, PenWorkspace ws)
         {
-            pen.ComputeStartPoint(_computeBuffer, _colorBuffer, 0, a, b);
+            //pen.ComputeStartPoint(_computeBuffer, _colorBuffer, 0, a, b);
+            pen.ComputeStartPoint(a, b, ws);
 
-            AddVertex(_computeBuffer[0], _colorBuffer[0], pen);
-            AddVertex(_computeBuffer[1], _colorBuffer[1], pen);
+            AddVertex(ws.XYBuffer[0], pen.ColorAt(ws.UVBuffer[0]), pen);
+            AddVertex(ws.XYBuffer[1], pen.ColorAt(ws.UVBuffer[1]), pen);
         }
 
-        private void AddEndPoint (Vector2 a, Vector2 b, Pen pen)
+        private void AddEndPoint (Vector2 a, Vector2 b, Pen pen, PenWorkspace ws)
         {
-            pen.ComputeEndPoint(_computeBuffer, _colorBuffer, 0, a, b);
+            //pen.ComputeEndPoint(_computeBuffer, _colorBuffer, 0, a, b);
+            pen.ComputeEndPoint(a, b, ws);
 
-            AddVertex(_computeBuffer[0], _colorBuffer[0], pen);
-            AddVertex(_computeBuffer[1], _colorBuffer[1], pen);
+            AddVertex(ws.XYBuffer[0], pen.ColorAt(ws.UVBuffer[0]), pen);
+            AddVertex(ws.XYBuffer[1], pen.ColorAt(ws.UVBuffer[1]), pen);
         }
 
         private void AddInfo (PrimitiveType primitiveType, int vertexCount, int indexCount, Brush brush)
@@ -2137,17 +2154,18 @@ namespace LilyPath
         private void AddPath (Vector2[] points, int offset, int count, Pen pen)
         {
             RequestBufferSpace(count * 2, (count - 1) * 6);
+            _ws.ResetWorkspace(pen);
 
             AddInfo(PrimitiveType.TriangleList, count * 2, (count - 1) * 6, pen.Brush);
 
             int baseVertexIndex = _vertexBufferIndex;
 
-            AddStartPoint(points[offset + 0], points[offset + 1], pen);
+            AddStartPoint(points[offset + 0], points[offset + 1], pen, _ws);
 
             for (int i = 0; i < count - 2; i++)
                 AddMiteredJoint(points[offset + i], points[offset + i + 1], points[offset + i + 2], pen);
 
-            AddEndPoint(points[offset + count - 2], points[offset + count - 1], pen);
+            AddEndPoint(points[offset + count - 2], points[offset + count - 1], pen, _ws);
 
             for (int i = 0; i < count - 1; i++)
                 AddSegment(baseVertexIndex + i * 2, baseVertexIndex + (i + 1) * 2);

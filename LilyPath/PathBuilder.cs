@@ -450,6 +450,65 @@ namespace LilyPath
             _geometryIndex = 0;
         }
 
+        /*public IList<IList<Vector2>> OutlinePathFromStroke (Pen pen, PathType pathType)
+        {
+            return OutlinePathFromClosedStroke(pen);
+        }
+
+        private IList<IList<Vector2>> OutlinePathFromClosedStroke (Pen pen)
+        {
+            int count = _geometryIndex;
+
+            int vertexCount = pen.MaximumVertexCount(count + 1);
+            Vector2[] insetBuffer = new Vector2[vertexCount - count];
+            Vector2[] outsetBuffer = new Vector2[vertexCount - count];
+
+            if (IsClose(_geometryBuffer[0], _geometryBuffer[count - 1]))
+                count--;
+
+            InsetOutsetCount vioCount = AddJoint(pen, _geometryBuffer[count - 1], _geometryBuffer[0], _geometryBuffer[1], insetBuffer, 0, outsetBuffer, 0);
+            int insetBufferIndex = vioCount.InsetCount;
+            int outsetBufferIndex = vioCount.OutsetCount;
+
+            for (int i = 0; i < count - 2; i++) {
+                vioCount = AddJoint(pen, _geometryBuffer[i], _geometryBuffer[i + 1], _geometryBuffer[i + 2], insetBuffer, insetBufferIndex, outsetBuffer, outsetBufferIndex);
+                insetBufferIndex += vioCount.InsetCount;
+                outsetBufferIndex += vioCount.OutsetCount;
+            }
+
+            vioCount = AddJoint(pen, _geometryBuffer[count - 2], _geometryBuffer[count - 1], _geometryBuffer[0], insetBuffer, insetBufferIndex, outsetBuffer, outsetBufferIndex);
+            insetBufferIndex += vioCount.InsetCount;
+            outsetBufferIndex += vioCount.OutsetCount;
+
+            return new List<IList<Vector2>> { insetBuffer, outsetBuffer };
+        }
+
+        private InsetOutsetCount AddJoint (Pen pen, Vector2 a, Vector2 b, Vector2 c, IList<Vector2> insetBuffer, int insetBufferIndex, IList<Vector2> outsetBuffer, int outsetBufferIndex)
+        {
+            InsetOutsetCount vioCount = new InsetOutsetCount();
+
+            switch (pen.LineJoin) {
+                case LineJoin.Miter:
+                    vioCount = pen.ComputeMiter(a, b, c);
+                    break;
+                case LineJoin.Bevel:
+                    vioCount = pen.ComputeBevel(a, b, c);
+                    break;
+            }
+
+            for (int i = 0; i < vioCount.InsetCount; i++)
+                insetBuffer[insetBufferIndex++] = pen.InsetResultBuffer[i];
+            for (int i = 0; i < vioCount.OutsetCount; i++)
+                outsetBuffer[outsetBufferIndex++] = pen.OutsetResultBuffer[i];
+
+            return vioCount;
+        }
+
+        private bool IsClose (Vector2 a, Vector2 b)
+        {
+            return Math.Abs(a.X - b.X) < 0.001 && Math.Abs(a.Y - b.Y) < 0.001;
+        }*/
+
         private void CheckBufferFreeSpace (int vertexCount)
         {
             if (_geometryBuffer.Length < _geometryIndex + vertexCount)

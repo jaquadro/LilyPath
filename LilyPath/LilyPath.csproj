@@ -55,6 +55,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SolidColorBrush.cs" />
     <Compile Include="Triangulator.cs" />
+    <Compile Include="Utility\Buffer.cs" />
+    <Compile Include="Utility\PenWorkspace.cs" />
+    <Compile Include="Utility\Pool.cs" />
+    <Compile Include="Utility\Pools.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MonoGame\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">

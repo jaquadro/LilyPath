@@ -109,6 +109,27 @@ namespace LilyPath
     }
 
     /// <summary>
+    /// Specifies what components of a path should be stroked.
+    /// </summary>
+    public enum StrokeType
+    {
+        /// <summary>
+        /// Only stroke the path itself.  Should not be confused with filling a shape enclosed by a path.
+        /// </summary>
+        Fill,
+
+        /// <summary>
+        /// Only stroke the outline of the path.
+        /// </summary>
+        Outline,
+
+        /// <summary>
+        /// Stroke both the path and its outline.
+        /// </summary>
+        Both,
+    }
+
+    /// <summary>
     /// Defines figure sort-rendering options.
     /// </summary>
     public enum DrawSortMode

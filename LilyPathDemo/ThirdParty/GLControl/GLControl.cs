@@ -343,7 +343,7 @@ namespace OpenTK
                     return false;
 
                 ValidateState();
-                return Context.VSync;
+                return Context.SwapInterval == 1;
             }
             set
             {
@@ -358,7 +358,7 @@ namespace OpenTK
                 }
 
                 ValidateState();
-                Context.VSync = value;
+                Context.SwapInterval = value ? 1 : 0;
             }
         }
 

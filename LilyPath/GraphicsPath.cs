@@ -52,6 +52,7 @@ namespace LilyPath
     public class GraphicsPath : IGraphicsPath
     {
         private Pen _pen;
+        private StrokeType _strokeType;
 
         private int _pointCount;
         private int _vertexBufferIndex;
@@ -106,6 +107,7 @@ namespace LilyPath
             : this(pen)
         {
             _pointCount = count;
+            _strokeType = StrokeType.Fill;
 
             switch (pathType) {
                 case PathType.Open:
@@ -118,18 +120,78 @@ namespace LilyPath
             }
         }
 
+        /// <summary>
+        /// Compute a stroked open or closed path given a set of points and a path and outline <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="outlinePen">The pen to stroke the outline of the path with.</param>
+        /// <param name="points">The points making up the ideal path.</param>
         public GraphicsPath (Pen pen, Pen outlinePen, IList<Vector2> points)
-            : this(pen, outlinePen, points, PathType.Open, 0, points.Count)
+            : this(pen, outlinePen, points, PathType.Open, 0, points.Count, StrokeType.Both)
         { }
 
+        /// <summary>
+        /// Compute a stroked open or closed path given a set of points and a path and outline <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="outlinePen">The pen to stroke the outline of the path with.</param>
+        /// <param name="points">The points making up the ideal path.</param>
+        /// <param name="strokeType">Whether to stroke just the path, the outline, or both.</param>
+        public GraphicsPath (Pen pen, Pen outlinePen, IList<Vector2> points, StrokeType strokeType)
+            : this(pen, outlinePen, points, PathType.Open, 0, points.Count, strokeType)
+        { }
+
+        /// <summary>
+        /// Compute a stroked open or closed path given a set of points and a path and outline <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="outlinePen">The pen to stroke the outline of the path with.</param>
+        /// <param name="points">The points making up the ideal path.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
         public GraphicsPath (Pen pen, Pen outlinePen, IList<Vector2> points, PathType pathType)
-            : this(pen, outlinePen, points, pathType, 0, points.Count)
+            : this(pen, outlinePen, points, pathType, 0, points.Count, StrokeType.Both)
         { }
 
+        /// <summary>
+        /// Compute a stroked open or closed path given a set of points and a path and outline <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="outlinePen">The pen to stroke the outline of the path with.</param>
+        /// <param name="points">The points making up the ideal path.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <param name="strokeType">Whether to stroke just the path, the outline, or both.</param>
+        public GraphicsPath (Pen pen, Pen outlinePen, IList<Vector2> points, PathType pathType, StrokeType strokeType)
+            : this(pen, outlinePen, points, pathType, 0, points.Count, strokeType)
+        { }
+
+        /// <summary>
+        /// Compute a stroked open or closed path given a set of points and a path and outline <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="outlinePen">The pen to stroke the outline of the path with.</param>
+        /// <param name="points">The points making up the ideal path.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <param name="offset">The offset into the list of points that starts the path.</param>
+        /// <param name="count">The number of points in the path.</param>
         public GraphicsPath (Pen pen, Pen outlinePen, IList<Vector2> points, PathType pathType, int offset, int count)
+            : this(pen, outlinePen, points, pathType, offset, count, StrokeType.Both)
+        { }
+
+        /// <summary>
+        /// Compute a stroked open or closed path given a set of points and a path and outline <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="pen">The pen to stroke the path with.</param>
+        /// <param name="outlinePen">The pen to stroke the outline of the path with.</param>
+        /// <param name="points">The points making up the ideal path.</param>
+        /// <param name="pathType">Whether the path is open or closed.</param>
+        /// <param name="offset">The offset into the list of points that starts the path.</param>
+        /// <param name="count">The number of points in the path.</param>
+        /// <param name="strokeType">Whether to stroke just the path, the outline, or both.</param>
+        public GraphicsPath (Pen pen, Pen outlinePen, IList<Vector2> points, PathType pathType, int offset, int count, StrokeType strokeType)
             : this(pen)
         {
             _pointCount = count;
+            _strokeType = strokeType;
 
             switch (pathType) {
                 case PathType.Open:
@@ -142,6 +204,9 @@ namespace LilyPath
             }
         }
 
+        /// <summary>
+        /// Enumerates the outline paths that have been generated for this path.
+        /// </summary>
         public IEnumerable<GraphicsPath> OutlinePaths
         {
             get
@@ -221,17 +286,20 @@ namespace LilyPath
 
         private void CompileOpenPath (IList<Vector2> points, int offset, int count, Pen outlinePen)
         {
-            InitializeBuffers(count);
+            if (_strokeType != StrokeType.Outline)
+                InitializeBuffers(count);
 
             Buffer<Vector2> insetBuffer = null;
             Buffer<Vector2> outsetBuffer = null;
 
-            if (outlinePen != null) {
+            if (outlinePen != null && _strokeType != StrokeType.Fill) {
                 insetBuffer = Pools<Buffer<Vector2>>.Obtain();
                 outsetBuffer = Pools<Buffer<Vector2>>.Obtain();
 
-                insetBuffer.EnsureCapacity(_positionData.Length);
-                outsetBuffer.EnsureCapacity(_positionData.Length);
+                int vCount = _positionData != null ? _positionData.Length : _pen.MaximumVertexCount(count);
+
+                insetBuffer.EnsureCapacity(vCount);
+                outsetBuffer.EnsureCapacity(vCount);
             }
 
             PenWorkspace ws = Pools<PenWorkspace>.Obtain();
@@ -246,19 +314,21 @@ namespace LilyPath
             for (int i = 0; i < count - 2; i++) {
                 vPrevCount = vNextCount;
                 vNextCount = AddJoint(i + 1, points[offset + i], points[offset + i + 1], points[offset + i + 2], insetBuffer, outsetBuffer);
-                AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[i], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[i + 1]);
+                if (_strokeType != StrokeType.Outline)
+                    AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[i], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[i + 1]);
             }
 
             vPrevCount = vNextCount;
             vNextCount = AddEndPoint(count - 1, points[offset + count - 2], points[offset + count - 1], ws, insetBuffer);
-            AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[count - 2], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[count - 1]);
+            if (_strokeType != StrokeType.Outline)
+                AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[count - 2], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[count - 1]);
 
             if (insetBuffer != null)
                 Array.Reverse(insetBuffer.Data, 0, insetBuffer.Index);
 
             Pools<PenWorkspace>.Release(ws);
 
-            if (outlinePen != null) {
+            if (outlinePen != null && _strokeType != StrokeType.Fill) {
                 Buffer<Vector2> mergedBuffer = Pools<Buffer<Vector2>>.Obtain();
                 mergedBuffer.EnsureCapacity(insetBuffer.Index + outsetBuffer.Index);
 
@@ -277,7 +347,8 @@ namespace LilyPath
 
         private void CompileClosedPath (IList<Vector2> points, int offset, int count, Pen outlinePen)
         {
-            InitializeBuffers(count + 1);
+            if (_strokeType != StrokeType.Outline)
+                InitializeBuffers(count + 1);
 
             if (IsClose(points[offset], points[offset + count - 1]))
                 count--;
@@ -285,12 +356,14 @@ namespace LilyPath
             Buffer<Vector2> insetBuffer = null;
             Buffer<Vector2> outsetBuffer = null;
 
-            if (outlinePen != null) {
+            if (outlinePen != null && _strokeType != StrokeType.Fill) {
                 insetBuffer = Pools<Buffer<Vector2>>.Obtain();
                 outsetBuffer = Pools<Buffer<Vector2>>.Obtain();
 
-                insetBuffer.EnsureCapacity(_positionData.Length);
-                outsetBuffer.EnsureCapacity(_positionData.Length);
+                int vCount = _positionData != null ? _positionData.Length : _pen.MaximumVertexCount(count);
+
+                insetBuffer.EnsureCapacity(vCount);
+                outsetBuffer.EnsureCapacity(vCount);
             }
 
             int vBaseIndex = _vertexBufferIndex;
@@ -302,16 +375,21 @@ namespace LilyPath
             for (int i = 0; i < count - 2; i++) {
                 vPrevCount = vNextCount;
                 vNextCount = AddJoint(i + 1, points[offset + i], points[offset + i + 1], points[offset + i + 2], insetBuffer, outsetBuffer);
-                AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[i], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[i + 1]);
+                if (_strokeType != StrokeType.Outline)
+                    AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[i], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[i + 1]);
             }
 
             vPrevCount = vNextCount;
             vNextCount = AddJoint(count - 1, points[offset + count - 2], points[offset + count - 1], points[offset + 0], insetBuffer, outsetBuffer);
-            AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[count - 2], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[count - 1]);
 
-            AddSegment(_vertexBufferIndex - vNextCount, vNextCount, _jointCCW[count - 1], vBaseIndex, vBaseCount, _jointCCW[0]);
+            if (_strokeType != StrokeType.Outline) {
+                AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[count - 2], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[count - 1]);
+                AddSegment(_vertexBufferIndex - vNextCount, vNextCount, _jointCCW[count - 1], vBaseIndex, vBaseCount, _jointCCW[0]);
+            }
 
-            if (outlinePen != null) {
+            if (outlinePen != null && _strokeType != StrokeType.Fill) {
+                Array.Reverse(insetBuffer.Data, 0, insetBuffer.Index);
+
                 _outlinePaths = new GraphicsPath[] {
                     new GraphicsPath(outlinePen, insetBuffer.Data, PathType.Closed, 0, insetBuffer.Index),
                     new GraphicsPath(outlinePen, outsetBuffer.Data, PathType.Closed, 0, outsetBuffer.Index),
@@ -339,6 +417,14 @@ namespace LilyPath
 
         private int AddStartOrEndPoint (int pointIndex, int xyCount, PenWorkspace ws, Buffer<Vector2> positionBuffer)
         {
+            if (positionBuffer != null) {
+                for (int i = 0; i < xyCount; i++)
+                    positionBuffer.SetNext(ws.XYBuffer[i]);
+            }
+
+            if (_strokeType == StrokeType.Outline)
+                return 0;
+
             int baseIndex = _vertexBufferIndex;
 
             _vertexBufferIndex += xyCount;
@@ -362,11 +448,6 @@ namespace LilyPath
             }
 
             _jointCCW[pointIndex] = true;
-
-            if (positionBuffer != null) {
-                for (int i = baseIndex; i < _vertexBufferIndex; i++)
-                    positionBuffer.SetNext(_positionData[i]);
-            }
 
             return xyCount;
         }
@@ -393,7 +474,7 @@ namespace LilyPath
                     outsetBuffer.SetNext(_pen.OutsetResultBuffer[i]);
             }
 
-            return AddJoint(pointIndex, vioCount, _pen.InsetResultBuffer, _pen.OutsetResultBuffer);
+            return (_strokeType != StrokeType.Outline) ? AddJoint(pointIndex, vioCount, _pen.InsetResultBuffer, _pen.OutsetResultBuffer) : 0;
         }
 
         private int AddJoint (int pointIndex, InsetOutsetCount vioCount, List<Vector2> insetResultBuffer, List<Vector2> outsetResultBuffer)

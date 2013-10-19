@@ -721,7 +721,10 @@ namespace LilyPathDemo
         public static void DrawGraphicsPathOutline (DrawBatch drawBatch)
         {
             Pen thickPen = new Pen(Color.Green, 15);
-            Pen outlinePen = new Pen(Color.Cyan, 5);
+
+            Pen outlinePen = new Pen(Color.GreenYellow, 5);
+            Pen outlinePenInset = new Pen(Color.GreenYellow, 5) { Alignment = PenAlignment.Inset };
+            Pen outlinePenOutset = new Pen(Color.GreenYellow, 5) { Alignment = PenAlignment.Outset };
 
             List<Vector2> path1 = new List<Vector2>() {
                 new Vector2(50, 50), new Vector2(100, 50), new Vector2(100, 100), new Vector2(50, 100),
@@ -730,30 +733,85 @@ namespace LilyPathDemo
             GraphicsPath gpathf = new GraphicsPath(thickPen, outlinePen, path1, PathType.Closed);
 
             path1.Reverse();
-            for (int i = 0; i < path1.Count; i++)
-                path1[i] = new Vector2(path1[i].X + 100, path1[i].Y);
-
+            ShiftPath(path1, 100, 0);
             GraphicsPath gpathr = new GraphicsPath(thickPen, outlinePen, path1, PathType.Closed);
 
-            for (int i = 0; i < path1.Count; i++)
-                path1[i] = new Vector2(path1[i].X, path1[i].Y + 100);
+            ShiftPath(path1, 100, 0);
+            GraphicsPath gpathfi = new GraphicsPath(thickPen, outlinePenInset, path1, PathType.Closed);
 
+            path1.Reverse();
+            ShiftPath(path1, 100, 0);
+            GraphicsPath gpathri = new GraphicsPath(thickPen, outlinePenInset, path1, PathType.Closed);
+
+            ShiftPath(path1, 100, 0);
+            GraphicsPath gpathfo = new GraphicsPath(thickPen, outlinePenOutset, path1, PathType.Closed);
+
+            path1.Reverse();
+            ShiftPath(path1, 100, 0);
+            GraphicsPath gpathro = new GraphicsPath(thickPen, outlinePenOutset, path1, PathType.Closed);
+
+            ShiftPath(path1, -500, 100);
             GraphicsPath gpath2r = new GraphicsPath(thickPen, outlinePen, path1);
 
             path1.Reverse();
-            for (int i = 0; i < path1.Count; i++)
-                path1[i] = new Vector2(path1[i].X - 100, path1[i].Y);
-
+            ShiftPath(path1, 100, 0);
             GraphicsPath gpath2f = new GraphicsPath(thickPen, outlinePen, path1);
+
+            ShiftPath(path1, 100, 0);
+            GraphicsPath gpath2fi = new GraphicsPath(thickPen, outlinePenInset, path1);
+
+            path1.Reverse();
+            ShiftPath(path1, 100, 0);
+            GraphicsPath gpath2ri = new GraphicsPath(thickPen, outlinePenInset, path1);
+
+            ShiftPath(path1, 100, 0);
+            GraphicsPath gpath2fo = new GraphicsPath(thickPen, outlinePenOutset, path1);
+
+            path1.Reverse();
+            ShiftPath(path1, 100, 0);
+            GraphicsPath gpath2ro = new GraphicsPath(thickPen, outlinePenOutset, path1);
+
+            ShiftPath(path1, -500, 100);
+            GraphicsPath gpath3f = new GraphicsPath(thickPen, outlinePen, path1, PathType.Closed, StrokeType.Outline);
+
+            path1.Reverse();
+            ShiftPath(path1, 100, 0);
+            GraphicsPath gpath3r = new GraphicsPath(thickPen, outlinePen, path1, PathType.Closed, StrokeType.Outline);
+
+            ShiftPath(path1, 100, 0);
+            GraphicsPath gpath4f = new GraphicsPath(thickPen, outlinePen, path1, StrokeType.Outline);
+
+            path1.Reverse();
+            ShiftPath(path1, 100, 0);
+            GraphicsPath gpath4r = new GraphicsPath(thickPen, outlinePen, path1, StrokeType.Outline);
 
             SetupDrawBatch(drawBatch);
 
             drawBatch.DrawPath(gpathf);
             drawBatch.DrawPath(gpathr);
+            drawBatch.DrawPath(gpathfi);
+            drawBatch.DrawPath(gpathri);
+            drawBatch.DrawPath(gpathfo);
+            drawBatch.DrawPath(gpathro);
             drawBatch.DrawPath(gpath2f);
             drawBatch.DrawPath(gpath2r);
+            drawBatch.DrawPath(gpath2fi);
+            drawBatch.DrawPath(gpath2ri);
+            drawBatch.DrawPath(gpath2fo);
+            drawBatch.DrawPath(gpath2ro);
+            drawBatch.DrawPath(gpath3f);
+            drawBatch.DrawPath(gpath3r);
+            drawBatch.DrawPath(gpath4f);
+            drawBatch.DrawPath(gpath4r);
 
             drawBatch.End();
+        }
+
+        private static List<Vector2> ShiftPath (List<Vector2> path, float x, float y)
+        {
+            for (int i = 0; i < path.Count; i++)
+                path[i] = new Vector2(path[i].X + x, path[i].Y + y);
+            return path;
         }
 
         private static RasterizerState GetCommonRasterizerState ()

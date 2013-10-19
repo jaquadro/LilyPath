@@ -111,6 +111,10 @@
     <Compile Include="SolidColorBrush.cs" />
     <Compile Include="TextureBrush.cs" />
     <Compile Include="Triangulator.cs" />
+    <Compile Include="Utility\Buffer.cs" />
+    <Compile Include="Utility\PenWorkspace.cs" />
+    <Compile Include="Utility\Pool.cs" />
+    <Compile Include="Utility\Pools.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

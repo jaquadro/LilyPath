@@ -313,7 +313,7 @@ namespace LilyPath
 
             for (int i = 0; i < count - 2; i++) {
                 vPrevCount = vNextCount;
-                vNextCount = AddJoint(i + 1, points[offset + i], points[offset + i + 1], points[offset + i + 2], insetBuffer, outsetBuffer);
+                vNextCount = AddJoint(i + 1, points[offset + i], points[offset + i + 1], points[offset + i + 2], ws, insetBuffer, outsetBuffer);
                 if (_strokeType != StrokeType.Outline)
                     AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[i], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[i + 1]);
             }
@@ -366,26 +366,31 @@ namespace LilyPath
                 outsetBuffer.EnsureCapacity(vCount);
             }
 
+            PenWorkspace ws = Pools<PenWorkspace>.Obtain();
+            ws.ResetWorkspace(_pen);
+
             int vBaseIndex = _vertexBufferIndex;
-            int vBaseCount = AddJoint(0, points[offset + count - 1], points[offset + 0], points[offset + 1], insetBuffer, outsetBuffer);
+            int vBaseCount = AddJoint(0, points[offset + count - 1], points[offset + 0], points[offset + 1], ws, insetBuffer, outsetBuffer);
 
             int vPrevCount = 0;
             int vNextCount = vBaseCount;
 
             for (int i = 0; i < count - 2; i++) {
                 vPrevCount = vNextCount;
-                vNextCount = AddJoint(i + 1, points[offset + i], points[offset + i + 1], points[offset + i + 2], insetBuffer, outsetBuffer);
+                vNextCount = AddJoint(i + 1, points[offset + i], points[offset + i + 1], points[offset + i + 2], ws, insetBuffer, outsetBuffer);
                 if (_strokeType != StrokeType.Outline)
                     AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[i], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[i + 1]);
             }
 
             vPrevCount = vNextCount;
-            vNextCount = AddJoint(count - 1, points[offset + count - 2], points[offset + count - 1], points[offset + 0], insetBuffer, outsetBuffer);
+            vNextCount = AddJoint(count - 1, points[offset + count - 2], points[offset + count - 1], points[offset + 0], ws, insetBuffer, outsetBuffer);
 
             if (_strokeType != StrokeType.Outline) {
                 AddSegment(_vertexBufferIndex - vNextCount - vPrevCount, vPrevCount, _jointCCW[count - 2], _vertexBufferIndex - vNextCount, vNextCount, _jointCCW[count - 1]);
                 AddSegment(_vertexBufferIndex - vNextCount, vNextCount, _jointCCW[count - 1], vBaseIndex, vBaseCount, _jointCCW[0]);
             }
+
+            Pools<PenWorkspace>.Release(ws);
 
             if (outlinePen != null && _strokeType != StrokeType.Fill) {
                 Array.Reverse(insetBuffer.Data, 0, insetBuffer.Index);
@@ -452,32 +457,32 @@ namespace LilyPath
             return xyCount;
         }
 
-        private int AddJoint (int pointIndex, Vector2 a, Vector2 b, Vector2 c, Buffer<Vector2> insetBuffer, Buffer<Vector2> outsetBuffer)
+        private int AddJoint (int pointIndex, Vector2 a, Vector2 b, Vector2 c, PenWorkspace ws, Buffer<Vector2> insetBuffer, Buffer<Vector2> outsetBuffer)
         {
             InsetOutsetCount vioCount = new InsetOutsetCount();
 
             switch (_pen.LineJoin) {
                 case LineJoin.Miter:
-                    vioCount = _pen.ComputeMiter(a, b, c);
+                    vioCount = _pen.ComputeMiter(a, b, c, ws);
                     break;
                 case LineJoin.Bevel:
-                    vioCount = _pen.ComputeBevel(a, b, c);
+                    vioCount = _pen.ComputeBevel(a, b, c, ws);
                     break;
             }
 
             if (insetBuffer != null) {
                 for (int i = 0; i < vioCount.InsetCount; i++)
-                    insetBuffer.SetNext(_pen.InsetResultBuffer[i]);
+                    insetBuffer.SetNext(ws.XYInsetBuffer[i]);
             }
             if (outsetBuffer != null) {
                 for (int i = 0; i < vioCount.OutsetCount; i++)
-                    outsetBuffer.SetNext(_pen.OutsetResultBuffer[i]);
+                    outsetBuffer.SetNext(ws.XYOutsetBuffer[i]);
             }
 
-            return (_strokeType != StrokeType.Outline) ? AddJoint(pointIndex, vioCount, _pen.InsetResultBuffer, _pen.OutsetResultBuffer) : 0;
+            return (_strokeType != StrokeType.Outline) ? AddJoint(pointIndex, vioCount, ws) : 0;
         }
 
-        private int AddJoint (int pointIndex, InsetOutsetCount vioCount, List<Vector2> insetResultBuffer, List<Vector2> outsetResultBuffer)
+        private int AddJoint (int pointIndex, InsetOutsetCount vioCount, PenWorkspace ws)
         {
             int vIndex = _vertexBufferIndex;
 
@@ -485,9 +490,9 @@ namespace LilyPath
 
             if (!vioCount.CCW) {
                 _jointCCW[pointIndex] = false;
-                _positionData[vIndex + 0] = outsetResultBuffer[0];
+                _positionData[vIndex + 0] = ws.XYOutsetBuffer[0];
                 for (int i = 0; i < vioCount.InsetCount; i++)
-                    _positionData[vIndex + 1 + i] = insetResultBuffer[i];
+                    _positionData[vIndex + 1 + i] = ws.XYInsetBuffer[i];
 
                 for (int i = 0; i < vioCount.InsetCount - 1; i++) {
                     _indexData[_indexBufferIndex++] = (short)(vIndex);
@@ -497,9 +502,9 @@ namespace LilyPath
             }
             else {
                 _jointCCW[pointIndex] = true;
-                _positionData[vIndex + 0] = insetResultBuffer[0];
+                _positionData[vIndex + 0] = ws.XYInsetBuffer[0];
                 for (int i = 0; i < vioCount.OutsetCount; i++)
-                    _positionData[vIndex + 1 + i] = outsetResultBuffer[i];
+                    _positionData[vIndex + 1 + i] = ws.XYOutsetBuffer[i];
 
                 for (int i = 0; i < vioCount.OutsetCount - 1; i++) {
                     _indexData[_indexBufferIndex++] = (short)(vIndex);
@@ -510,14 +515,14 @@ namespace LilyPath
 
             if (_colorData != null) {
                 if (!vioCount.CCW) {
-                    _colorData[vIndex] = _pen.ColorAt(1, 0);
-                    for (int i = vIndex + 1; i < _vertexBufferIndex; i++)
-                        _colorData[i] = _pen.ColorAt(0, 0);
+                    _colorData[vIndex] = _pen.ColorAt(ws.UVOutsetBuffer[0]);
+                    for (int i = 0; i < vioCount.InsetCount; i++)
+                        _colorData[vIndex + 1 + i] = _pen.ColorAt(ws.UVInsetBuffer[i]);
                 }
                 else {
-                    _colorData[vIndex] = _pen.ColorAt(0, 0);
-                    for (int i = vIndex + 1; i < _vertexBufferIndex; i++)
-                        _colorData[i] = _pen.ColorAt(1, 0);
+                    _colorData[vIndex] = _pen.ColorAt(ws.UVInsetBuffer[0]);
+                    for (int i = 0; i < vioCount.OutsetCount; i++)
+                        _colorData[vIndex + 1 + i] = _pen.ColorAt(ws.UVOutsetBuffer[i]);
                 }
             }
 

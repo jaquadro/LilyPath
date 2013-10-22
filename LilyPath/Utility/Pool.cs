@@ -24,7 +24,7 @@ namespace LilyPath.Utility
         public abstract void Clear ();
     }
 
-    internal class Pool<T> : Pool
+    internal sealed class Pool<T> : Pool
         where T : new()
     {
         private Stack<T> _free;

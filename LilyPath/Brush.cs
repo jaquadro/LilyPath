@@ -79,6 +79,8 @@ namespace LilyPath
 
         #endregion
 
+        private float _alpha;
+
         /// <summary>
         /// Initializes a new instance of a <see cref="Brush"/> class.
         /// </summary>
@@ -89,9 +91,23 @@ namespace LilyPath
         }
 
         /// <summary>
+        /// Initializes a new instance of a <see cref="Brush"/> class with a given alpha value.
+        /// </summary>
+        /// <param name="alpha">Alpha value of the brush.</param>
+        protected Brush (float alpha)
+            : this()
+        {
+            _alpha = alpha;
+        }
+
+        /// <summary>
         /// The alpha value of the brush.
         /// </summary>
-        public virtual float Alpha { get; protected set; }
+        public virtual float Alpha
+        {
+            get { return _alpha; }
+            set { _alpha = value; }
+        }
 
         /// <summary>
         /// The color of the brush.

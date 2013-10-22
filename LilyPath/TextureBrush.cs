@@ -25,9 +25,8 @@ namespace LilyPath
         /// When the brush is rendered, any opacity already present in the texture is blended with
         /// the opacity value.</remarks>
         public TextureBrush (Texture2D texture, float opacity)
-            : base()
+            : base(opacity)
         {
-            Alpha = opacity;
             Texture = texture;
         }
 

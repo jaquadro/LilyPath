@@ -15,7 +15,7 @@ namespace LilyPath
     /// arcs, you may encounter overdraw that is visible with semitransparent pens.  You can 
     /// avoid this overdraw by using an inset or outset <see cref="PenAlignment"/> on your pen,
     /// depending on the winding order of the path being stroked.</para></remarks>
-    public class DrawBatch
+    public class DrawBatch : IDisposable
     {
         private struct DrawingInfo
         {
@@ -27,6 +27,7 @@ namespace LilyPath
 
         private GraphicsDevice _device;
         private bool _inDraw;
+        private bool _isDisposed;
 
         // Render data
         private DrawingInfo[] _infoBuffer;
@@ -88,6 +89,33 @@ namespace LilyPath
             _defaultTexture.SetData<Color>(new Color[] { Color.White });
 
             _ws = new PenWorkspace();
+        }
+
+        /// <summary>
+        /// Releases all resources used by the <see cref="DrawBatch"/> object.
+        /// </summary>
+        public void Dispose ()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose (bool disposing)
+        {
+            if (!_isDisposed && disposing) {
+                _standardEffect.Dispose();
+                _defaultTexture.Dispose();
+                
+                _isDisposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Gets whether the <see cref="DrawBatch"/> has been disposed or not.
+        /// </summary>
+        public bool IsDisposed
+        {
+            get { return _isDisposed; }
         }
 
         /// <summary>

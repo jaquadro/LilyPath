@@ -149,7 +149,7 @@ namespace LilyPathDemo
             viewport.MinDepth = 0;
             viewport.MaxDepth = 1;
 
-            if (GraphicsDevice.Viewport.Equals(viewport) == false)
+            if (GraphicsDevice.Viewport.Bounds != viewport.Bounds)
                 GraphicsDevice.Viewport = viewport;
 
             return null;

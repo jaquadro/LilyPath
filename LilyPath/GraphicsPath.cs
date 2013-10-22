@@ -51,6 +51,8 @@ namespace LilyPath
     /// </summary>
     public class GraphicsPath : IGraphicsPath
     {
+        private static GraphicsPath[] _emptyOutlinePaths = new GraphicsPath[0];
+
         private Pen _pen;
         private StrokeType _strokeType;
 
@@ -205,18 +207,11 @@ namespace LilyPath
         }
 
         /// <summary>
-        /// Enumerates the outline paths that have been generated for this path.
+        /// Gets the outline paths that have been generated for this path.
         /// </summary>
-        public IEnumerable<GraphicsPath> OutlinePaths
+        public GraphicsPath[] OutlinePaths
         {
-            get
-            {
-                if (_outlinePaths == null)
-                    yield break;
-
-                foreach (var path in _outlinePaths)
-                    yield return path;
-            }
+            get { return _outlinePaths ?? _emptyOutlinePaths; }
         }
 
         #region IGraphicsPath Interface

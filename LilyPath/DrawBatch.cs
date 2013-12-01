@@ -267,7 +267,7 @@ namespace LilyPath
         /// <exception cref="InvalidOperationException"><c>DrawRectangle</c> was called, but <see cref="Begin()"/> has not yet been called.</exception>
         public void DrawRectangle (Pen pen, Vector2 location, float width, float height)
         {
-            DrawRectangle(pen, location, width, height);
+            DrawRectangle(pen, location, width, height, 0);
         }
 
         /// <summary>

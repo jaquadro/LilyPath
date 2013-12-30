@@ -97,27 +97,10 @@
     <Compile Include="Triangulator.cs" />-->
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsPhone\ARM\Debug\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX">
-      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsPhone\ARM\Debug\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D11">
-      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsPhone\ARM\Debug\SharpDX.Direct3D11.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.DXGI">
-      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsPhone\ARM\Debug\SharpDX.DXGI.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.MediaFoundation">
-      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsPhone\ARM\Debug\SharpDX.MediaFoundation.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.WP8">
-      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsPhone\ARM\Debug\SharpDX.WP8.winmd</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.XAudio2">
-      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsPhone\ARM\Debug\SharpDX.XAudio2.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\MonoGame\MonoGame.Framework\MonoGame.Framework.WindowsPhone.csproj">
+      <Project>{BAA9A6E4-7690-4DE0-9531-DE0EAEEC9739}</Project>
+      <Name>MonoGame.Framework.WindowsPhone</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />

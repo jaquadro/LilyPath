@@ -72,6 +72,7 @@ namespace LilyPath
                 throw new ArgumentNullException("device");
 
             _device = device;
+            _device.DeviceReset += GraphicsDeviceReset;
 
             _infoBuffer = new DrawingInfo[2048];
             _indexBuffer = new short[32768];
@@ -103,11 +104,25 @@ namespace LilyPath
         private void Dispose (bool disposing)
         {
             if (!_isDisposed && disposing) {
+                _device.DeviceReset -= GraphicsDeviceReset;
+
                 _standardEffect.Dispose();
                 _defaultTexture.Dispose();
                 
                 _isDisposed = true;
             }
+        }
+
+        private void GraphicsDeviceReset (object sender, EventArgs e)
+        {
+            _standardEffect.Dispose();
+            _standardEffect = new BasicEffect(_device);
+            _standardEffect.TextureEnabled = true;
+            _standardEffect.VertexColorEnabled = true;
+
+            _defaultTexture.Dispose();
+            _defaultTexture = new Texture2D(_device, 1, 1);
+            _defaultTexture.SetData<Color>(new Color[] { Color.White });
         }
 
         /// <summary>

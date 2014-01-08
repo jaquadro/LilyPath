@@ -48,7 +48,10 @@ namespace LilyPath
         };
 
         private Vector2[] _geometryBuffer;
+        private float[] _lengthBuffer;
         private int _geometryIndex;
+
+        private bool _calculateLengths;
 
         /// <summary>
         /// Creates a new <see cref="PathBuilder"/> object.
@@ -64,15 +67,28 @@ namespace LilyPath
         public PathBuilder (int initialBufferSize)
         {
             _geometryBuffer = new Vector2[initialBufferSize];
+            _lengthBuffer = new float[initialBufferSize];
             _geometryIndex = 0;
         }
 
         /// <summary>
         /// Gets the raw vertex buffer from the <see cref="PathBuilder"/>.
         /// </summary>
+        /// <seealso cref="LengthBuffer"/>
         public Vector2[] Buffer
         {
             get { return _geometryBuffer; }
+        }
+
+        /// <summary>
+        /// Gets the buffer containing the length of each vertex to the one preceding it in the vertex buffer.
+        /// </summary>
+        /// <remarks><para>The length for the first vertex is always 0.</para></remarks>
+        /// <seealso cref="Buffer"/>
+        /// <seealso cref="CalculateLengths"/>
+        public float[] LengthBuffer
+        {
+            get { return _lengthBuffer; }
         }
 
         /// <summary>
@@ -84,6 +100,18 @@ namespace LilyPath
         }
 
         /// <summary>
+        /// Gets or sets whether lengths are calculated for line segments.
+        /// </summary>
+        /// <remarks><para>This property will be checked at the time a path is stroked to determine whether it can use length information or not.</para>
+        /// <para>If this property is set to false during some or all of the path building operations, lengths for those sections may appear as any value.</para></remarks>
+        /// <seealso cref="LengthBuffer"/>
+        public bool CalculateLengths
+        {
+            get { return _calculateLengths; }
+            set { _calculateLengths = value; }
+        }
+
+        /// <summary>
         /// Appends a point to the end of the path.
         /// </summary>
         /// <param name="point">A point.</param>
@@ -91,8 +119,12 @@ namespace LilyPath
         {
             CheckBufferFreeSpace(1);
 
-            if (!LastPointEqual(point))
+            if (!LastPointEqual(point)) {
+                if (_calculateLengths) 
+                    _lengthBuffer[_geometryIndex] = (_geometryIndex == 0) ? 0 : Vector2.Distance(_geometryBuffer[_geometryIndex - 1], point);
+
                 _geometryBuffer[_geometryIndex++] = point;
+            }
         }
 
         /// <summary>
@@ -101,15 +133,31 @@ namespace LilyPath
         /// <param name="points">A list of points.</param>
         public void AddPath (IList<Vector2> points)
         {
+            if (points.Count == 0)
+                return;
+
             Vector2 lastPoint = (_geometryIndex > 0) ? _geometryBuffer[_geometryIndex - 1] : new Vector2(float.NaN, float.NaN);
 
             CheckBufferFreeSpace(points.Count);
 
-            foreach (Vector2 point in points) {
+            if (points[0] != lastPoint) {
+                if (_calculateLengths)
+                    _lengthBuffer[_geometryIndex] = (_geometryIndex == 0) ? 0 : Vector2.Distance(_geometryBuffer[_geometryIndex - 1], points[0]);
+
+                _geometryBuffer[_geometryIndex++] = points[0];
+            }
+
+            int baseIndex = _geometryIndex;
+
+            for (int i = 1, n = points.Count; i < n; i++) {
+                Vector2 point = points[i];
                 if (point != lastPoint)
                     _geometryBuffer[_geometryIndex++] = point;
                 lastPoint = point;
             }
+
+            if (_calculateLengths)
+                CalculateLengthsInRange(baseIndex, _geometryIndex - baseIndex);
         }
 
         /// <summary>
@@ -129,8 +177,19 @@ namespace LilyPath
             CheckBufferFreeSpace(path._geometryIndex);
 
             int startIndex = LastPointEqual(path._geometryBuffer[0]) ? 1 : 0;
-            for (int i = startIndex; i < _geometryIndex; i++)
+            int baseIndex = _geometryIndex;
+
+            for (int i = startIndex; i < path._geometryIndex; i++)
                 _geometryBuffer[_geometryIndex++] = path._geometryBuffer[i];
+
+            if (_calculateLengths) {
+                if (path._lengthBuffer != null) {
+                    for (int i = startIndex; i < path._geometryIndex; i++)
+                        _lengthBuffer[baseIndex++] = path._lengthBuffer[i];
+                }
+                else
+                    CalculateLengthsInRange(baseIndex, path._geometryIndex - baseIndex);
+            }
         }
 
         /// <summary>
@@ -149,6 +208,9 @@ namespace LilyPath
 
             Vector2 start = _geometryBuffer[_geometryIndex - 1];
             Vector2 end = new Vector2(start.X + length * (float)Math.Cos(angle), start.Y + length * (float)Math.Sin(angle));
+
+            if (_calculateLengths)
+                _lengthBuffer[_geometryIndex] = length;
 
             _geometryBuffer[_geometryIndex++] = end;
         }
@@ -511,8 +573,25 @@ namespace LilyPath
 
         private void CheckBufferFreeSpace (int vertexCount)
         {
-            if (_geometryBuffer.Length < _geometryIndex + vertexCount)
+            if (_geometryBuffer.Length < _geometryIndex + vertexCount) {
                 Array.Resize(ref _geometryBuffer, (_geometryIndex + vertexCount) * 2);
+
+                if (_lengthBuffer != null)
+                    Array.Resize(ref _lengthBuffer, (_geometryIndex + vertexCount) * 2);
+            }
+        }
+
+        private void CalculateLengthsInRange (int startIndex, int count)
+        {
+            int stopIndex = startIndex + count;
+
+            if (startIndex == 0) {
+                _lengthBuffer[0] = 0;
+                startIndex++;
+            }
+
+            for (int i = startIndex; i < stopIndex; i++)
+                _lengthBuffer[i] = Vector2.Distance(_geometryBuffer[i - 1], _geometryBuffer[i]);
         }
 
         private int BuildArcGeometryBuffer (Vector2 p0, Vector2 p1, float height, int subdivisions)
@@ -594,6 +673,7 @@ namespace LilyPath
             }
 
             CheckBufferFreeSpace(vertexCount + 2);
+            int baseIndex = _geometryIndex;
 
             if (arcAngle >= 0) {
                 if ((startIndex * subLength) - startAngle > 0.005f) {
@@ -640,6 +720,14 @@ namespace LilyPath
                 }
             }
 
+            if (_calculateLengths) {
+                float arcLength = 2 * arcAngle * radius;
+                float segmentLength = arcLength / subLength;
+
+                for (int i = baseIndex; i < _geometryIndex; i++)
+                    _lengthBuffer[baseIndex + i] = segmentLength;
+            }
+
             return vertexCount;
         }
 
@@ -648,12 +736,21 @@ namespace LilyPath
             List<Vector2> unitCircle = CalculateCircleSubdivisions(subdivisions);
 
             CheckBufferFreeSpace(subdivisions + 1);
+            int baseIndex = _geometryIndex;
 
             for (int i = 0; i < subdivisions; i++)
                 _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * unitCircle[i].X, center.Y + radius * unitCircle[i].Y);
 
             if (connect)
                 _geometryBuffer[_geometryIndex++] = new Vector2(center.X + radius * unitCircle[0].X, center.Y + radius * unitCircle[0].Y);
+
+            if (_calculateLengths) {
+                float arcLength = 2 * (float)Math.PI * radius;
+                float segmentLength = arcLength / subdivisions;
+
+                for (int i = baseIndex; i < _geometryIndex; i++)
+                    _lengthBuffer[baseIndex + i] = segmentLength;
+            }
         }
 
         private static List<Vector2> CalculateCircleSubdivisions (int divisions)
@@ -684,6 +781,7 @@ namespace LilyPath
         private void BuildQuadraticBezierGeometryBuffer (Vector2 v0, Vector2 v1, Vector2 v2, int subdivisions)
         {
             CheckBufferFreeSpace(subdivisions + 1);
+            int baseIndex = _geometryIndex;
 
             float step = 1f / (subdivisions - 1);
             float t = 0;
@@ -701,11 +799,15 @@ namespace LilyPath
 
                 _geometryBuffer[_geometryIndex++] = new Vector2(vx, vy);
             }
+
+            if (_calculateLengths)
+                CalculateLengthsInRange(baseIndex, _geometryIndex - baseIndex);
         }
 
         private void BuildCubicBezierGeometryBuffer (Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, int subdivisions)
         {
             CheckBufferFreeSpace(subdivisions + 1);
+            int baseIndex = _geometryIndex;
 
             float step = 1f / (subdivisions - 1);
             float t = 0;
@@ -724,6 +826,9 @@ namespace LilyPath
 
                 _geometryBuffer[_geometryIndex++] = new Vector2(vx, vy);
             }
+
+            if (_calculateLengths)
+                CalculateLengthsInRange(baseIndex, _geometryIndex - baseIndex);
         }
 
         private static double Factorial (int n)

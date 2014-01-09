@@ -36,7 +36,7 @@ namespace LilyPath
         public new Texture2D Texture
         {
             get { return base.Texture; }
-            private set { base.Texture = value; }
+            protected set { base.Texture = value; }
         }
 
         /// <summary>

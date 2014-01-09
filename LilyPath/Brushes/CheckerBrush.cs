@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace LilyPath.Brushes
@@ -8,6 +9,11 @@ namespace LilyPath.Brushes
     /// </summary>
     public class CheckerBrush : TextureBrush
     {
+        private Color _color1;
+        private Color _color2;
+        private int _width;
+        private int _height;
+
         /// <summary>
         /// Creates a new <see cref="CheckerBrush"/> with the given <see cref="GraphicsDevice"/>, colors, and square cell size.
         /// </summary>
@@ -55,7 +61,30 @@ namespace LilyPath.Brushes
         public CheckerBrush (GraphicsDevice device, Color color1, Color color2, int width, int height, float opacity)
             : base(BuildCheckerTexture(device, color1, color2, width, height), opacity)
         {
+            _color1 = color1;
+            _color2 = color2;
+            _width = width;
+            _height = height;
+
             OwnsTexture = true;
+            device.DeviceReset += HandleGraphicsDeviceReset;
+        }
+
+        protected override void DisposeManaged ()
+        {
+            if (Texture != null && Texture.GraphicsDevice != null)
+                Texture.GraphicsDevice.DeviceReset -= HandleGraphicsDeviceReset;
+
+            base.DisposeManaged();
+        }
+
+        private void HandleGraphicsDeviceReset (object sender, EventArgs e)
+        {
+            GraphicsDevice device = sender as GraphicsDevice;
+            if (device == null)
+                return;
+
+            Texture = BuildCheckerTexture(device, _color1, _color2, _width, _height);
         }
 
         private static Texture2D BuildCheckerTexture (GraphicsDevice device, Color color1, Color color2, int blockWidth, int blockHeight)

@@ -7,8 +7,15 @@ namespace LilyPath.Pens
     /// </summary>
     public class PathGradientPen : Pen
     {
-        private Color _color1;
-        private Color _color2;
+        private byte _r1;
+        private byte _g1;
+        private byte _b1;
+        private byte _a1;
+
+        private short _rdiff;
+        private short _gdiff;
+        private short _bdiff;
+        private short _adiff;
 
         /// <summary>
         /// Creates a new <see cref="GradientPen"/> with the given colors and width.
@@ -19,8 +26,15 @@ namespace LilyPath.Pens
         public PathGradientPen (Color startColor, Color endColor, float width)
             : base(Color.White, width)
         {
-            _color1 = startColor;
-            _color2 = endColor;
+            _r1 = startColor.R;
+            _g1 = startColor.G;
+            _b1 = startColor.B;
+            _a1 = startColor.A;
+
+            _rdiff = (short)(endColor.R - _r1);
+            _gdiff = (short)(endColor.G - _g1);
+            _bdiff = (short)(endColor.B - _b1);
+            _adiff = (short)(endColor.A - _a1);
         }
 
         /// <summary>
@@ -41,7 +55,18 @@ namespace LilyPath.Pens
         /// <InheritDoc />
         protected internal override Color ColorAt (float widthPosition, float lengthPosition, float lengthScale)
         {
-            return Color.Lerp(_color1, _color2, lengthPosition * lengthScale);
+            return Lerp(lengthPosition * lengthScale);
+        }
+
+        private Color Lerp (float amount)
+        {
+            Color c0 = Color.TransparentBlack;
+            c0.R = (byte)(_r1 + _rdiff * amount);
+            c0.G = (byte)(_g1 + _gdiff * amount);
+            c0.B = (byte)(_b1 + _bdiff * amount);
+            c0.A = (byte)(_a1 + _adiff * amount);
+
+            return c0;
         }
     }
 }

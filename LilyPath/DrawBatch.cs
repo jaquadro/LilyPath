@@ -25,6 +25,8 @@ namespace LilyPath
             public int VertexCount;
         }
 
+        private static Matrix _identityMatrix = Matrix.Identity;
+
         private GraphicsDevice _device;
         private bool _inDraw;
         private bool _isDisposed;
@@ -357,10 +359,14 @@ namespace LilyPath
 
             int baseVertexIndex = _vertexBufferIndex;
 
-            AddMiteredJoint(_geometryBuffer[0], _geometryBuffer[1], _geometryBuffer[2], pen, _ws);
-            AddMiteredJoint(_geometryBuffer[1], _geometryBuffer[2], _geometryBuffer[3], pen, _ws);
-            AddMiteredJoint(_geometryBuffer[2], _geometryBuffer[3], _geometryBuffer[0], pen, _ws);
-            AddMiteredJoint(_geometryBuffer[3], _geometryBuffer[0], _geometryBuffer[1], pen, _ws);
+            JoinSample js = new JoinSample(_geometryBuffer[0], _geometryBuffer[1], _geometryBuffer[2]);
+            AddMiteredJoint(ref js, pen, _ws);
+            js.Advance(_geometryBuffer[3]);
+            AddMiteredJoint(ref js, pen, _ws);
+            js.Advance(_geometryBuffer[0]);
+            AddMiteredJoint(ref js, pen, _ws);
+            js.Advance(_geometryBuffer[1]);
+            AddMiteredJoint(ref js, pen, _ws);
 
             AddSegment(baseVertexIndex + 0, baseVertexIndex + 2);
             AddSegment(baseVertexIndex + 2, baseVertexIndex + 4);
@@ -546,6 +552,9 @@ namespace LilyPath
             RequestBufferSpace(4, 6);
             _ws.ResetWorkspace(pen);
 
+            if (pen.NeedsPathLength)
+                _ws.PathLength = Vector2.Distance(p0, p1);
+
             AddInfo(PrimitiveType.TriangleList, 4, 6, pen.Brush);
 
             int baseVertexIndex = _vertexBufferIndex;
@@ -679,13 +688,24 @@ namespace LilyPath
             if (!_inDraw)
                 throw new InvalidOperationException();
 
-            DrawPathInner(path);
+            DrawPathInner(path, ref _identityMatrix, false);
 
             if (_sortMode == DrawSortMode.Immediate)
                 FlushBuffer();
         }
 
-        private void DrawPathInner (GraphicsPath path)
+        /*public void DrawPath (GraphicsPath path, ref Matrix vertexTransform)
+        {
+            if (!_inDraw)
+                throw new InvalidOperationException();
+
+            DrawPathInner(path, ref vertexTransform, true);
+
+            if (_sortMode == DrawSortMode.Immediate)
+                FlushBuffer();
+        }*/
+
+        private void DrawPathInner (GraphicsPath path, ref Matrix vertexTransform, bool applyVertexTransform)
         {
             RequestBufferSpace(path.VertexCount, path.IndexCount);
 
@@ -716,7 +736,12 @@ namespace LilyPath
             _indexBufferIndex += path.IndexCount;
 
             foreach (GraphicsPath outlinePath in path.OutlinePaths)
-                DrawPathInner(outlinePath);
+                DrawPathInner(outlinePath, ref vertexTransform, applyVertexTransform);
+        }
+
+        private void TransformData (Vector3[] data, int start, int length, ref Matrix tranform)
+        {
+            //Vector3.Transform()
         }
 
         /// <summary>
@@ -1032,12 +1057,16 @@ namespace LilyPath
 
             _ws.ResetWorkspace(pen);
 
-            int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
-            if (vertexCount > 1)
-                AddPath(_geometryBuffer, 0, vertexCount, pen, _ws);
+            _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
+            _pathBuilder.AddArc(center, radius, startAngle, arcAngle, subdivisions);
 
-            if (_sortMode == DrawSortMode.Immediate)
-                FlushBuffer();
+            if (_pathBuilder.Count > 1) {
+                AddPath(_pathBuilder.Buffer, 0, _pathBuilder.Count, pen, _ws);
+
+                if (_sortMode == DrawSortMode.Immediate)
+                    FlushBuffer();
+            }
         }
 
         /// <summary>
@@ -1075,12 +1104,16 @@ namespace LilyPath
 
             _ws.ResetWorkspace(pen);
 
-            int vertexCount = BuildArcGeometryBuffer(p0, p1, height, subdivisions);
-            if (vertexCount > 1)
-                AddPath(_geometryBuffer, 0, vertexCount, pen, _ws);
+            _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
+            _pathBuilder.AddArc(p0, p1, height, subdivisions);
 
-            if (_sortMode == DrawSortMode.Immediate)
-                FlushBuffer();
+            if (_pathBuilder.Count > 1) {
+                AddPath(_pathBuilder.Buffer, 0, _pathBuilder.Count, pen, _ws);
+
+                if (_sortMode == DrawSortMode.Immediate)
+                    FlushBuffer();
+            }
         }
 
         /// <summary>
@@ -1116,9 +1149,12 @@ namespace LilyPath
             if (pen == null)
                 throw new ArgumentNullException("pen");
 
-            int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
-            if (vertexCount > 1)
-                DrawPrimitivePath(pen, _geometryBuffer, 0, vertexCount, PathType.Open);
+            _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
+            _pathBuilder.AddArc(center, radius, startAngle, arcAngle, subdivisions);
+
+            if (_pathBuilder.Count > 1)
+                DrawPrimitivePath(pen, _pathBuilder.Buffer, 0, _pathBuilder.Count, PathType.Open);
         }
 
         /// <summary>
@@ -1154,9 +1190,12 @@ namespace LilyPath
             if (pen == null)
                 throw new ArgumentNullException("pen");
 
-            int vertexCount = BuildArcGeometryBuffer(p0, p1, height, subdivisions);
-            if (vertexCount > 1)
-                DrawPrimitivePath(pen, _geometryBuffer, 0, vertexCount, PathType.Open);
+            _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
+            _pathBuilder.AddArc(p0, p1, height, subdivisions);
+
+            if (_pathBuilder.Count > 1)
+                DrawPrimitivePath(pen, _pathBuilder.Buffer, 0, _pathBuilder.Count, PathType.Open);
         }
 
         /// <summary>
@@ -1194,17 +1233,15 @@ namespace LilyPath
             if (pen == null)
                 throw new ArgumentNullException("pen");
 
-            int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
-            if (vertexCount > 1) {
-                if (arcType == ArcType.Sector) {
-                    if (_geometryBuffer.Length < vertexCount + 1)
-                        Array.Resize(ref _geometryBuffer, (vertexCount + 1) * 2);
+            _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
 
-                    _geometryBuffer[vertexCount++] = new Vector2(center.X, center.Y);
-                }
+            if (arcType == ArcType.Sector)
+                _pathBuilder.AddPoint(center);
+            _pathBuilder.AddArc(center, radius, startAngle, arcAngle, subdivisions);
 
-                DrawPrimitivePath(pen, _geometryBuffer, 0, vertexCount, PathType.Closed);
-            }
+            if (_pathBuilder.Count > 1)
+                DrawPrimitivePath(pen, _pathBuilder.Buffer, 0, _pathBuilder.Count, PathType.Closed);
         }
 
         /// <summary>
@@ -1244,20 +1281,19 @@ namespace LilyPath
 
             _ws.ResetWorkspace(pen);
 
-            int vertexCount = BuildArcGeometryBuffer(center, radius, subdivisions, startAngle, arcAngle);
-            if (vertexCount > 1) {
-                if (arcType == ArcType.Sector) {
-                    if (_geometryBuffer.Length < vertexCount + 1)
-                        Array.Resize(ref _geometryBuffer, (vertexCount + 1) * 2);
+            _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
 
-                    _geometryBuffer[vertexCount++] = new Vector2(center.X, center.Y);
-                }
+            if (arcType == ArcType.Sector)
+                _pathBuilder.AddPoint(center);
+            _pathBuilder.AddArc(center, radius, startAngle, arcAngle, subdivisions);
 
-                AddClosedPath(_geometryBuffer, 0, vertexCount, pen, _ws);
+            if (_pathBuilder.Count > 1) {
+                AddClosedPath(_pathBuilder.Buffer, 0, _pathBuilder.Count, pen, _ws);
+
+                if (_sortMode == DrawSortMode.Immediate)
+                    FlushBuffer();
             }
-
-            if (_sortMode == DrawSortMode.Immediate)
-                FlushBuffer();
         }
 
         /// <summary>
@@ -1278,6 +1314,7 @@ namespace LilyPath
             _ws.ResetWorkspace(pen);
 
             _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
             _pathBuilder.AddBezier(p0, p1, p2);
 
             AddPath(_pathBuilder.Buffer, 0, _pathBuilder.Count, pen, _ws);
@@ -1305,6 +1342,7 @@ namespace LilyPath
             _ws.ResetWorkspace(pen);
 
             _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
             _pathBuilder.AddBezier(p0, p1, p2, p3);
 
             AddPath(_pathBuilder.Buffer, 0, _pathBuilder.Count, pen, _ws);
@@ -1394,6 +1432,8 @@ namespace LilyPath
             _ws.ResetWorkspace(pen);
 
             _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
+
             switch (bezierType) {
                 case BezierType.Quadratic:
                     for (int i = offset + 2; i < offset + count; i += 2)
@@ -1440,6 +1480,7 @@ namespace LilyPath
                 throw new ArgumentNullException("pen");
 
             _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
             _pathBuilder.AddBezier(p0, p1, p2);
 
             DrawPrimitivePath(pen, _pathBuilder.Buffer, 0, _pathBuilder.Count);
@@ -1465,6 +1506,7 @@ namespace LilyPath
                 throw new ArgumentNullException("pen");
 
             _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
             _pathBuilder.AddBezier(p0, p1, p2, p3);
 
             DrawPrimitivePath(pen, _pathBuilder.Buffer, 0, _pathBuilder.Count);
@@ -1552,6 +1594,8 @@ namespace LilyPath
                 throw new ArgumentOutOfRangeException("The offset and count are out of range for the given points argument.");
 
             _pathBuilder.Reset();
+            _pathBuilder.CalculateLengths = pen.NeedsPathLength;
+
             switch (bezierType) {
                 case BezierType.Quadratic:
                     for (int i = offset + 2; i < offset + count; i += 2)
@@ -1590,50 +1634,6 @@ namespace LilyPath
                 angle -= (float)(Math.Floor(angle / (Math.PI * 2)) * Math.PI * 2);
 
             return angle;
-        }
-
-        private int BuildArcGeometryBuffer (Vector2 p0, Vector2 p1, float height, int subdivisions)
-        {
-            Vector2 edge01 = p1 - p0;
-            Vector2 p01mid = Vector2.Lerp(p0, p1, 0.5f);
-
-            float width = edge01.Length();
-            float radius = (height / 2) + (width * width) / (height * 8);
-
-            edge01.Normalize();
-            Vector2 edge01t = new Vector2(-edge01.Y, edge01.X);
-            Vector2 center = p01mid + edge01t * (radius - height);
-
-            float startAngle = PointToAngle(center, p0);
-            float endAngle = PointToAngle(center, p1);
-
-            float arcAngle;
-            if (height >= 0) {
-                if (height < width / 2) {
-                    arcAngle = (Math.Abs(endAngle - startAngle) < Math.PI)
-                        ? endAngle - startAngle
-                        : endAngle + (float)Math.PI * 2 - startAngle;
-                }
-                else {
-                    arcAngle = ((endAngle - startAngle) > Math.PI)
-                        ? endAngle - startAngle
-                        : endAngle + (float)Math.PI * 2 - startAngle;
-                }
-            }
-            else {
-                if (-height < width / 2) {
-                    arcAngle = (Math.Abs(endAngle - startAngle) < Math.PI)
-                        ? endAngle - startAngle
-                        : endAngle - (float)Math.PI * 2 - startAngle;
-                }
-                else {
-                    arcAngle = ((endAngle - startAngle) > Math.PI)
-                        ? startAngle - endAngle
-                        : endAngle - (float)Math.PI * 2 - startAngle;
-                }
-            }
-
-            return BuildArcGeometryBuffer(center, Math.Abs(radius), subdivisions, startAngle, arcAngle);
         }
 
         private float PointToAngle (Vector2 center, Vector2 point)
@@ -2148,13 +2148,13 @@ namespace LilyPath
                 _effect.CurrentTechnique.Passes[0].Apply();
         }
 
-        private void AddMiteredJoint (Vector2 a, Vector2 b, Vector2 c, Pen pen, PenWorkspace ws)
+        private void AddMiteredJoint (ref JoinSample js, Pen pen, PenWorkspace ws)
         {
             //pen.ComputeMiter(_computeBuffer, _colorBuffer, 0, a, b, c);
-            InsetOutsetCount vioCount = pen.ComputeMiter(a, b, c, ws);
+            InsetOutsetCount vioCount = pen.ComputeMiter(ref js, ws);
 
-            AddVertex(ws.XYInsetBuffer[0], pen.ColorAt(ws.UVInsetBuffer[0]), pen);
-            AddVertex(ws.XYOutsetBuffer[0], pen.ColorAt(ws.UVOutsetBuffer[0]), pen);
+            AddVertex(ws.XYInsetBuffer[0], pen.ColorAt(ws.UVInsetBuffer[0], ws.PathLengthScale), pen);
+            AddVertex(ws.XYOutsetBuffer[0], pen.ColorAt(ws.UVOutsetBuffer[0], ws.PathLengthScale), pen);
         }
 
         private void AddStartPoint (Vector2 a, Vector2 b, Pen pen, PenWorkspace ws)
@@ -2162,8 +2162,8 @@ namespace LilyPath
             //pen.ComputeStartPoint(_computeBuffer, _colorBuffer, 0, a, b);
             pen.ComputeStartPoint(a, b, ws);
 
-            AddVertex(ws.XYBuffer[0], pen.ColorAt(ws.UVBuffer[0]), pen);
-            AddVertex(ws.XYBuffer[1], pen.ColorAt(ws.UVBuffer[1]), pen);
+            AddVertex(ws.XYBuffer[0], pen.ColorAt(ws.UVBuffer[0], ws.PathLengthScale), pen);
+            AddVertex(ws.XYBuffer[1], pen.ColorAt(ws.UVBuffer[1], ws.PathLengthScale), pen);
         }
 
         private void AddEndPoint (Vector2 a, Vector2 b, Pen pen, PenWorkspace ws)
@@ -2171,8 +2171,8 @@ namespace LilyPath
             //pen.ComputeEndPoint(_computeBuffer, _colorBuffer, 0, a, b);
             pen.ComputeEndPoint(a, b, ws);
 
-            AddVertex(ws.XYBuffer[0], pen.ColorAt(ws.UVBuffer[0]), pen);
-            AddVertex(ws.XYBuffer[1], pen.ColorAt(ws.UVBuffer[1]), pen);
+            AddVertex(ws.XYBuffer[0], pen.ColorAt(ws.UVBuffer[0], ws.PathLengthScale), pen);
+            AddVertex(ws.XYBuffer[1], pen.ColorAt(ws.UVBuffer[1], ws.PathLengthScale), pen);
         }
 
         private void AddInfo (PrimitiveType primitiveType, int vertexCount, int indexCount, Brush brush)
@@ -2197,12 +2197,17 @@ namespace LilyPath
 
             int baseVertexIndex = _vertexBufferIndex;
 
+            JoinSample js = new JoinSample(Vector2.Zero, points[offset + 0], points[offset + 1]);
+
             for (int i = 0; i < count - 2; i++) {
-                AddMiteredJoint(points[offset + i], points[offset + i + 1], points[offset + i + 2], pen, ws);
+                js.Advance(points[offset + i + 2]);
+                AddMiteredJoint(ref js, pen, ws);
             }
 
-            AddMiteredJoint(points[offset + count - 2], points[offset + count - 1], points[offset + 0], pen, ws);
-            AddMiteredJoint(points[offset + count - 1], points[offset + 0], points[offset + 1], pen, ws);
+            js.Advance(points[offset + 0]);
+            AddMiteredJoint(ref js, pen, ws);
+            js.Advance(points[offset + 1]);
+            AddMiteredJoint(ref js, pen, ws);
 
             for (int i = 0; i < count - 1; i++) {
                 AddSegment(baseVertexIndex + i * 2, baseVertexIndex + (i + 1) * 2);
@@ -2222,8 +2227,12 @@ namespace LilyPath
 
             AddStartPoint(points[offset + 0], points[offset + 1], pen, _ws);
 
-            for (int i = 0; i < count - 2; i++)
-                AddMiteredJoint(points[offset + i], points[offset + i + 1], points[offset + i + 2], pen, ws);
+            JoinSample js = new JoinSample(Vector2.Zero, points[offset + 0], points[offset + 1]);
+
+            for (int i = 0; i < count - 2; i++) {
+                js.Advance(points[offset + i + 2]);
+                AddMiteredJoint(ref js, pen, ws);
+            }
 
             AddEndPoint(points[offset + count - 2], points[offset + count - 1], pen, _ws);
 

@@ -54,6 +54,7 @@
     <Compile Include="GraphicsPath.cs" />
     <Compile Include="PathBuilder.cs" />
     <Compile Include="Pens\GradientPen.cs" />
+    <Compile Include="Pens\PathGradientPen.cs" />
     <Compile Include="TextureBrush.cs" />
     <Compile Include="Pen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Utility\PenWorkspace.cs" />
     <Compile Include="Utility\Pool.cs" />
     <Compile Include="Utility\Pools.cs" />
+    <Compile Include="Utility\ZeroList.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

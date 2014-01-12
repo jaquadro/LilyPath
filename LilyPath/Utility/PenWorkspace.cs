@@ -3,8 +3,62 @@ using System;
 
 namespace LilyPath.Utility
 {
+    internal struct JoinSample
+    {
+        public Vector2 PointA;
+        public Vector2 PointB;
+        public Vector2 PointC;
+
+        public float LengthA;
+        public float LengthB;
+        public float LengthC;
+
+        public JoinSample (Vector2 pointA, Vector2 pointB, Vector2 pointC)
+        {
+            PointA = pointA;
+            PointB = pointB;
+            PointC = pointC;
+
+            LengthA = 0;
+            LengthB = 0;
+            LengthC = 0;
+        }
+
+        public JoinSample (Vector2 pointA, Vector2 pointB, Vector2 pointC, float lengthA, float lengthB, float lengthC)
+        {
+            PointA = pointA;
+            PointB = pointB;
+            PointC = pointC;
+
+            LengthA = lengthA;
+            LengthB = lengthB;
+            LengthC = lengthC;
+        }
+
+        public void Advance (Vector2 nextPoint)
+        {
+            PointA = PointB;
+            PointB = PointC;
+            PointC = nextPoint;
+        }
+
+        public void Advance (Vector2 nextPoint, float nextLength)
+        {
+            PointA = PointB;
+            PointB = PointC;
+            PointC = nextPoint;
+
+            LengthA = LengthB;
+            LengthB = LengthC;
+            LengthC = nextLength;
+        }
+    }
+
     internal class PenWorkspace
     {
+        private float _pathLength;
+        private float _pathLengthScale;
+
         public Buffer<Vector2> XYBuffer;
         public Buffer<Vector2> XYInsetBuffer;
         public Buffer<Vector2> XYOutsetBuffer;
@@ -12,6 +66,21 @@ namespace LilyPath.Utility
         public Buffer<Vector2> UVBuffer;
         public Buffer<Vector2> UVInsetBuffer;
         public Buffer<Vector2> UVOutsetBuffer;
+
+        public float PathLength
+        {
+            get { return _pathLength; }
+            set
+            {
+                _pathLength = value;
+                _pathLengthScale = (value == 0) ? 1 : 1 / _pathLength;
+            }
+        }
+
+        public float PathLengthScale
+        {
+            get { return _pathLengthScale; }
+        }
 
         public PenWorkspace ()
         {
@@ -44,6 +113,8 @@ namespace LilyPath.Utility
             UVBuffer.EnsureCapacity(XYBuffer.Capacity);
             UVInsetBuffer.EnsureCapacity(XYInsetBuffer.Capacity);
             UVOutsetBuffer.EnsureCapacity(XYOutsetBuffer.Capacity);
+
+            PathLength = 0;
         }
     }
 }

@@ -7,9 +7,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace LilyPathDemo
 {
-    class TestSheets
+    class TestSheetUtilities
     {
-        private static void SetupDrawBatch (DrawBatch drawBatch)
+        public static void SetupDrawBatch (DrawBatch drawBatch)
         {
             drawBatch.Begin(DrawSortMode.Deferred, null, null, null, GetCommonRasterizerState(), null, Matrix.Identity);
         }
@@ -584,21 +584,30 @@ namespace LilyPathDemo
             drawBatch.End();
         }
 
-        [TestSheet("Gradient Pens")]
+        /*[TestSheet("Gradient Pens")]
         public static void DrawGradientPens (DrawBatch drawBatch)
         {
             SetupDrawBatch(drawBatch);
 
-            Pen gradWidth = new GradientPen(Color.Yellow, Color.Blue, 15);
+            Pen gradWidth = new WidthGradientPen(Color.Lime, Color.Blue, 15);
+            Pen gradLength = new LengthGradientPen(Color.Lime, Color.Blue, 15);
 
-            GraphicsPath widthStar = new GraphicsPath(gradWidth, StarPoints(new Vector2(325, 75), 5, 50, 25, 0, false), PathType.Open);
+            PathBuilder pathBuilder = new PathBuilder() { CalculateLengths = true };
+            pathBuilder.AddPath(StarPoints(new Vector2(325, 75), 5, 50, 25, 0, false));
+
+            GraphicsPath widthStar = pathBuilder.Stroke(gradWidth, PathType.Open);
+            GraphicsPath lengthStar = pathBuilder.Stroke(gradLength, Matrix.CreateTranslation(0, 125, 0), PathType.Open);
 
             drawBatch.DrawLine(gradWidth, new Vector2(25, 25), new Vector2(125, 125));
             drawBatch.DrawCircle(gradWidth, new Vector2(200, 75), 50);
             drawBatch.DrawPath(widthStar);
 
+            drawBatch.DrawLine(gradLength, new Vector2(25, 150), new Vector2(125, 250));
+            drawBatch.DrawCircle(gradLength, new Vector2(200, 200), 50);
+            drawBatch.DrawPath(lengthStar);
+
             drawBatch.End();
-        }
+        }*/
 
         private static GraphicsPath _outerFlower;
         private static GraphicsPath _innerFlower;
@@ -814,12 +823,16 @@ namespace LilyPathDemo
             return path;
         }
 
+        private static RasterizerState _rasterState;
+
         private static RasterizerState GetCommonRasterizerState ()
         {
-            return new RasterizerState() {
-                FillMode = DemoState.FillMode,
-                MultiSampleAntiAlias = DemoState.MultisampleAA,
-            };
+            if (_rasterState == null)
+                _rasterState = new RasterizerState() {
+                    FillMode = DemoState.FillMode,
+                    MultiSampleAntiAlias = DemoState.MultisampleAA,
+                };
+            return _rasterState;
         }
 
         private static GraphicsPath CreateFlowerGP (Pen pen, Vector2 center, int petalCount, float petalLength, float petalWidth, float rotation)
@@ -863,7 +876,7 @@ namespace LilyPathDemo
             return builder.Stroke(pen, PathType.Closed);
         }
 
-        private static List<Vector2> StarPoints (Vector2 center, int pointCount, float outerRadius, float innerRadius, float rotation, bool close)
+        public static List<Vector2> StarPoints (Vector2 center, int pointCount, float outerRadius, float innerRadius, float rotation, bool close)
         {
             List<Vector2> points = new List<Vector2>();
 

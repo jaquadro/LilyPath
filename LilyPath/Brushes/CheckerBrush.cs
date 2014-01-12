@@ -70,6 +70,7 @@ namespace LilyPath.Brushes
             device.DeviceReset += HandleGraphicsDeviceReset;
         }
 
+        /// <InheritDoc />
         protected override void DisposeManaged ()
         {
             if (Texture != null && Texture.GraphicsDevice != null)

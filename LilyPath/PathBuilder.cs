@@ -81,7 +81,7 @@ namespace LilyPath
         }
 
         /// <summary>
-        /// Gets the buffer containing the length of each vertex to the one preceding it in the vertex buffer.
+        /// Gets the buffer containing the length of each vertex in the vertex buffer from the start of the path.
         /// </summary>
         /// <remarks><para>The length for the first vertex is always 0.</para></remarks>
         /// <seealso cref="Buffer"/>
@@ -121,7 +121,7 @@ namespace LilyPath
 
             if (!LastPointEqual(point)) {
                 if (_calculateLengths) 
-                    _lengthBuffer[_geometryIndex] = (_geometryIndex == 0) ? 0 : Vector2.Distance(_geometryBuffer[_geometryIndex - 1], point);
+                    _lengthBuffer[_geometryIndex] = (_geometryIndex == 0) ? 0 : _lengthBuffer[_geometryIndex - 1] + Vector2.Distance(_geometryBuffer[_geometryIndex - 1], point);
 
                 _geometryBuffer[_geometryIndex++] = point;
             }
@@ -142,7 +142,7 @@ namespace LilyPath
 
             if (points[0] != lastPoint) {
                 if (_calculateLengths)
-                    _lengthBuffer[_geometryIndex] = (_geometryIndex == 0) ? 0 : Vector2.Distance(_geometryBuffer[_geometryIndex - 1], points[0]);
+                    _lengthBuffer[_geometryIndex] = (_geometryIndex == 0) ? 0 : _lengthBuffer[_geometryIndex - 1] + Vector2.Distance(_geometryBuffer[_geometryIndex - 1], points[0]);
 
                 _geometryBuffer[_geometryIndex++] = points[0];
             }
@@ -210,7 +210,7 @@ namespace LilyPath
             Vector2 end = new Vector2(start.X + length * (float)Math.Cos(angle), start.Y + length * (float)Math.Sin(angle));
 
             if (_calculateLengths)
-                _lengthBuffer[_geometryIndex] = length;
+                _lengthBuffer[_geometryIndex] = _lengthBuffer[_geometryIndex - 1] + length;
 
             _geometryBuffer[_geometryIndex++] = end;
         }
@@ -474,7 +474,7 @@ namespace LilyPath
         /// <returns>A computed <see cref="GraphicsPath"/>.</returns>
         public GraphicsPath Stroke (Pen pen, PathType pathType)
         {
-            return new GraphicsPath(pen, _geometryBuffer, pathType, 0, _geometryIndex);
+            return new GraphicsPath(pen, _geometryBuffer, _lengthBuffer, pathType, 0, _geometryIndex);
         }
 
         /// <summary>
@@ -501,7 +501,7 @@ namespace LilyPath
             for (int i = 0; i < _geometryIndex; i++)
                 buffer[i] = Vector2.Transform(_geometryBuffer[i], transform);
 
-            return new GraphicsPath(pen, buffer, pathType, 0, _geometryIndex);
+            return new GraphicsPath(pen, buffer, _lengthBuffer, pathType, 0, _geometryIndex);
         }
 
         /// <summary>
@@ -591,7 +591,7 @@ namespace LilyPath
             }
 
             for (int i = startIndex; i < stopIndex; i++)
-                _lengthBuffer[i] = Vector2.Distance(_geometryBuffer[i - 1], _geometryBuffer[i]);
+                _lengthBuffer[i] = _lengthBuffer[i - 1] + Vector2.Distance(_geometryBuffer[i - 1], _geometryBuffer[i]);
         }
 
         private int BuildArcGeometryBuffer (Vector2 p0, Vector2 p1, float height, int subdivisions)
@@ -725,7 +725,7 @@ namespace LilyPath
                 float segmentLength = arcLength / subLength;
 
                 for (int i = baseIndex; i < _geometryIndex; i++)
-                    _lengthBuffer[baseIndex + i] = segmentLength;
+                    _lengthBuffer[baseIndex + i] = _lengthBuffer[baseIndex + i - 1] + segmentLength;
             }
 
             return vertexCount;
@@ -749,7 +749,7 @@ namespace LilyPath
                 float segmentLength = arcLength / subdivisions;
 
                 for (int i = baseIndex; i < _geometryIndex; i++)
-                    _lengthBuffer[baseIndex + i] = segmentLength;
+                    _lengthBuffer[baseIndex + i] = _lengthBuffer[baseIndex + i - 1] + segmentLength;
             }
         }
 

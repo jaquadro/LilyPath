@@ -185,6 +185,14 @@ namespace LilyPath
         /// </summary>
         public bool OwnsBrush { get; set; }
 
+        /// <summary>
+        /// Gets whether this pen needs path length values to properly calculate values at each sample point on the path.
+        /// </summary>
+        public virtual bool NeedsPathLength
+        {
+            get { return false; }
+        }
+
         private Pen ()
         {
             //Color = Color.White;
@@ -311,16 +319,17 @@ namespace LilyPath
         /// Queries the <see cref="Pen"/> for its color at a coordinate relative to the stroke width of the pen and length of the path.
         /// </summary>
         /// <param name="widthPosition">A value between 0 and 1 interpolated across the stroke width.</param>
-        /// <param name="lengthPosition">A value between 0 and 1 interpolated between the start and end points of a path.</param>
+        /// <param name="lengthPosition">A value between 0 and the full length of the path.</param>
+        /// <param name="length">A scaling factor such that lengthPosition can be normalized to a value between 0 and 1.</param>
         /// <returns>A color value.</returns>
-        protected internal virtual Color ColorAt (float widthPosition, float lengthPosition)
+        protected internal virtual Color ColorAt (float widthPosition, float lengthPosition, float length)
         {
             return Brush.Color;
         }
 
-        internal Color ColorAt (Vector2 uv)
+        internal Color ColorAt (Vector2 uv, float lengthScale)
         {
-            return ColorAt(uv.X, uv.Y);
+            return ColorAt(uv.X, uv.Y, lengthScale);
         }
 
         internal int StartPointVertexBound ()
@@ -461,8 +470,13 @@ namespace LilyPath
             return extra * 3 + (pointCount - 1) * 6;
         }
 
-        internal InsetOutsetCount ComputeMiter (Vector2 a, Vector2 b, Vector2 c, PenWorkspace ws)
+        //internal InsetOutsetCount ComputeMiter (Vector2 a, Vector2 b, Vector2 c, PenWorkspace ws)
+        internal InsetOutsetCount ComputeMiter (ref JoinSample js, PenWorkspace ws)
         {
+            Vector2 a = js.PointA;
+            Vector2 b = js.PointB;
+            Vector2 c = js.PointC;
+
             Vector2 edgeAB = new Vector2(b.X - a.X, b.Y - a.Y);
             edgeAB.Normalize();
             Vector2 edgeABt = new Vector2(-edgeAB.Y, edgeAB.X);
@@ -530,19 +544,24 @@ namespace LilyPath
 
             double miterLimit = MiterLimit * Width;
             if ((point0 - point5).LengthSquared() > miterLimit * miterLimit)
-                return ComputeBevel(a, b, c, ws);
+                return ComputeBevel(ref js, ws);
 
             ws.XYInsetBuffer[0] = point0;
             ws.XYOutsetBuffer[0] = point5;
 
-            ws.UVInsetBuffer[0] = new Vector2(0, 0);
-            ws.UVOutsetBuffer[0] = new Vector2(1, 0);
+            ws.UVInsetBuffer[0] = new Vector2(0, js.LengthB);
+            ws.UVOutsetBuffer[0] = new Vector2(1, js.LengthB);
 
             return new InsetOutsetCount(1, 1);
         }
 
-        internal InsetOutsetCount ComputeBevel (Vector2 a, Vector2 b, Vector2 c, PenWorkspace ws)
+        //internal InsetOutsetCount ComputeBevel (Vector2 a, Vector2 b, Vector2 c, PenWorkspace ws)
+        internal InsetOutsetCount ComputeBevel (ref JoinSample js, PenWorkspace ws)
         {
+            Vector2 a = js.PointA;
+            Vector2 b = js.PointB;
+            Vector2 c = js.PointC;
+
             Vector2 edgeBA = new Vector2(a.X - b.X, a.Y - b.Y);
             Vector2 edgeBC = new Vector2(c.X - b.X, c.Y - b.Y);
             double dot = Vector2.Dot(edgeBA, edgeBC);
@@ -551,7 +570,7 @@ namespace LilyPath
                 double cos2 = (dot * dot) / den;
 
                 if (cos2 > _joinLimitCos2)
-                    return ComputeMiter(a, b, c, ws);
+                    return ComputeMiter(ref js, ws);
             }
 
             Vector2 edgeAB = new Vector2(b.X - a.X, b.Y - a.Y);
@@ -611,9 +630,9 @@ namespace LilyPath
 
                 ws.XYOutsetBuffer[0] = point5;
 
-                ws.UVOutsetBuffer[0] = new Vector2(1, 0);
+                ws.UVOutsetBuffer[0] = new Vector2(1, js.LengthB);
                 for (int i = 0; i < vertexCount; i++)
-                    ws.UVInsetBuffer[i] = new Vector2(0, 0);
+                    ws.UVInsetBuffer[i] = new Vector2(0, js.LengthB);
 
                 return new InsetOutsetCount(vertexCount, 1, false);
             }
@@ -662,9 +681,9 @@ namespace LilyPath
 
                 ws.XYInsetBuffer[0] = point0;
 
-                ws.UVInsetBuffer[0] = new Vector2(0, 0);
+                ws.UVInsetBuffer[0] = new Vector2(0, js.LengthB);
                 for (int i = 0; i < vertexCount; i++)
-                    ws.UVOutsetBuffer[i] = new Vector2(1, 0);
+                    ws.UVOutsetBuffer[i] = new Vector2(1, js.LengthB);
 
                 return new InsetOutsetCount(1, vertexCount, true);
             }
@@ -738,8 +757,8 @@ namespace LilyPath
                     break;
             }
 
-            ws.UVBuffer[0] = new Vector2(0, 0);
-            ws.UVBuffer[1] = new Vector2(1, 0);
+            ws.UVBuffer[0] = new Vector2(0, ws.PathLength);
+            ws.UVBuffer[1] = new Vector2(1, ws.PathLength);
 
             switch (Alignment) {
                 case PenAlignment.Center:

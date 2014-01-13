@@ -29,6 +29,10 @@ namespace LilyPathDemo
 
             listBox1.SelectedValueChanged += ListBoxSelectedValueChanged;
             listBox1.SelectedItem = "Water Lily";
+
+            drawingControl1.FpsUpdated += (s, e) => {
+                _tbFPS.Text = "FPS: " + Math.Round(drawingControl1.Fps, 2);
+            };
         }
 
         private void ListBoxSelectedValueChanged (object sender, EventArgs e)

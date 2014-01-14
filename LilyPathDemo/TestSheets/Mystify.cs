@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using LilyPath;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace LilyPathDemo.TestSheets
 {
-    public class Mystify
+    [TestName("Mystify Your Mind")]
+    public class MystifySheet : TestSheet
     {
         private class Figure
         {
@@ -19,8 +18,8 @@ namespace LilyPathDemo.TestSheets
             public List<Vector2[]> History;
 
             public Pen ColorPen;
-            public int Skip = 0;
-            public int SkipLimit = 100;
+            public float Skip = 0;
+            public float SkipLimit = .03f;
 
             public Figure (int pointCount, int lineCount)
             {
@@ -60,7 +59,7 @@ namespace LilyPathDemo.TestSheets
                         Velocities[i].Y = -Math.Abs(Velocities[i].Y);
                 }
 
-                Skip++;
+                Skip += time;
                 if (Skip >= SkipLimit) {
                     Skip = 0;
                     for (int i = History.Count - 1; i > 0; i--)
@@ -71,36 +70,36 @@ namespace LilyPathDemo.TestSheets
         }
 
         private List<Figure> _figures = new List<Figure>();
+        private Rectangle _bounds;
 
-        public Mystify (GraphicsDevice device)
+        public override void Setup (GraphicsDevice device)
         {
+            ClearColor = Color.Black;
+
+            _bounds = device.Viewport.Bounds;
+
             _figures.Add(new Figure(4, 5));
             _figures.Add(new Figure(4, 7));
 
             for (int i = 0; i < _figures.Count; i++)
-                _figures[i].Initialize(device.Viewport.Bounds, 100);
+                _figures[i].Initialize(_bounds, 400);
         }
 
-        private static Mystify _mystify;
-
-        [TestSheet("Mystify Your Mind")]
-        public static void DrawGradientPens (DrawBatch drawBatch)
+        public override void Update (GameTime gameTime)
         {
-            if (_mystify == null)
-                _mystify = new Mystify(drawBatch.GraphicsDevice);
+            foreach (Figure fig in _figures) {
+                fig.Update(_bounds, (float)gameTime.ElapsedGameTime.TotalSeconds);
+            }
+        }
 
-            TestSheetUtilities.SetupDrawBatch(drawBatch);
+        public override void Draw (DrawBatch drawBatch)
+        {
+            _bounds = drawBatch.GraphicsDevice.Viewport.Bounds;
 
-            foreach (Figure fig in _mystify._figures) {
+            foreach (Figure fig in _figures) {
                 foreach (var points in fig.History) {
                     drawBatch.DrawPrimitivePath(fig.ColorPen, points, PathType.Closed);
                 }
-            }
-
-            drawBatch.End();
-
-            foreach (Figure fig in _mystify._figures) {
-                fig.Update(drawBatch.GraphicsDevice.Viewport.Bounds, .001f);
             }
         }
     }

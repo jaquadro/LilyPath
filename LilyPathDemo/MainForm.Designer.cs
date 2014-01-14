@@ -137,7 +137,6 @@
             // 
             this.drawingControl1.BackColor = System.Drawing.Color.Black;
             this.drawingControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.drawingControl1.DrawAction = null;
             this.drawingControl1.Location = new System.Drawing.Point(0, 0);
             this.drawingControl1.Name = "drawingControl1";
             this.drawingControl1.Size = new System.Drawing.Size(633, 541);

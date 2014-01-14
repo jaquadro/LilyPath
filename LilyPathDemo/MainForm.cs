@@ -14,7 +14,7 @@ namespace LilyPathDemo
 {
     public partial class MainForm : Form
     {
-        private Dictionary<string, Action<DrawBatch>> _pages;
+        private Dictionary<string, Type> _pages;
 
         public MainForm ()
         {
@@ -38,8 +38,14 @@ namespace LilyPathDemo
         private void ListBoxSelectedValueChanged (object sender, EventArgs e)
         {
             string key = (string)listBox1.SelectedItem;
+            if (key == null)
+                return;
+
             if (_pages.ContainsKey(key)) {
-                drawingControl1.DrawAction = _pages[key];
+                Type type = _pages[key];
+                ConstructorInfo cinfo = type.GetConstructor(Type.EmptyTypes);
+                TestSheet sheet = cinfo.Invoke(null) as TestSheet;
+                drawingControl1.Sheet = sheet;
             }
         }
 
@@ -47,14 +53,16 @@ namespace LilyPathDemo
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
 
-            _pages = new Dictionary<string,Action<DrawBatch>>();
+            _pages = new Dictionary<string, Type>();
 
             foreach (Module module in assembly.GetModules()) {
                 foreach (Type type in module.GetTypes()) {
-                    foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static)) {
-                        foreach (TestSheetAttribute attr in method.GetCustomAttributes(typeof(TestSheetAttribute), true)) {
-                            _pages.Add(attr.Name, Delegate.CreateDelegate(typeof(Action<DrawBatch>), method) as Action<DrawBatch>);
-                        }
+                    if (type.IsSubclassOf(typeof(TestSheet))) {
+                        string name = type.Name;
+                        foreach (TestNameAttribute attr in type.GetCustomAttributes(typeof(TestNameAttribute), true))
+                            name = attr.Name;
+
+                        _pages.Add(name, type);
                     }
                 }
             }

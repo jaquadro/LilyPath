@@ -1,53 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using LilyPath;
+﻿using LilyPath;
 using LilyPath.Pens;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace LilyPathDemo.TestSheets
 {
-    public static class GradientPens
+    [TestName("Gradient Pens")]
+    public class GradientPensSheet : TestSheet
     {
-        private static bool _setup;
-        private static Pen gradWidth;
-        private static Pen gradLength;
+        private Pen _gradWidth;
+        private Pen _gradLength;
 
-        private static GraphicsPath widthStar;
-        private static GraphicsPath lengthStar;
+        private GraphicsPath _widthStar;
+        private GraphicsPath _lengthStar;
 
-        private static void Setup ()
+        public override void Setup (GraphicsDevice device)
         {
-            gradWidth = new GradientPen(Color.Lime, Color.Blue, 15);
-            gradLength = new PathGradientPen(Color.Lime, Color.Blue, 15);
+            _gradWidth = new GradientPen(Color.Lime, Color.Blue, 15);
+            _gradLength = new PathGradientPen(Color.Lime, Color.Blue, 15);
 
             PathBuilder pathBuilder = new PathBuilder() { CalculateLengths = true };
-            pathBuilder.AddPath(TestSheetUtilities.StarPoints(new Vector2(325, 75), 5, 50, 25, 0, false));
+            pathBuilder.AddPath(StarPoints(new Vector2(325, 75), 5, 50, 25, 0, false));
 
-            widthStar = pathBuilder.Stroke(gradWidth, PathType.Open);
-            lengthStar = pathBuilder.Stroke(gradLength, Matrix.CreateTranslation(0, 125, 0), PathType.Open);
-
-            _setup = true;
+            _widthStar = pathBuilder.Stroke(_gradWidth, PathType.Open);
+            _lengthStar = pathBuilder.Stroke(_gradLength, Matrix.CreateTranslation(0, 125, 0), PathType.Open);
         }
 
-        [TestSheet("Gradient Pens")]
-        public static void DrawGradientPens (DrawBatch drawBatch)
+        public override void Draw (DrawBatch drawBatch)
         {
-            if (!_setup)
-                Setup();
+            drawBatch.DrawLine(_gradWidth, new Vector2(25, 25), new Vector2(125, 125));
+            drawBatch.DrawCircle(_gradWidth, new Vector2(200, 75), 50);
+            drawBatch.DrawPath(_widthStar);
 
-            TestSheetUtilities.SetupDrawBatch(drawBatch);
-
-            drawBatch.DrawLine(gradWidth, new Vector2(25, 25), new Vector2(125, 125));
-            drawBatch.DrawCircle(gradWidth, new Vector2(200, 75), 50);
-            drawBatch.DrawPath(widthStar);
-
-            drawBatch.DrawLine(gradLength, new Vector2(25, 150), new Vector2(125, 250));
-            drawBatch.DrawCircle(gradLength, new Vector2(200, 200), 50);
-            drawBatch.DrawPath(lengthStar);
-
-            drawBatch.End();
+            drawBatch.DrawLine(_gradLength, new Vector2(25, 150), new Vector2(125, 250));
+            drawBatch.DrawCircle(_gradLength, new Vector2(200, 200), 50);
+            drawBatch.DrawPath(_lengthStar);
         }
     }
 }

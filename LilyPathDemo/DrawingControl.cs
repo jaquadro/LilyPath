@@ -11,13 +11,29 @@ namespace LilyPathDemo
     {
         private DrawBatch _drawBatch;
 
+        private Stopwatch _timer;
+        private TimeSpan _elapsed;
+
         private TimeSpan _sampleSpan = TimeSpan.FromSeconds(1);
         private Stopwatch _stopWatch;
         private int _sampleFrames;
 
+        private TestSheet _testSheet;
+
         public Color ClearColor { get; set; }
 
-        public Action<DrawBatch> DrawAction { get; set; }
+        public TestSheet Sheet
+        {
+            get { return _testSheet; }
+            set
+            {
+                if (_testSheet != value) {
+                    if (_testSheet != null)
+                        _testSheet.TearDown();
+                    _testSheet = value;
+                }
+            }
+        }
 
         public float Fps { get; set; }
 
@@ -39,10 +55,14 @@ namespace LilyPathDemo
             Application.Idle += delegate { Invalidate(); };
 
             _stopWatch = Stopwatch.StartNew();
+            _timer = Stopwatch.StartNew();
         }
 
         protected override void Draw ()
         {
+            GameTime gameTime = new GameTime(_timer.Elapsed, _timer.Elapsed - _elapsed);
+            _elapsed = _timer.Elapsed;
+
             if (_stopWatch.Elapsed > _sampleSpan) {
                 Fps = (float)_sampleFrames / (float)_stopWatch.Elapsed.TotalSeconds;
 
@@ -53,10 +73,13 @@ namespace LilyPathDemo
                 OnFpsUpdated();
             }
 
-            GraphicsDevice.Clear(ClearColor);
+            if (Sheet != null)
+                GraphicsDevice.Clear(Sheet.ClearColor);
+            else
+                GraphicsDevice.Clear(ClearColor);
 
-            if (DrawAction != null)
-                DrawAction(_drawBatch);
+            if (Sheet != null)
+                Sheet.Apply(gameTime, _drawBatch);
 
             _sampleFrames++;
         }

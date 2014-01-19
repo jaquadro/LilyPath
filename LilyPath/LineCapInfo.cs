@@ -42,7 +42,7 @@ namespace LilyPath
             get { return _indexBuffer.Length; }
         }
 
-        public void Calculate (Vector2 p, Vector2 edgeAB, PenWorkspace ws, PenAlignment alignment)
+        public void Calculate (Vector2 p, Vector2 edgeAB, PenWorkspace ws, PenAlignment alignment, bool start)
         {
             edgeAB.Normalize();
 
@@ -60,13 +60,25 @@ namespace LilyPath
                     break;
 
                 case PenAlignment.Inset:
-                    tX = p.X + (-.5f * tC);
-                    tY = p.Y + (-.5f * tS);
+                    if (start) {
+                        tX = p.X + (-.5f * tS);
+                        tY = p.Y - (-.5f * tC);
+                    }
+                    else {
+                        tX = p.X - (-.5f * tS);
+                        tY = p.Y + (-.5f * tC);
+                    }
                     break;
 
                 case PenAlignment.Outset:
-                    tX = p.X + (.5f * tC);
-                    tY = p.Y + (.5f * tS);
+                    if (start) {
+                        tX = p.X + (.5f * tS);
+                        tY = p.Y - (.5f * tC);
+                    }
+                    else {
+                        tX = p.X - (.5f * tS);
+                        tY = p.Y + (.5f * tC);
+                    }
                     break;
             }
 

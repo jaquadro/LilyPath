@@ -80,6 +80,7 @@
     <Compile Include="TestSheets\FilledEllipses.cs" />
     <Compile Include="TestSheets\FilledShapes.cs" />
     <Compile Include="TestSheets\GradientPens.cs" />
+    <Compile Include="TestSheets\GradientPensAlignment.cs" />
     <Compile Include="TestSheets\GraphicsPath.cs" />
     <Compile Include="TestSheets\GraphicsPathOutline.cs" />
     <Compile Include="TestSheets\LineCaps.cs" />

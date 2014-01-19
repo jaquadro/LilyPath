@@ -684,12 +684,12 @@ namespace LilyPath
 
         internal void ComputeStartPoint (Vector2 a, Vector2 b, PenWorkspace ws)
         {
-            StartCapInfo.Calculate(a, b - a, ws, Alignment);
+            StartCapInfo.Calculate(a, b - a, ws, Alignment, true);
         }
 
         internal void ComputeEndPoint (Vector2 a, Vector2 b, PenWorkspace ws)
         {
-            EndCapInfo.Calculate(b, a - b, ws, Alignment);
+            EndCapInfo.Calculate(b, a - b, ws, Alignment, false);
 
             for (int i = 0; i < ws.UVBuffer.Index; i++)
                 ws.UVBuffer[i] = new Vector2(1 - ws.UVBuffer[i].X, ws.PathLength);

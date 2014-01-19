@@ -51,6 +51,21 @@ namespace LilyPath
         /// The stroked path runs half the pen's width past the edge of the path's endpoint.
         /// </summary>
         Square,
+
+        /// <summary>
+        /// The stroked path forms a triangular point half the pen's width past the edge of the path's endpoint.
+        /// </summary>
+        Triangle,
+
+        /// <summary>
+        /// The stroked path forms an inverse triangle half the pen's width past the edge of the path's endpoint.
+        /// </summary>
+        InvTriangle,
+
+        /// <summary>
+        /// The stroked path forms an arrow at the path's endpoint.
+        /// </summary>
+        Arrow,
     }
 
     /// <summary>

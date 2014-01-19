@@ -2150,7 +2150,6 @@ namespace LilyPath
 
         private void AddMiteredJoint (ref JoinSample js, Pen pen, PenWorkspace ws)
         {
-            //pen.ComputeMiter(_computeBuffer, _colorBuffer, 0, a, b, c);
             InsetOutsetCount vioCount = pen.ComputeMiter(ref js, ws);
 
             AddVertex(ws.XYInsetBuffer[0], pen.ColorAt(ws.UVInsetBuffer[0], ws.PathLengthScale), pen);
@@ -2159,16 +2158,14 @@ namespace LilyPath
 
         private void AddStartPoint (Vector2 a, Vector2 b, Pen pen, PenWorkspace ws)
         {
-            //pen.ComputeStartPoint(_computeBuffer, _colorBuffer, 0, a, b);
             pen.ComputeStartPoint(a, b, ws);
 
-            AddVertex(ws.XYBuffer[0], pen.ColorAt(ws.UVBuffer[0], ws.PathLengthScale), pen);
             AddVertex(ws.XYBuffer[1], pen.ColorAt(ws.UVBuffer[1], ws.PathLengthScale), pen);
+            AddVertex(ws.XYBuffer[0], pen.ColorAt(ws.UVBuffer[0], ws.PathLengthScale), pen);
         }
 
         private void AddEndPoint (Vector2 a, Vector2 b, Pen pen, PenWorkspace ws)
         {
-            //pen.ComputeEndPoint(_computeBuffer, _colorBuffer, 0, a, b);
             pen.ComputeEndPoint(a, b, ws);
 
             AddVertex(ws.XYBuffer[0], pen.ColorAt(ws.UVBuffer[0], ws.PathLengthScale), pen);

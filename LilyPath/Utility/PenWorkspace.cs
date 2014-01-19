@@ -67,6 +67,11 @@ namespace LilyPath.Utility
         public Buffer<Vector2> UVInsetBuffer;
         public Buffer<Vector2> UVOutsetBuffer;
 
+        public Buffer<short> IndexBuffer;
+        public Buffer<short> OutlineIndexBuffer;
+
+        public Vector2[] BoundingQuad;
+
         public float PathLength
         {
             get { return _pathLength; }
@@ -91,6 +96,11 @@ namespace LilyPath.Utility
             UVBuffer = new Buffer<Vector2>();
             UVInsetBuffer = new Buffer<Vector2>();
             UVOutsetBuffer = new Buffer<Vector2>();
+
+            IndexBuffer = new Buffer<short>();
+            OutlineIndexBuffer = new Buffer<short>();
+
+            BoundingQuad = new Vector2[4];
         }
 
         public PenWorkspace (Pen pen)
@@ -102,6 +112,11 @@ namespace LilyPath.Utility
             UVBuffer = new Buffer<Vector2>(XYBuffer.Capacity);
             UVInsetBuffer = new Buffer<Vector2>(XYInsetBuffer.Capacity);
             UVOutsetBuffer = new Buffer<Vector2>(XYOutsetBuffer.Capacity);
+
+            IndexBuffer = new Buffer<short>(Math.Max(pen.StartCapInfo.IndexCount, pen.EndCapInfo.IndexCount));
+            OutlineIndexBuffer = new Buffer<short>(XYBuffer.Capacity);
+
+            BoundingQuad = new Vector2[4];
         }
 
         public void ResetWorkspace (Pen pen)
@@ -113,6 +128,9 @@ namespace LilyPath.Utility
             UVBuffer.EnsureCapacity(XYBuffer.Capacity);
             UVInsetBuffer.EnsureCapacity(XYInsetBuffer.Capacity);
             UVOutsetBuffer.EnsureCapacity(XYOutsetBuffer.Capacity);
+
+            IndexBuffer.EnsureCapacity(Math.Max(pen.StartCapInfo.IndexCount, pen.EndCapInfo.IndexCount));
+            OutlineIndexBuffer.EnsureCapacity(XYBuffer.Capacity);
 
             PathLength = 0;
         }

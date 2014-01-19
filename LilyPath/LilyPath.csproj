@@ -52,6 +52,7 @@
     <Compile Include="DrawBatch.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="GraphicsPath.cs" />
+    <Compile Include="LineCapInfo.cs" />
     <Compile Include="PathBuilder.cs" />
     <Compile Include="Pens\GradientPen.cs" />
     <Compile Include="Pens\PathGradientPen.cs" />

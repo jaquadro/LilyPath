@@ -82,6 +82,7 @@
     <Compile Include="TestSheets\GradientPens.cs" />
     <Compile Include="TestSheets\GraphicsPath.cs" />
     <Compile Include="TestSheets\GraphicsPathOutline.cs" />
+    <Compile Include="TestSheets\LineCaps.cs" />
     <Compile Include="TestSheets\Mystify.cs" />
     <Compile Include="TestSheets\OutlineShapes.cs" />
     <Compile Include="TestSheets\PenAlignment.cs" />

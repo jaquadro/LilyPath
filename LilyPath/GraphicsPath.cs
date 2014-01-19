@@ -460,19 +460,32 @@ namespace LilyPath
 
         private int AddStartPoint (int pointIndex, Vector2 a, Vector2 b, PenWorkspace ws, Buffer<Vector2> positionBuffer)
         {
-            return AddStartOrEndPoint(pointIndex, _pen.ComputeStartPoint(a, b, ws), ws, positionBuffer);
+            _pen.ComputeStartPoint(a, b, ws);
+
+            int xyCount = AddStartOrEndPoint(pointIndex, ws, positionBuffer, false);
+
+            if (positionBuffer != null)
+                Array.Reverse(positionBuffer.Data, positionBuffer.Index - ws.OutlineIndexBuffer.Index, ws.OutlineIndexBuffer.Index);
+
+            return xyCount;
         }
 
         private int AddEndPoint (int pointIndex, Vector2 a, Vector2 b, PenWorkspace ws, Buffer<Vector2> positionBuffer)
         {
-            return AddStartOrEndPoint(pointIndex, _pen.ComputeEndPoint(a, b, ws), ws, positionBuffer);
+            _pen.ComputeEndPoint(a, b, ws);
+
+            int xyCount = AddStartOrEndPoint(pointIndex, ws, positionBuffer, true);
+
+            return xyCount;
         }
 
-        private int AddStartOrEndPoint (int pointIndex, int xyCount, PenWorkspace ws, Buffer<Vector2> positionBuffer)
+        private int AddStartOrEndPoint (int pointIndex, PenWorkspace ws, Buffer<Vector2> positionBuffer, bool ccw)
         {
+            int xyCount = ws.XYBuffer.Index;
+
             if (positionBuffer != null) {
-                for (int i = 0; i < xyCount; i++)
-                    positionBuffer.SetNext(ws.XYBuffer[i]);
+                for (int i = 0; i < ws.OutlineIndexBuffer.Index; i++)
+                    positionBuffer.SetNext(ws.XYBuffer[ws.OutlineIndexBuffer[i]]);
             }
 
             if (_strokeType == StrokeType.Outline)
@@ -484,6 +497,9 @@ namespace LilyPath
 
             for (int i = 0; i < xyCount; i++)
                 _positionData[baseIndex + i] = ws.XYBuffer[i];
+
+            for (int i = 0; i < ws.IndexBuffer.Index; i++)
+                _indexData[_indexBufferIndex++] = (short)(baseIndex + ws.IndexBuffer[i]);
 
             if (_colorData != null) {
                 for (int i = 0; i < xyCount; i++)
@@ -500,13 +516,11 @@ namespace LilyPath
                 }
             }
 
-            _jointCCW[pointIndex] = true;
+            _jointCCW[pointIndex] = ccw;
 
             return xyCount;
         }
 
-        //private int AddJoint (int pointIndex, Vector2 a, Vector2 b, Vector2 c, float la, float lb, float lc, PenWorkspace ws, 
-        //    Buffer<Vector2> insetBuffer, Buffer<Vector2> outsetBuffer)
         private int AddJoint (int pointIndex, ref JoinSample joinSample, PenWorkspace ws, Buffer<Vector2> insetBuffer, Buffer<Vector2> outsetBuffer)
         {
             InsetOutsetCount vioCount = new InsetOutsetCount();
@@ -595,8 +609,8 @@ namespace LilyPath
                 if (vEndCCW) {
                     _indexData[_indexBufferIndex++] = (short)(vIndexStart + 0);
                     _indexData[_indexBufferIndex++] = (short)(vIndexStart + vStartCount - 1);
-                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
-                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + vEndCount - 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + vEndCount - 1);
                     _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
                     _indexData[_indexBufferIndex++] = (short)(vIndexStart + 0);
                 }
@@ -605,7 +619,7 @@ namespace LilyPath
                     _indexData[_indexBufferIndex++] = (short)(vIndexStart + vStartCount - 1);
                     _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
                     _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
-                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + vEndCount - 1);
                     _indexData[_indexBufferIndex++] = (short)(vIndexStart + 0);
                 }
             }
@@ -613,8 +627,8 @@ namespace LilyPath
                 if (vEndCCW) {
                     _indexData[_indexBufferIndex++] = (short)(vIndexStart + vStartCount - 1);
                     _indexData[_indexBufferIndex++] = (short)(vIndexStart + 0);
-                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
-                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + vEndCount - 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + vEndCount - 1);
                     _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
                     _indexData[_indexBufferIndex++] = (short)(vIndexStart + vStartCount - 1);
                 }
@@ -623,7 +637,7 @@ namespace LilyPath
                     _indexData[_indexBufferIndex++] = (short)(vIndexStart + 0);
                     _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
                     _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 0);
-                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + 1);
+                    _indexData[_indexBufferIndex++] = (short)(vIndexEnd + vEndCount - 1);
                     _indexData[_indexBufferIndex++] = (short)(vIndexStart + vStartCount - 1);
                 }
             }

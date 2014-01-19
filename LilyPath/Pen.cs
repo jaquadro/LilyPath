@@ -119,6 +119,10 @@ namespace LilyPath
         private float _joinLimit;
         private float _joinLimitCos2;
 
+        private float _width;
+        private LineCap _startCap;
+        private LineCap _endCap;
+
         /// <summary>
         /// Gets the solid color or blending color of the pen.
         /// </summary>
@@ -135,7 +139,16 @@ namespace LilyPath
         /// <summary>
         /// Gets or sets the width of the stroked path in graphical units (usually pixels).
         /// </summary>
-        public float Width { get; set; }
+        public float Width
+        {
+            get { return _width; }
+            set
+            {
+                _width = value;
+                StartCapInfo = CreateLineCapInfo(StartCap, value);
+                EndCapInfo = CreateLineCapInfo(EndCap, value);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the alignment of the stroked path relative to the ideal path being stroked.
@@ -145,12 +158,28 @@ namespace LilyPath
         /// <summary>
         /// Gets or sets how the start of a stroked path is terminated.
         /// </summary>
-        public LineCap StartCap { get; set; }
+        public LineCap StartCap
+        {
+            get { return _startCap; }
+            set
+            {
+                _startCap = value;
+                StartCapInfo = CreateLineCapInfo(value, Width);
+            }
+        }
 
         /// <summary>
         /// Gets or sets how the end of a stroked path is terminated.
         /// </summary>
-        public LineCap EndCap { get; set; }
+        public LineCap EndCap
+        {
+            get { return _endCap; }
+            set
+            {
+                _endCap = value;
+                EndCapInfo = CreateLineCapInfo(value, Width);
+            }
+        }
 
         /// <summary>
         /// Gets or sets how the segments in the path are joined together.
@@ -193,14 +222,18 @@ namespace LilyPath
             get { return false; }
         }
 
+        internal LineCapInfo StartCapInfo { get; private set; }
+        internal LineCapInfo EndCapInfo { get; private set; }
+
         private Pen ()
         {
             //Color = Color.White;
             Alignment = PenAlignment.Center;
-            StartCap = LineCap.Flat;
-            EndCap = LineCap.Flat;
             MiterLimit = 10f;
             JoinLimit = (float)(Math.PI / 8);
+
+            _startCap = LineCap.Flat;
+            _endCap = LineCap.Flat;
         }
 
         /// <summary>
@@ -215,9 +248,13 @@ namespace LilyPath
             if (brush == null)
                 throw new ArgumentNullException("brush");
 
+            _width = width;
+
             Brush = brush;
-            Width = width;
             OwnsBrush = ownsBrush;
+
+            StartCapInfo = CreateLineCapInfo(StartCap, Width);
+            EndCapInfo = CreateLineCapInfo(EndCap, Width);
         }
 
         /// <summary>
@@ -327,6 +364,24 @@ namespace LilyPath
             return Brush.Color;
         }
 
+        private LineCapInfo CreateLineCapInfo (LineCap lineCapType, float width)
+        {
+            switch (lineCapType) {
+                case LineCap.Flat:
+                    return new LineCapFlat(width);
+                case LineCap.Square:
+                    return new LineCapSquare(width);
+                case LineCap.Triangle:
+                    return new LineCapTriangle(width);
+                case LineCap.InvTriangle:
+                    return new LineCapInvTriangle(width);
+                case LineCap.Arrow:
+                    return new LineCapArrow(width);
+            }
+
+            return new LineCapFlat(width);
+        }
+
         internal Color ColorAt (Vector2 uv, float lengthScale)
         {
             return ColorAt(uv.X, uv.Y, lengthScale);
@@ -334,46 +389,12 @@ namespace LilyPath
 
         internal int StartPointVertexBound ()
         {
-            switch (StartCap) {
-                case LineCap.Flat:
-                case LineCap.Square:
-                    return 2;
-            }
-
-            return 0;
-        }
-
-        internal int StartPointVertexBound (Vector2 a, Vector2 b)
-        {
-            switch (StartCap) {
-                case LineCap.Flat:
-                case LineCap.Square:
-                    return 2;
-            }
-
-            return 0;
+            return StartCapInfo.VertexCount;
         }
 
         internal int EndPointVertexBound ()
         {
-            switch (StartCap) {
-                case LineCap.Flat:
-                case LineCap.Square:
-                    return 2;
-            }
-
-            return 0;
-        }
-
-        internal int EndPointVertexBound (Vector2 a, Vector2 b)
-        {
-            switch (EndCap) {
-                case LineCap.Flat:
-                case LineCap.Square:
-                    return 2;
-            }
-
-            return 0;
+            return EndCapInfo.VertexCount;
         }
 
         internal int LineJoinVertexBound ()
@@ -388,21 +409,9 @@ namespace LilyPath
             return 0;
         }
 
-        internal int LineJoinVertexBound (Vector2 a, Vector2 b, Vector2 c)
-        {
-            switch (LineJoin) {
-                case LineJoin.Miter:
-                    return 2;
-                case LineJoin.Bevel:
-                    return 3;
-            }
-
-            return 0;
-        }
-
         internal int MaximumVertexCount (int pointCount)
         {
-            int expected = 0;
+            int expected = StartCapInfo.VertexCount + EndCapInfo.VertexCount;
 
             int joinCount = Math.Max(0, pointCount - 1);
             switch (LineJoin) {
@@ -419,26 +428,12 @@ namespace LilyPath
                 //    break;
             }
 
-            switch (StartCap) {
-                case LineCap.Flat:
-                case LineCap.Square:
-                    expected += 2;
-                    break;
-            }
-
-            switch (EndCap) {
-                case LineCap.Flat:
-                case LineCap.Square:
-                    expected += 2;
-                    break;
-            }
-
             return expected;
         }
 
         internal int MaximumIndexCount (int pointCount)
         {
-            int extra = 0;
+            int extra = StartCapInfo.IndexCount + EndCapInfo.IndexCount;
 
             int joinCount = Math.Max(0, pointCount - 1);
             switch (LineJoin) {
@@ -453,18 +448,6 @@ namespace LilyPath
                 //case LineJoin.Round:
                 //    extra += (int)Math.Ceiling(joinCount * (Width / 6f));
                 //    break;
-            }
-
-            switch (StartCap) {
-                case LineCap.Flat:
-                case LineCap.Square:
-                    break;
-            }
-
-            switch (EndCap) {
-                case LineCap.Flat:
-                case LineCap.Square:
-                    break;
             }
 
             return extra * 3 + (pointCount - 1) * 6;
@@ -699,86 +682,17 @@ namespace LilyPath
             return Cross2D(b - a, c - b) < 0;
         }
 
-        internal int ComputeStartPoint (Vector2 a, Vector2 b, PenWorkspace ws)
+        internal void ComputeStartPoint (Vector2 a, Vector2 b, PenWorkspace ws)
         {
-            float w2 = Width / 2;
-
-            Vector2 edgeAB = new Vector2(b.X - a.X, b.Y - a.Y);
-            edgeAB.Normalize();
-            Vector2 edgeABt = new Vector2(-edgeAB.Y, edgeAB.X);
-
-            switch (StartCap) {
-                case LineCap.Flat:
-                    break;
-
-                case LineCap.Square:
-                    a = new Vector2(a.X - w2 * edgeAB.X, a.Y - w2 * edgeAB.Y);
-                    break;
-            }
-
-            ws.UVBuffer[0] = new Vector2(0, 0);
-            ws.UVBuffer[1] = new Vector2(1, 0);
-
-            switch (Alignment) {
-                case PenAlignment.Center:
-                    ws.XYBuffer[0] = new Vector2(a.X + w2 * edgeABt.X, a.Y + w2 * edgeABt.Y);
-                    ws.XYBuffer[1] = new Vector2(a.X - w2 * edgeABt.X, a.Y - w2 * edgeABt.Y);
-                    return 2;
-
-                case PenAlignment.Inset:
-                    ws.XYBuffer[0] = new Vector2(a.X + Width * edgeABt.X, a.Y + Width * edgeABt.Y);
-                    ws.XYBuffer[1] = a;
-                    return 2;
-
-                case PenAlignment.Outset:
-                    ws.XYBuffer[0] = a;
-                    ws.XYBuffer[1] = new Vector2(a.X - Width * edgeABt.X, a.Y - Width * edgeABt.Y);
-                    return 2;
-
-                default:
-                    return 0;
-            }
+            StartCapInfo.Calculate(a, b - a, ws, Alignment);
         }
 
-        internal int ComputeEndPoint (Vector2 a, Vector2 b, PenWorkspace ws)
+        internal void ComputeEndPoint (Vector2 a, Vector2 b, PenWorkspace ws)
         {
-            float w2 = Width / 2;
+            EndCapInfo.Calculate(b, a - b, ws, Alignment);
 
-            Vector2 edgeAB = new Vector2(b.X - a.X, b.Y - a.Y);
-            edgeAB.Normalize();
-            Vector2 edgeABt = new Vector2(-edgeAB.Y, edgeAB.X);
-
-            switch (StartCap) {
-                case LineCap.Flat:
-                    break;
-
-                case LineCap.Square:
-                    b = new Vector2(b.X + w2 * edgeAB.X, b.Y + w2 * edgeAB.Y);
-                    break;
-            }
-
-            ws.UVBuffer[0] = new Vector2(0, ws.PathLength);
-            ws.UVBuffer[1] = new Vector2(1, ws.PathLength);
-
-            switch (Alignment) {
-                case PenAlignment.Center:
-                    ws.XYBuffer[0] = new Vector2(b.X + w2 * edgeABt.X, b.Y + w2 * edgeABt.Y);
-                    ws.XYBuffer[1] = new Vector2(b.X - w2 * edgeABt.X, b.Y - w2 * edgeABt.Y);
-                    return 2;
-
-                case PenAlignment.Inset:
-                    ws.XYBuffer[0] = new Vector2(b.X + Width * edgeABt.X, b.Y + Width * edgeABt.Y);
-                    ws.XYBuffer[1] = b;
-                    return 2;
-
-                case PenAlignment.Outset:
-                    ws.XYBuffer[0] = b;
-                    ws.XYBuffer[1] = new Vector2(b.X - Width * edgeABt.X, b.Y - Width * edgeABt.Y);
-                    return 2;
-
-                default:
-                    return 0;
-            }
+            for (int i = 0; i < ws.UVBuffer.Index; i++)
+                ws.UVBuffer[i] = new Vector2(1 - ws.UVBuffer[i].X, ws.PathLength);
         }
     }
 }

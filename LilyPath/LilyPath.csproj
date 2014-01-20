@@ -50,12 +50,14 @@
     <Compile Include="Brush.cs" />
     <Compile Include="Brushes\CheckerBrush.cs" />
     <Compile Include="DrawBatch.cs" />
+    <Compile Include="DrawCache.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="GraphicsPath.cs" />
     <Compile Include="LineCapInfo.cs" />
     <Compile Include="PathBuilder.cs" />
     <Compile Include="Pens\GradientPen.cs" />
     <Compile Include="Pens\PathGradientPen.cs" />
+    <Compile Include="Shapes\Grid.cs" />
     <Compile Include="TextureBrush.cs" />
     <Compile Include="Pen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

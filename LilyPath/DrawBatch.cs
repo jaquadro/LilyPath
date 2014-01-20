@@ -143,6 +143,11 @@ namespace LilyPath
             get { return _device; }
         }
 
+        internal Texture2D DefaultTexture
+        {
+            get { return _defaultTexture; }
+        }
+
         /// <summary>
         /// Begins a draw batch operation using deferred sort and default state objects.
         /// </summary>
@@ -2124,6 +2129,21 @@ namespace LilyPath
 
             if (_sortMode == DrawSortMode.Immediate)
                 FlushBuffer();
+        }
+
+        /// <summary>
+        /// Immediatley renders a <see cref="DrawCache"/> object.
+        /// </summary>
+        /// <param name="cache">A <see cref="DrawCache"/> object.</param>
+        /// <remarks>Any previous unflushed geometry will be rendered first.</remarks>
+        public void DrawCache (DrawCache cache)
+        {
+            if (_sortMode != DrawSortMode.Immediate)
+                SetRenderState();
+
+            FlushBuffer();
+
+            cache.Render(_device, _defaultTexture);
         }
 
         private void SetRenderState ()

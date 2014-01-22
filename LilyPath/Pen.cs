@@ -55,31 +55,43 @@ namespace LilyPath
         public static Pen Blue { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Brown { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
         public static Pen Cyan { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
-        public static Pen Green { get; private set; }
+        public static Pen DarkBlue { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
-        public static Pen Magenta { get; private set; }
+        public static Pen DarkCyan { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
-        public static Pen Red { get; private set; }
+        public static Pen DarkGoldenrod { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
-        public static Pen White { get; private set; }
+        public static Pen DarkGray { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
-        public static Pen Yellow { get; private set; }
+        public static Pen DarkGreen { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
-        public static Pen LightGray { get; private set; }
+        public static Pen DarkMagenta { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen DarkOrange { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen DarkRed { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Goldenrod { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
         public static Pen Gray { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
-        public static Pen DarkGray { get; private set; }
+        public static Pen Green { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
         public static Pen LightBlue { get; private set; }
@@ -88,30 +100,76 @@ namespace LilyPath
         public static Pen LightCyan { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen LightGray { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
         public static Pen LightGreen { get; private set; }
 
         /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen LightPink { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
         public static Pen LightYellow { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Lime { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Magenta { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Orange { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Pink { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Purple { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Red { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Teal { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen White { get; private set; }
+
+        /// <summary>A system-defined <see cref="Pen"/> object.</summary>
+        public static Pen Yellow { get; private set; }
 
         static Pen ()
         {
             Black = new Pen(Brush.Black);
             Blue = new Pen(Brush.Blue);
+            Brown = new Pen(Brush.Brown);
             Cyan = new Pen(Brush.Cyan);
+            DarkBlue = new Pen(Brush.DarkBlue);
+            DarkCyan = new Pen(Brush.DarkCyan);
+            DarkGoldenrod = new Pen(Brush.DarkGoldenrod);
+            DarkGray = new Pen(Brush.DarkGray);
+            DarkGreen = new Pen(Brush.DarkGreen);
+            DarkMagenta = new Pen(Brush.DarkMagenta);
+            DarkOrange = new Pen(Brush.DarkOrange);
+            DarkRed = new Pen(Brush.DarkRed);
+            Goldenrod = new Pen(Brush.Goldenrod);
+            Gray = new Pen(Brush.Gray);
             Green = new Pen(Brush.Green);
-            Magenta = new Pen(Brush.Magenta);
-            Red = new Pen(Brush.Red);
-            White = new Pen(Brush.White);
-            Yellow = new Pen(Brush.Yellow);
-
             LightBlue = new Pen(Brush.LightBlue);
             LightCyan = new Pen(Brush.LightCyan);
-            LightGreen = new Pen(Brush.LightGreen);
-            LightYellow = new Pen(Brush.LightYellow);
-
             LightGray = new Pen(Brush.LightGray);
-            Gray = new Pen(Brush.Gray);
-            DarkGray = new Pen(Brush.DarkGray);
+            LightGreen = new Pen(Brush.LightGreen);
+            LightPink = new Pen(Brush.LightPink);
+            LightYellow = new Pen(Brush.LightYellow);
+            Lime = new Pen(Brush.Lime);
+            Magenta = new Pen(Brush.Magenta);
+            Orange = new Pen(Brush.Orange);
+            Pink = new Pen(Brush.Pink);
+            Purple = new Pen(Brush.Purple);
+            Red = new Pen(Brush.Red);
+            Teal = new Pen(Brush.Teal);
+            White = new Pen(Brush.White);
+            Yellow = new Pen(Brush.Yellow);
         }
 
         #endregion

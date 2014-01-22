@@ -18,31 +18,43 @@ namespace LilyPath
         public static Brush Blue { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush Brown { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
         public static Brush Cyan { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
-        public static Brush Green { get; private set; }
+        public static Brush DarkBlue { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
-        public static Brush Magenta { get; private set; }
+        public static Brush DarkCyan { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
-        public static Brush Red { get; private set; }
+        public static Brush DarkGray { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
-        public static Brush White { get; private set; }
+        public static Brush DarkGoldenrod { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
-        public static Brush Yellow { get; private set; }
+        public static Brush DarkGreen { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
-        public static Brush LightGray { get; private set; }
+        public static Brush DarkMagenta { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush DarkOrange { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush DarkRed { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush Goldenrod { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
         public static Brush Gray { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
-        public static Brush DarkGray { get; private set; }
+        public static Brush Green { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
         public static Brush LightBlue { get; private set; }
@@ -51,30 +63,76 @@ namespace LilyPath
         public static Brush LightCyan { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush LightGray { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
         public static Brush LightGreen { get; private set; }
 
         /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush LightPink { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
         public static Brush LightYellow { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush Lime { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush Magenta { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush Orange { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush Pink { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush Purple { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush Red { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush Teal { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush White { get; private set; }
+
+        /// <summary>A system-defined <see cref="Brush"/> object.</summary>
+        public static Brush Yellow { get; private set; }
 
         static Brush ()
         {
             Black = new SolidColorBrush(Color.Black);
             Blue = new SolidColorBrush(Color.Blue);
+            Brown = new SolidColorBrush(Color.Brown);
             Cyan = new SolidColorBrush(Color.Cyan);
+            DarkBlue = new SolidColorBrush(Color.DarkBlue);
+            DarkCyan = new SolidColorBrush(Color.DarkCyan);
+            DarkGoldenrod = new SolidColorBrush(Color.DarkGoldenrod);
+            DarkGray = new SolidColorBrush(Color.DarkGray);
+            DarkGreen = new SolidColorBrush(Color.DarkGreen);
+            DarkMagenta = new SolidColorBrush(Color.DarkMagenta);
+            DarkOrange = new SolidColorBrush(Color.DarkOrange);
+            DarkRed = new SolidColorBrush(Color.DarkRed);
+            Goldenrod = new SolidColorBrush(Color.Goldenrod);
+            Gray = new SolidColorBrush(Color.Gray);
             Green = new SolidColorBrush(Color.Green);
-            Magenta = new SolidColorBrush(Color.Magenta);
-            Red = new SolidColorBrush(Color.Red);
-            White = new SolidColorBrush(Color.White);
-            Yellow = new SolidColorBrush(Color.Yellow);
-
             LightBlue = new SolidColorBrush(Color.LightBlue);
             LightCyan = new SolidColorBrush(Color.LightCyan);
-            LightGreen = new SolidColorBrush(Color.LightGreen);
-            LightYellow = new SolidColorBrush(Color.LightYellow);
-
-            Gray = new SolidColorBrush(Color.Gray);
             LightGray = new SolidColorBrush(Color.LightGray);
-            DarkGray = new SolidColorBrush(Color.DarkGray);
+            LightGreen = new SolidColorBrush(Color.LightGreen);
+            LightPink = new SolidColorBrush(Color.LightPink);
+            LightYellow = new SolidColorBrush(Color.LightYellow);
+            Lime = new SolidColorBrush(Color.Lime);
+            Magenta = new SolidColorBrush(Color.Magenta);
+            Orange = new SolidColorBrush(Color.Orange);
+            Pink = new SolidColorBrush(Color.Pink);
+            Purple = new SolidColorBrush(Color.Purple);
+            Red = new SolidColorBrush(Color.Red);
+            Teal = new SolidColorBrush(Color.Teal);
+            White = new SolidColorBrush(Color.White);
+            Yellow = new SolidColorBrush(Color.Yellow);
         }
 
         #endregion

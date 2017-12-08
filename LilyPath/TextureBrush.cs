@@ -28,6 +28,7 @@ namespace LilyPath
             : base(opacity)
         {
             Texture = texture;
+            Transform = Matrix.CreateScale(1f / texture.Width, 1f / Texture.Height, 1f);
         }
 
         /// <summary>
@@ -51,6 +52,8 @@ namespace LilyPath
         /// <summary>
         /// Gets or sets the transformation to apply to brush.
         /// </summary>
+        /// <remarks>The default transform for <see cref="TextureBrush"/> scales the resultant UV coordinates by
+        /// the dimensions of the texture.</remarks>
         public new Matrix Transform
         {
             get { return base.Transform; }

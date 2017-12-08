@@ -2268,10 +2268,8 @@ namespace LilyPath
             vertex.Position = new Vector3(position, 0);
             vertex.Color = color;
 
-            if (pen.Brush != null && pen.Brush.Texture != null) {
-                Texture2D tex = pen.Brush.Texture;
-                vertex.TextureCoordinate = new Vector2(position.X / tex.Width, position.Y / tex.Height);
-                vertex.TextureCoordinate = Vector2.Transform(vertex.TextureCoordinate, pen.Brush.Transform);
+            if (pen.Brush != null) {
+                vertex.TextureCoordinate = Vector2.Transform(position, pen.Brush.Transform);
                 vertex.Color *= pen.Brush.Alpha;
             }
             else {
@@ -2287,10 +2285,8 @@ namespace LilyPath
             vertex.Position = new Vector3(position, 0);
             vertex.Color = brush.Color;
 
-            if (brush != null && brush.Texture != null) {
-                Texture2D tex = brush.Texture;
-                vertex.TextureCoordinate = new Vector2(position.X / tex.Width, position.Y / tex.Height);
-                vertex.TextureCoordinate = Vector2.Transform(vertex.TextureCoordinate, brush.Transform);
+            if (brush != null) {
+                vertex.TextureCoordinate = Vector2.Transform(position, brush.Transform);
                 vertex.Color *= brush.Alpha;
             }
             else {

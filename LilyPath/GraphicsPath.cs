@@ -507,12 +507,9 @@ namespace LilyPath
             }
 
             if (_textureData != null) {
-                int texWidth = _pen.Brush.Texture.Width;
-                int texHeight = _pen.Brush.Texture.Height;
-
                 for (int i = baseIndex; i < _vertexBufferIndex; i++) {
                     Vector2 pos = _positionData[i];
-                    _textureData[i] = new Vector2(pos.X / texWidth, pos.Y / texHeight);
+                    _textureData[i] = Vector2.Transform(pos, _pen.Brush.Transform);
                 }
             }
 

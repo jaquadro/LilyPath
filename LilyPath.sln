@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LilyPathDemo", "LilyPathDemo\LilyPathDemo.csproj", "{858F90E5-7897-4FF0-95FA-5229C0D32B88}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LilyPath", "LilyPath\LilyPath.csproj", "{2921C80E-2B58-41C4-B834-B92A478C3631}"

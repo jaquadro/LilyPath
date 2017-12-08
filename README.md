@@ -41,3 +41,5 @@ drawBatch.End();
 ```
 
 Source code for the full image and other examples can be found in the included test project, [LilyPathDemo](https://github.com/jaquadro/LilyPath/tree/master/LilyPathDemo).
+
+NOTE: The example projects are built with GL controls which do not work with the last few years of MonoGame.  Try running them against MonoGame 3.0 or 3.1.

@@ -43,6 +43,8 @@ namespace LilyPath
 
             int index = 0;
             int computeIndex = 0;
+
+            int unsuccesfulLoops = 0;
             while (count >= 3) {
                 bool isEar = true;
 
@@ -75,9 +77,17 @@ namespace LilyPath
                     _triPrev[_triNext[index]] = _triPrev[index];
                     count--;
                     index = _triPrev[index];
+                    unsuccesfulLoops = 0;
                 }
                 else {
                     index = _triNext[index];
+                    unsuccesfulLoops++;
+                }
+
+                // give up if no ears have been found two times in a row.
+                // prevents an infinite loop.
+                if (unsuccesfulLoops > 1) {
+                    break;
                 }
             }
 
